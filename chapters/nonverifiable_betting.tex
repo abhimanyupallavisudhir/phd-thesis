@@ -1,0 +1,272 @@
+\chapter{Betting on What Is Neither Verifiable nor Falsifiable}
+\label{chap:nonverifiable-betting}
+
+\chapterprovenance{Adapted from ``Betting on what is neither verifiable nor
+falsifiable'' by Abhimanyu Pallavi Sudhir and Long Tran-Thanh.}
+
+\NewDocumentCommand{\Props}{}{\operatorname{Prop}}
+
+
+%\newcommand{\ltt}[1]{{ \color{blue}[ltt:#1]}}
+% \newcommand{\noop}[1]{}
+
+\section*{Abstract}
+Classical methods to elicit probabilities of events, such as proper scoring rules and prediction markets, are only useful when the events are either \emph{verifiable} (if true, will eventually be revealed as true) or \emph{falsifiable} (if false, will eventually be revealed as false). However, both probability theory and first-order logic allow for events/sentences that do not fit these criteria -- a simple example of such a sentence is ``all men are mortal''\todo{better example? e.g. will the US ever permanently annex Greenland?}. In this paper, we propose a mechanism to elicit probabilities on such sentences, by treating them as bets on the outcome of a ``verification-falsification game''. Our work thus acts as an alternative to the existing Garrabrant induction framework for logical uncertainty, and is related to concepts such as game semantics and Debate.\todo{last sentence too crude?}
+
+
+\section{Introduction}
+
+% important to elicit beliefs
+%\emph{Incentivizing (human or AI) agents to truthfully report their beliefs} is a problem of central importance in both machine learning and economics\todo{cite something on proper scoring rules -- also should I explain why it's important?}. There are two classical approaches to this: \emph{proper scoring rules} (e.g. in logarithmic scoring, where an agent is given reward $\log(r)$ for reporting probability $r$ for a binary event which resolves True, its expected reward is maximized by reporting its true belief) and \emph{prediction markets} (to find an agent's subjective probability for the sentence ``Jeb Bush will win the 2028 election'', offer it a contingent asset that pays out \$1 if Jeb wins and \$0 otherwise -- the agent's fair price for the asset, at which it neither buys nor sells, may be taken to be its subjective probability).
+\emph{Incentivizing (human or AI) agents to truthfully report their beliefs} is a problem of central importance in both machine learning and economics \cite{savageElicitationPersonalProbabilities1971,gneitingStrictlyProperScoring2007}. One standard approach to this is \emph{proper scoring rules}: e.g. in logarithmic scoring \cite{goodRationalDecisions1952}, an agent is given reward $\log(p)$ for reporting probability $p$ to a binary event which turns out to be true. Another approach is a \emph{prediction market} \cite{hansonLogarithmicMarketScoring2002, hansonCombinatorialInformationMarket2003, beygelzimerLearningPerformancePrediction2012, conitzerPredictionMarketsMechanism2012}: here, an asset contingent on the event is offered to the agent, and the agent's ``fair price'' (the price at which it neither buys nor sells), is its subjective probability -- for example, if you believe there is a 70\% chance of Jeb Bush winning the 2028 election, you will pay \$0.70 for the asset ``pays \$1 if Jeb wins; \$0 otherwise''.
+%, and it is easy to see that the agent can maximize its expected reward under probability distribution $(p, 1-p)$ by reporting a probability of $p$
+
+% scoring rules, prediction markets depend on ground truth
+% easy to extend to VF
+All of these mechanisms depend on the ground truth of the sentence being eventually revealed. At most, we can generalize them to \emph{verifiable sentences} (sentences whose ground truth will be revealed if they are true, e.g. ``Bob will eventually die'', verified by Bob dying) or \emph{falsifiable sentences} (sentences whose ground truth will be revealed if they are false, e.g. ``Bob will never die'', falsified by Bob dying) -- for the latter, we may pay the agent \$1 upfront, to be returned upon the sentence being falsified.
+
+% fol and probability theory
+% examples of such sentences
+Although falsifiability occupies a central role in the imagination of philosophers \cite{thorntonKarlPopper2023}, a much wider class of sentences are treated in science and in common practice, and are allowed by first-order logic (FOL) and probability theory. In FOL, we may let $\Delta_0=\Sigma_0=\Pi_0$ denote sentences that will resolve in known time, $\Sigma_{n+1}$ denote sentences of the form $\exists x\ P(x)$ where $P(x)$ is $\Pi_n$, and $\Pi_{n+1}$ denote sentences of the form $\forall x\ P(x)$ where $P(x)$ is $\Sigma_n$. Thus verifiable sentences are $\Sigma_1$, and falsifiable sentences are $\Pi_1$, but all sentences further up the arithmetical hierarchy, $\Sigma_{n>1},\Pi_{n>1}$ are \emph{neither verifiable nor falsifiable} (non-VF)\todo{Similarly in probability theory, if we let $\{X_1,X_2,\dots\}$ be a set of base events which will be observed within finite time, then countable unions of subsequences $\bigcup_{i} X_{i_j}$ denote verifiable sentences (observing any true $X_i$ verifies it) while countable intersections $\bigcap_{i} X_{i_j}$ denote falsifiable sentences (observing any false $X_i$ falsifies it). But sentences higher up, e.g. $\bigcup_i\bigcap_j X_{f(i, j)}$ are non-VF.}. Examples of non-VF sentences:
+\begin{itemize}
+  \item ($\Pi_2$) ``all men are mortal'' ($\forall\,\mathrm{man}\,\exists t,\operatorname{dies}(\texttt{man}, t)$)
+  \item ($\Sigma_2$) ``The US will eventually permanently annex Greenland'' ($\exists t,\forall s>t,\,\texttt{greenland\_in\_us\_at\_time}(s)$)
+  \item ($\Pi_3$) ``Long-run GDP growth will be expontential with rate 2\%'' ($\forall\varepsilon>0,\exists t, \forall s>t, \,|\left(\texttt{GDP}(t)/\texttt{GDP(0)}\right)^{1/t}-1.02|<\varepsilon$)
+\end{itemize}
+
+In all of these cases, there is no source of ground truth that lets us resolve the question with certainty: verifying ``all men are mortal'' would need checking an infinite number of men who will ever be born; falsifying it would require finding an immortal man, but proving him to be immortal will take infinite time. Yet these are all very common sentences, which we may find it useful to have a probability estimate on.
+
+There are two common ways that market-creators attempt to work around this limitation in practice\footnote{this can be attested by a brief skim through the front pages of popular forecasting platforms such as Polymarket and Manifold Markets}:
+\begin{itemize}
+\item asking about \emph{finite-horizon} versions of non-VF sentences (e.g. ``Greenland will be annexed and remain part of the US until at least 2100''), or
+\item asking whether the sentence will be \emph{proven} (either via formal proofs or appealing to the authority of ``credible sources'').
+\end{itemize}
+The pitfalls of the first method are explained in Section~\ref{vf/sec:impossible}; the most refined example of the second method is \emph{Garrabrant induction} \cite{garrabrantLogicalInduction2020}, described in Section~\ref{vf/sec:related}.
+
+We propose a new framework for eliciting probabilities on non-VF sentences: we allow agents to bid for the opportunity of playing the \emph{verification-falsification game} for that sentence, and take the value of the bid to be their implied probability for that sentence. {There are limitations to our mechanism, such as when one side of the game is much easier to play than the other, and we outline some ideas on how these may be overcome.}
+
+
+\subsection{Related work}
+\label{vf/sec:related}
+
+\textbf{Logical uncertainty.} Our work may equivalently be understood as a formalism for \emph{logical uncertainty} (see \cite{halpernReasoningUncertaintySecond2017} for a summary of work in the area), i.e. the problem of assigning probabilities to mathematical sentences in some language $\mathcal{L}$ (which could be a language of FOL sentences). The most relevant work in this domain is \emph{Garrabrant induction} \cite{garrabrantLogicalInduction2020}, which constructs a prediction market for each mathematical sentence that pays off when it is proven by a theorem-enumerator for some theory $\mathcal{T}$ over $\mathcal{L}$.\footnote{to avoid simply being a prediction market for the provability of a sentence, they use a special accounting measure for agent wealths based on ``propositionally consistent worlds'' -- e.g. fixing the combined price of $P$ and $\lnot P$ at \$1 -- which allows them to extend this framework to sentences independent of $\mathcal{T}$.}
+
+There are two limitations of this framework for our purposes. First: while mathematical theories can easily prove non-VF sentences (e.g. $\forall x,\exists y>x,\,\texttt{prime}(y)$) there is no analogous theory in the real world that we are aware of (``observation'' only proves VF sentences, as discussed). Second: it is philosophically unsatisfying to have probabilities for logical sentences be completely dependent on a mathematical theory, and change when the theory is strengthened or weakened (e.g. by the addition of a G\"odel sentence).
+
+Logical uncertainty has also been discussed in the Bounded Rationality literature e.g. in \cite{halpernAlgorithmicRationalityGame2014,halpernDontWantThink2011,oesterheldTheoryBoundedInductive2023}; however this has typically focused on toy examples based on VF sentences, e.g. betting on the trillionth digit of $\pi$, etc.
+
+\textbf{Game semantics.} The \emph{verification-falsification game} we use is from Hintikka's \emph{game semantics} \cite{hintikkaGameTheoreticSemantics1997}, which we will discuss in Section~\ref{vf/sec:framework}. Game semantics has since been expanded into the field of \emph{computability logic} \cite{japaridzeBeginningWasGame2009,japaridzeSurveyComputabilityLogic2015}, which may be the most natural setting to formulate some of our more speculative ideas about probability theory, described in Sec~\ref{vf/sec:conclusion}.
+
+\textbf{Debate.} AI Debate \cite{irvingAISafetyDebate2018} considers sentences $P$ that can be expressed like $\exists x_1\ \forall x_2\ \dots \exists x_n,H(x_1,\dots x_n)$ (more generally any $\Sigma_n$ or $\Pi_n$ form in $H$) where $H$ is some ``human-computable function'', and argues that AIs can be trained to answer such questions correctly via \emph{debate} judged by a human\footnote{in particular, supervised learning can train an AI to learn to answer $\Delta_0$ questions, and reinforcement learning can train an AI to learn to answer $\Sigma_1$ questions}. This is quite similar to our setting, and debate is analogous to the verification-falsification game, except that physical ground truth is replaced by human-computability (or polynomial-computability as they hypothesize). We hope our work can serve as a valuable intuition pump for debate.
+
+\NewDocumentCommand{\VFPAPERProblem}{}{\mathbf{Pr}}
+\NewDocumentCommand{\VFPAPERProb}{O{}m}{%
+  \mathbf{Pr}%
+  \IfValueT{#1}{^{#1}}%
+  \left[#2\right]%
+}
+
+\textbf{AI Forecasting.} There has recently been a surge of interest in AI forecasters \cite{zouForecastingFutureWorld2022, schoeneggerLargeLanguageModel2023,yanAutoCastEnhancingWorld2023, halawiApproachingHumanLevelForecasting2024a, schoeneggerWisdomSiliconCrowd2024} -- in particular, recent works such as \cite{sudhirConsistencyChecksLanguage2024} have investigated the \emph{propositional consistency} of AI forecasters, i.e. whether the probabilities they give satisfy basic rules of probability theory like $\VFPAPERProb{P}+\VFPAPERProb{\lnot P}=1$. Similarly our work can be understood as asking how we can incentivize or evaluate forecasters respecting the ``continuity of probability'' rules $\VFPAPERProb{\bigcup P_i}=\lim_{n\to\infty}\bigcup_{i<n}\VFPAPERProb{P_i}$ and $\VFPAPERProb{\bigcap P_i}=\lim_{n\to\infty}\bigcap_{i<n}\VFPAPERProb{P_i}$.
+
+\section{Impossibility theorem}
+\label{vf/sec:impossible}
+
+One apparent solution may be to approximate FOL sentences with long finite horizons -- i.e. approximate $\exists x,\forall y, P(x,y)$ with a bounded quantification $\exists x<G,\forall y<G, P(x,y)$ for some large $G$, which is a $\Delta_0$ sentence as it can be determined by enumerating $G^2$ tuples. One might also consider a sequence of such bounded quantification ``approaching'' the FOL sentence, e.g. consider the asset that on day $t$ is equal to (can be exchanged for) $\exists x< t,\forall y< t, P(x,y)$. A simple counter-example to this approach is: $\exists x,\forall y,x\ge y$, illustrated in Fig~\ref{fig:checkerboard}: for any finite $G$, the corresponding bounded quantification is true (take $x=G$), but the sentence is false.
+
+\begin{figure}
+  \centering
+  \input{figures/nonvf/checkerboard2}
+  \caption{Infinite checkerboard with the square $(x,y)$ shaded iff $x\ge y$. Then $\exists x,\forall y, x\ge y$ says that there is an infinite black column, which is false, but ``true on every finite window''.}
+  \label{fig:checkerboard}
+\end{figure}
+
+Theorem~\ref{thm:nogo} shows there is no general mechanism to give a proper scoring rule or an equivalent asset for any non-VF sentence:
+
+\begin{definition}[Asset and scoring mechanisms]
+  An asset mechanism is a computable real-valued function $v:\Nats\times\Props\to\Reals$ such that $\lim_{t\to\infty}v(t,P)=1$ if $P$ and $0$ if $\lnot P$. Let $s:[0,1]\to\Reals$ be a proper scoring rule e.g. $s(p)=\log(p)$. A scoring mechanism for proper scoring rule $s$ is a computable real-valued function $\sigma:\Nats\times\Props\times[0,1]\to\Reals$ such that $\lim_{t\to\infty}\sigma(t,P,p)=\{s(p)\text{ if }P\text{ else }s(1-p)\}$.
+  \label{def:mechanisms}
+\end{definition}
+
+\begin{theorem}[Impossibility theorem]
+  If $\Props$ is the set of FOL sentences, then there does not exist either an asset mechanism nor a scoring mechanism.
+  \label{thm:nogo}
+\end{theorem}
+\begin{proof}
+  The statements $\lim_{t\to\infty}v(t,P)=1$ and $\lim_{t\to\infty}\sigma(t,P,p)=s(p)$ are both $\Pi_3$ for any $P, p$; thus for them to be equivalent to $P$ for all $P$ would violate Tarski's theorem.
+\end{proof}
+
+\section{Ranged VF games}
+\label{vf/sec:framework}
+
+In this paper, we propose a game-theoretic solution motivated by the following intuition. If you believe that ``all men are mortal'', then you should agree to the following bet: I can choose the name of any man, and you must be able to give the year by which he will be dead. If you succeed, you win the bet; if you don't, I win. This is formally analogous to the classic Verification-Falsification (VF) game from \cite{hintikkaGameTheoreticSemantics1997}, described in Def~\ref{def:vfgame}.
+
+\RenewDocumentCommand{\finset}{}{\operatorname{finset}}
+
+\begin{definition}[Verification-Falsification game]
+  To each FOL sentence $P$ we associate a sequential game between two players, the ``Verifier'' ($V$) and the ``Falsifier'' ($F$). If $P$ is $\Delta_0$, then $V$ or $F$ win \$1 if $P$ is true or false respectively. Else if $P$ is $\Sigma_n$, then $V$ goes first and if $P$ is $\Pi_n$, then $F$ goes first. The first player chooses $x\in\Nats$ as their move, and the game proceeds as the VF game for $P[x]$ (i.e. the leading bound variable substituted with $x$). Some variations:
+  \begin{itemize}
+  \item (\emph{ranged}) Instead of picking $x\in\Nats$ as its move, each player picks a finite set $S\in\finset\Nats$ as its move and the game proceeds as $P[S]$ , i.e. $\exists x\in S,P[x]$ if $P$ is $\Sigma_n$ or $\forall x\in S,P[x]$ if $P$ is $\Pi_n$. This eventually terminates when all the quantifications have become bounded, i.e. the sentence is $\Delta_0$.
+  \item (\emph{favorable}) One of the players is ``favored'': they are allowed to go back to any earlier stage of the game, change it moves, and continue from there, as many times as it wants. This is the ``game with backward moves'' from \cite{bonnayPreuvesJeuxSemantiques2004,boyerProofTruth2012}, and has the property that if the favored player's position is provable, they have an obvious computable winning strategy (a depth-first search with backtracking).
+  \end{itemize}
+  \label{def:vfgame}
+\end{definition}
+
+The \emph{ranged} VF game is original to us, and is what we use: you might believe that all men are mortal but have a probability distribution on the year any one of them will die, rather than knowing the exact date with certainty.
+
+Observe that player policies have type $\pi:\Props\to\finset\Nats$. We may denote the $\Delta_0$ sentence produced after playing the game through as $P[\pi_V,\pi_F]$. Although the game is traditionally defined for logical sentences, it is easy tro see how this extends to probabilistic events:
+
+\begin{definition}[FOL algebra]
+  Let $\Delta_0=\Sigma_0=\Pi_0=\{B_1,B_2,\dots\}$ consist of a set algebra of base events which will be observed within finite time; $\Sigma_{n+1}$ consist of all events of the form $\bigcup_{i}X_i$ where $X_i$ is $\Pi_n$ and $\Pi_{n+1}$ consist of all events of the form $\bigcap_{i}X_i$ where $X_i$ is $\Sigma_n$. Then we will call $\Delta_0\cup\bigcup\Sigma_n\bigcup\Pi_n$ an ``FOL algebra'' over $\Delta_0$, and it is a subset of the $\sigma$-algebra generated by $\Delta_0$.
+  \label{def:probfol}
+\end{definition}
+
+We will continue to freely write $\bigcup_{i}X_i$ and $\bigcap_{i}X_i$ in the logical notation $\exists i,X_i$ and $\forall i,X_i$. We may easily speak of probabilities $\VFPAPERProb{P}$ of sentences in the FOL algebra by defining a probability distribution on the base set algebra. Then we have the following result\footnote{this can be seen as a generalization of the classic statement from game semantics that the verifier or falsifier has a winning strategy if and only if the sentence is true or false respectively}:
+
+\begin{theorem}[Value of ranged VF game]
+  Assume a FOL algebra with a probability distribution $\VFPAPERProblem$ defined on it, and let $P$ be a sentence in this FOL algebra. Then $\VFPAPERProb{P}$ is bounded between the guaranteed value of the game for the verifier and 1 minus the guaranteed value of the game for the falsifier:
+
+  \begin{equation*}
+    \sup_{\pi_V}\inf_{\pi_F}\VFPAPERProb{P[\pi_V,\pi_F]} \le
+    \VFPAPERProb{P} \le
+    \inf_{\pi_F}\sup_{\pi_V}\VFPAPERProb{P[\pi_V,\pi_F]}
+  \end{equation*}
+  (where the $\sup$ and $\inf$ are taken over $\Props\to\finset\Nats$) We will denote each side of the inequality as $\VFPAPERProb[-]{P}$ and $\VFPAPERProb[+]{P}$ respectively.
+  \label{thm:supinf}
+\end{theorem}
+\begin{proof}
+We prove this by induction on the degree of $P$. Suppose the theorem is true for $P$ up to $\Sigma_n,\Pi_n$. Then take some event $P:=\forall x, P(x)$ where each $P(x)\in\Sigma_n$:
+
+\begin{align*}
+  \VFPAPERProb{P}
+  &=\VFPAPERProb{\bigcap_{x\in\Nats}P(x)}\\
+  % &\text{by continuity of probability:}\\
+  &=\inf_{S\in\finset\Nats}\VFPAPERProb{\bigcap_{x\in S}{P(x)}}\\
+  % &\text{by the inductive hypothesis:}\\
+  &\ge
+  \inf_{S\in\finset\Nats}
+    \sup_{\pi_V}\inf_{\pi_F}\VFPAPERProb{
+      \left(\cap_{x\in S}{P(x)}\right)[\pi_V,\pi_F]
+    }\\
+  % &\text{by the max-min inequality \cite{boydConvexOptimization2004}:}\\
+  &\ge \sup_{\pi_V}\inf_{S\in\finset\Nats}\inf_{\pi_F}\VFPAPERProb{
+    \left(\cap_{x\in S}{P(x)}\right)[\pi_V,\pi_F]
+  }\\
+\end{align*}
+
+(where we have successively applied continuity of probability, the inductive hypothesis and the max-min inequality) Now note that $\left(\cap_{x\in S}{P(x)}\right)[\pi_V,\pi_F]=P[S][\pi_V,\pi_F]$, which is equivalent to $P[\pi_V,\pi'_F]$ where $\pi'_F$ is identical to $\pi_F$ except on $P$, where $\pi'_F(P)=S$. Thus:
+\begin{equation*}
+  \VFPAPERProb{P}\ge \sup_{\pi_V}\inf_{\pi'_F}\VFPAPERProb{
+    P[\pi_V,\pi'_F]
+  }
+\end{equation*}
+
+Which completes the first half of the inequality. The proof for the $P\in\Sigma_{n+1}$ case is identical, and the other half of the inequality is immediate from applying the first half to $\lnot P$.
+
+\end{proof}
+
+\newenvironment{hproof}{%
+  \renewcommand{\proofname}{Proof sketch}\proof}{\endproof}
+
+% \begin{corollary}[Ranged favorable non-VF game]
+%   In the $V$-favourable ranged game, the verifier can guarantee a value of $\VFPAPERProb[+]{P}$. In the $F$-favourable ranged game, the falsifier can guarantee a value of $1-\VFPAPERProb[-]{P}$.
+%   \label{thm:supinff}
+% \end{corollary}
+% \begin{hproof}
+% In the $V$-favorable ranged game,
+% \end{hproof}
+
+
+Several elicitation mechanisms are now immediate:
+
+\textbf{Bidding to play.} Agents bid to play as either the verifier or falsifier of a ranged VF game for $P$. The highest bidders for each side are chosen to play against each other, and their bids are taken as estimates of the probability of $P$ and $\lnot P$. Note that the market-maker does not have to take a loss: even though this may be a negative-sum game because of potential computational costs, the total prices will still add up to at least \$1 because otherwise one of the players could just bid to take both sides and win a guaranteed total \$1.
+
+\textbf{Double auctions.} However, it is possible for agents to overestimate their winnings and drive the total price above \$1, and this also does not give a way for agents to bid down the price of one position. We can solve this by selling multiple games via a double-auction with an order book where buy offers for the Falsifier position at price $q$ are interpreted as sell orders for the Verifier position at price $1-q$ and matched to buy orders for the Verifier position at price $p\ge 1-q$.
+
+\textbf{Subsidized markets.} Alternatively, we may simply run one high-stakes Verification-Falsification game, retaining bidding for selecting players, but base probabilities on a separate betting market for the outcome of the game. It is possible here that the best players are not selected (e.g. due to independently wealthy players outbidding them), but an advantage is that these markets can be subsidized with arbitrary scoring rules\footnote{See \cite{hansonLogarithmicMarketScoring2002} for an introduction to market scoring rules}; traditional methods to integrate scoring rule based market makers such as \cite{agrawalUnifiedFrameworkDynamic2011, chakrabortyPriceEvolutionContinuous2015} do not work for us, as they require the market-maker to take the opposite side of every trade, which for us will require having the market-maker actively play the game.
+
+\textbf{Training AI forecasters.} We can get our probability estimates from an AI instead of the market, by training an ``estimating agent'' $\alpha:\Props\to\finset\Nats\times[0,1]$ which outputs both a move and an estimate of its reward. The agent may then earn a combined reward for winning the game and for placing an accurate forecast. The most natural architecture for such a forecaster would be a transformer which takes input in natural or formal language and gives a sequence of integers as its output. %To be precise: the learning problem is a multi-agent Markov Decision Process (MDP) with initial state $P\in\Props$, actions $(S,b)\in\finset\Nats\times[0,1]$, transition function $P'=P[S]$ and reward functions for the final state $\vec{R}(P)=(\theta(P),1-\theta(P))\text{ if }P\in\Delta_0\text{ else }0$ where $\theta$ is the ground truth resolver for $\Delta_0$.
+% Better, we can compute rewards at each step by the agent's own next estimate of the value (and have that next estimate be deducted from the next reward), to allow for more efficient credit assignment -- Algorithm~\ref{alg:train} shows a simple self-play training loop implementing this.
+
+% \NewDocumentCommand{\VFs}{}{\{\Sigma,\Pi\}}
+% \algnewcommand{\LeftComment}[1]{\(\triangleright\) #1}
+% \NewDocumentCommand{\dataset}{}{\mathcal{D}}
+
+% \begin{algorithm}[tb]
+% \caption{Training an AI forecaster for non-VF sentences}
+% \label{alg:train}
+% \begin{algorithmic}
+
+% \Procedure{TrainingLoop}{}
+
+% \State \textbf{input }Dataset $\dataset\subseteq\Props$
+% \State \textbf{input }Ground truth resolver $r:\Delta_0\to\bools$
+% \State\LeftComment{$\VFs$ encodes which side the player is playing as}
+% \State Initialize agent $\alpha_\theta:\Props\times\VFs\to\finset\Nats\times[0,1]$
+
+% \For{$t<N_{\text{epochs}}$}
+% \For{$P\in\dataset$}
+% \State $n=\deg(P)$\Comment{i.e. $P$ is $\Sigma_n$ or $\Pi_n$}
+% \For{$i\in [n,\dots 0]$}
+
+% \State $\kappa=\Sigma\text{ if }P\in\Sigma_i\text{ else }\Pi$
+% \State $S,b\gets \alpha_\theta(P,\kappa)$\Comment{get action $S$ and estimate $b$}
+% \State
+
+% \EndFor
+% \EndFor{}
+% \EndFor{}
+
+% \EndProcedure
+% \end{algorithmic}
+% \end{algorithm}
+
+
+\section{Computational limitations}
+\label{vf/sec:complexity}
+
+There are two practical limitations of our work:
+\begin{enumerate}
+  \item Each player's move can be a finite set of arbitrary size, and the player is incentivized to play larger and larger finite sets. In particular, the final $\Delta_0$ sentence will be a disjunctive normal form over a very large number of $\Delta_0$ sentences, and getting the ground truth evaluations for all of them may take a long time (or cost a lot in computation).
+  \item We have not considered computational costs of playing the VF game; the $\sup$ and $\inf$ in Theorem~\ref{thm:supinf} are over all possible policies, even non-computable ones. In particular, the computational difficulty of playing for each side might be \emph{asymmetric}.
+\end{enumerate}
+
+For the first, we may charge a transaction cost proportional to the cardinality of the chosen move $S$ to incentivize agents to be selective in choosing the members of $S$ -- alternatively we may add a common discounting factor to the reward that would also disincentivize agents from choosing moves that would take a long time for their opponent to respond to. In the market mechanisms, we can also allow the agents to sell their place in the game to another agent at any point in time, so they do not need to wait for ground truth to be revealed to collect their reward.
+
+\NewDocumentCommand{\Ack}{}{\mathcal{A}}
+
+The second is more serious: a classic example in game semantics \cite{solovievVerifierFalsifierGamesRestrictions2022} is the sentence $\exists x,\forall y,y\le\Ack(x)$ where $\Ack$ is the Ackermann function, and the class of policies is limited to primitive recursive functions (i.e. all other functions are infinitely expensive to play). Although this sentence is ``obviously'' false, $V$ can pick any $S$, and $F$ will be unable to win because the Ackermann function grows faster than all primitive recursive functions. In our case, it is apparent that if we took the $\sup_{\pi_V}$ and $\inf_{\pi_F}$ in Theorem~\ref{thm:supinf} to be over primitive recursive functions only, the lower and upper bounds are both $1$, though $\VFPAPERProb{P}$ should be 0 as $P$ is false.
+
+\NewDocumentCommand{\Compcl}{}{\mathcal{C}}
+
+One solution may come from the ``favourable'' games mentioned in Def~\ref{def:vfgame}. In the example above, the falsifier has a winning strategy in the $F$-favourable game by indefinitely trying larger and larger integers as its move until it wins.
+
+More generally, if we restrict the class of allowable policies to some $\Compcl\subset(\Props\to\finset\Nats)$, the $V$-favorable (respectively $F$-favourable) game still allows the $\sup$ (respectively $\inf$) to be taken over all of $\Props\to\finset\Nats$, as that player can simply enumerate each possible strategy. In general, we may play both the $F$-favorable and $V$-favorable games, and the range between the values of these games contains the range in Theorem~\ref{thm:supinf}:
+
+\begin{align}
+&\sup_{\pi_V\in\Compcl}\inf_{\pi_F}\VFPAPERProb{P[\pi_V,\pi_F]}\nonumber\\
+&\le
+\sup_{\pi_V}\inf_{\pi_F}\VFPAPERProb{P[\pi_V,\pi_F]}\nonumber\\
+&\le
+\VFPAPERProb{P}\label{eq:bounds}\\
+&\le
+\inf_{\pi_F}\sup_{\pi_V}\VFPAPERProb{P[\pi_V,\pi_F]}\nonumber\\
+&\le
+\inf_{\pi_F\in\Compcl}\sup_{\pi_V}\VFPAPERProb{P[\pi_V,\pi_F]}\nonumber
+\end{align}
+
+Other approaches might be inspired by the Debate literature, for example \cite{brown-cohenScalableAISafety2023} introduces a version of the Debate protocol called ``Doubly-efficient debate'', where the honest strategy wins ``even when the debater is computationally unbounded''. Extending this to VF games should be a topic of future research.
+
+It remains unclear how much of a problem these computational limitations will be in practice.
+
+\section{Discussion and future work}
+\label{vf/sec:conclusion}
+
+We have presented the ``ranged Verification-Falsification game'' and demonstrated that eliciting agents' values for playing this game provides useful bounds on the probability of an FOL sentence. Although usually applied to mathematical logic, FOL can also express sentences about some empirical universe, even if the process that generates empirical truth is probabilistic in nature. Our mechanism stands as an alternative framework to \cite{garrabrantLogicalInduction2020} for logical uncertainty, as well as the first mechanism to elicit probabilities on non-VF sentences from markets and AI models outside of a strict logical context. There are three other potential implications of our work deserving of attention.
+
+\textbf{Formal logic.} Our work may provide a new approach to measuring the strength of a mathematical theory: in the $V$-favourable VF game, a formal proof from a mathematical theory gives a computable winning strategy \cite{bonnayPreuvesJeuxSemantiques2004, boyerProofTruth2012}; we my then consider the maximum wealth that can be acquired by an agent that only trades and plays in accordance with a theory, and regard this as a measure of the strength of the theory.
+
+\textbf{Eliciting latent knowledge.} Though we have used ``non-VF'' to refer specifically to FOL sentences, these are not the only sentences whose truth cannot be ascertained by ground truth. Take e.g. the sentence ``Bob did the crime''. This will not in itself be revealed by any future empirical observation, but may ``correlate'' with (provide information on) other, more directly valuable sentences like ``if Bob is jailed, fewer burglaries will happen'', ``evidence of Bob's wrongdoings will be found'' and ``if you hire Bob, you may find some office supplies missing''. One may say that these useful sentences are all correlated, and therefore ``Bob did the crime'' is a useful fiction constructed to capture the signal in the noisy data, a \emph{variable in the latent space}. The problem of eliciting information on such sentences has been discussed in e.g. \cite{tailcalledLatentVariablesPrediction2023, baillonBayesianMarketsElicit2017, baillonSimpleBetsElicit2021}, and directly addresses the problem of \emph{interpretability} in AI safety \cite{christianoElicitingLatentKnowledge2021}. We hope our work may serve as an entrypoint towards solving this much more ambitious goal.
+
+\NewDocumentCommand{\toc}{}{\to_{\Compcl}}
+
+\textbf{Alternative formulations of probability theory.} It would be interesting to study what the elicited probabilities in these mechanisms actually approach in the limit, more precisely than the bounds in Equation~\ref{eq:bounds}, e.g. when training AI forecasters (where $\Compcl$ would be the class of functions approximable by a neural network) or with a double auction containing every computable function in some class (e.g. those computable in polynomial-time) included as a trader by eventual enumeration. This would induce some ``distribution'' over the FOL algebra, which would \emph{not} be a probability distribution in the traditional sense (would not satisfy continuity of probability), as this would contradict Theorem~\ref{thm:nogo}. Instead we might consider an alternate definition of a $\sigma$-algebra $\mathcal{F}$ which is required to be closed only under unions and intersections of \emph{computable sequences}, i.e. replacing the countable union axiom with ``$\psi:\Nats\toc\mathcal{F}\implies\bigcup_i\psi(i)\in\mathcal{F}$'' (where $\Compcl$ is some class of computable functions) and adopting a suitable generalized notion of probability measure on this algebra. Possibly relevant work to this end includes: quantifier algebras \cite{cwooQuantifierAlgebra2013}, Shafer \& Vovk's game-theoretic formulation of probability theory \cite{shaferProbabilityFinanceIts2005, shaferGameTheoreticFoundationsProbability2019} and Japaridze's ``Computability Logic'' \cite{japaridzeBeginningWasGame2009, japaridzeSurveyComputabilityLogic2015}.

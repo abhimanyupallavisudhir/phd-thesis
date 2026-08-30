@@ -1,0 +1,11 @@
+\texttt{marketgrad} is a NumPy-first library for market-like optimization on production graphs. It provides graph primitives, differentiable production and utility functions, shares-based welfare optimization, cyclic fixed-point and adjoint solvers, simple decentralized market dynamics, primal-dual optimization scaffolding, diagnostics, visualizations, examples, and tests.
+
+The implementation follows \texttt{SPEC.md}. Mathematical results (theorems, proofs, and their numerically verified identities) are maintained in \texttt{THEORY.md}, with a companion exposition of attention and its duality with market routing in \texttt{ATTENTION.md}. The implementation starts with the minimal viable product: planner optimization for DAGs, cyclic equilibrium solves, finite-difference checks, market-simulation invariants, and basic plotting helpers.
+
+Run the test suite with:
+
+\begin{verbatim}
+python -m pytest
+\end{verbatim}
+
+JAX and PyTorch are optional. Install \texttt{marketgrad{[}jax{]}} to use \texttt{backend="jax"} with \texttt{UserProduction}, \texttt{UserUtility}, dense linear solves, DAG solvers, and cyclic fixed-point/adjoint solvers. Install \texttt{marketgrad{[}torch{]}} to use \texttt{backend="torch"} with the same user-defined production and utility interfaces. Without either extra, the default NumPy backend and finite-difference autodiff remain unchanged.

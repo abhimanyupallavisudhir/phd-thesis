@@ -1,0 +1,71 @@
+\section{Pseudo-pythonic sketch of Recursive Information Market algorithm}
+\label{rim/app:rim}
+
+\begin{python}
+class Buyer:
+    goal: str
+    wealth: float
+    info_processing_cost: float # could be a function instead
+
+    def __call__(self) -> tuple[list[str], bool]:
+        # initialize info_collected
+        info_collected = []
+
+        # tell information agents your goals and get info offers from them
+        info_offers = Arena.offer_info[self]
+        top_offer = max(info_offer, key=lambda offer, offer.bid)
+
+        if top_offer.bid > info_processing_cost:
+            # charge winning advertiser for cost of considering info
+            self.wealth += top_offer.bid
+            top_offer.parent.wealth -= top_offer.bid
+
+            # spin off contractor agent to decide if to buy top offer
+            contractor = Buyer(
+                goal=DecideToBuy(top_offer),
+                wealth=self.wealth,
+                info_processing_cost = self.info_processing_cost
+            )
+            info_collected, decision = contractor()
+
+            if decision:
+                # buy the info
+                info_collected.append(top_offer.info)
+                self.wealth -= top_offer.price
+                top_offer.parent.wealth += top_offer.price
+
+        return info_collected, self.decide(info=info_collected)
+
+    def decide(self, info: list[str]):
+        ... # some intelligent behaviour
+
+class Informer:
+
+    wealth: float
+
+    @dataclass
+    class InfoOffer:
+        bid: float
+        price: float
+        info: str
+        parent: Informer
+
+    @property
+    def offer_info(self) -> dict[Buyer, InfoOffer]:
+        # some daemon that monitors the arena for places it could
+        # be useful, and advertises its info there
+        ...
+
+class Arena:
+    buyers: list[Buyer]
+    informers: list[Informer]
+
+    @property
+        def offer_info(self):
+        info_offers = {buyer: [] for buyer in self.buyers}
+        for informer in self.informers:
+            for buyer in info_offers:
+                info_offers[buyer].append(informer.offer_info)
+        return info_offers
+
+\end{python}

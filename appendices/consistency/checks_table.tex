@@ -1,0 +1,81 @@
+\subsubsection{Table of consistency checks}
+\label{cfc/app:checks}
+
+Table~\ref{tab:full-consistency_checks} (extended version of Table~\ref{tab:consistency_checks}) includes all the consistency checks tested for in our benchmark. In most of them, we leave the logical relations between forecasting questions $\Relation$ implicit by constructing the sentences directly. For instance, $\Relation(x_1,x_2):=x_1=\lnot x_2$ is implied by simply writing $x_1, x_2$ as $P, \lnot P$. In the rest of the appendix, we use the sentence-based ($P, Q$ instead of $x_1, x_2$) notation. %\todo{is this extending beyond the margins?}
+
+\begin{table*}[hbtp]
+    \centering
+    \caption{Consistency checks and the logical consistency conditions.}
+    \vspace{5pt}
+    \label{tab:full-consistency_checks}
+    % \begin{tabular}{l p{3.7cm} p{7cm}}%{|l|p{6cm}|p{6cm}|}
+    \begin{tabular}{l p{0.25\linewidth} p{0.4\linewidth}}
+    \toprule
+    \textbf{Name} &
+    \textbf{Tuple} &
+    \textbf{Condition ($\CCheck$)}
+    %& \textbf{Violation Metric ($\Violation$)}
+    \\ \midrule
+    %\\ \hline
+    \NegChecker &
+    $(P,\lnot P)$ &
+    $\Forecaster(P)+\Forecaster(\lnot P)=1$
+    \\ \midrule
+    \begin{tabular}{@{}l@{}} \ParaphraseChecker\\ $\Relation(P,Q):=P\iff Q$\end{tabular} &
+    $(P,Q)$&
+    $\Forecaster(P)=\Forecaster(Q)$
+    \\ \midrule
+    \begin{tabular}{@{}l@{}} \ConsequenceChecker\\ $\Relation(P,Q):=P\implies Q$\end{tabular} &
+    $(P,Q)$&
+    $\Forecaster(P)\le\Forecaster(Q)$
+    \\ \midrule
+    \AndOrChecker &
+    $(P,Q,P\land Q,P\lor Q)$ &
+    $\Forecaster(P)+\Forecaster(Q)=\Forecaster(P\lor Q)+\Forecaster(P\land Q)$
+    \\ \midrule
+    \AndChecker &
+    $(P,Q,P\land Q)$ &
+    $\max(\Forecaster(P)+\Forecaster(Q)-1, 0) \le \Forecaster(P\land Q) \le \min(\Forecaster(P),\Forecaster(Q))$
+    \\ \midrule
+    \OrChecker &
+    $(P,Q,P\lor Q)$ &
+    $\max(\Forecaster(P),\Forecaster(Q))\le\Forecaster(P\lor Q)\le\min(1,\Forecaster(P)+\Forecaster(Q))$
+    \\ \midrule
+    \ButChecker &
+    $(P,\lnot P\land Q, P\lor Q)$ &
+    $\Forecaster(P\lor Q)=\Forecaster(P)+\Forecaster(\lnot P\land Q)$ %
+    \\ \midrule
+    % \SymmetryAndChecker & $\Forecaster(P\land Q)=\Forecaster(Q\land P)$
+    % \\ \midrule
+    % \SymmetryOrChecker & $\Forecaster(P\lor Q)=\Forecaster(Q\lor P)$
+    % \\ \midrule
+    \CondChecker &
+    $(P,Q|P,P\land Q)$ &
+    $\Forecaster(P)\Forecaster(Q|P)=\Forecaster(P\land Q)$
+    \\ \midrule
+    %\CondCondChecker &
+    %$(P,Q|P,R|(P\land Q),P\land Q\land R)$ &
+    %$\Forecaster(P)\Forecaster(Q|P)\Forecaster(R|P\land Q) =\Forecaster(P\land Q\land R)$
+    \CondCondChecker &
+    \begin{tabular}[t]{@{}p{3.7cm}@{}}
+    $(P,Q|P,R|(P\land Q),$\\
+    $P\land Q\land R)$
+    \end{tabular} &
+    $\Forecaster(P)\Forecaster(Q|P)\Forecaster(R|P\land Q) =\Forecaster(P\land Q\land R)$
+    \\ \midrule
+    \ExpectedEvidenceChecker &
+    $(P,Q,P|Q,P|\lnot Q)$&
+    $\Forecaster(P)=\Forecaster(P|Q)\Forecaster(Q)+\Forecaster(P|\lnot Q)(1-\Forecaster(Q))$
+    \\ \bottomrule
+    \end{tabular}
+\end{table*}
+
+The consistency checks in Table~\ref{tab:full-consistency_checks} represent core logical relationships between probabilities, but many other forms of consistency checks are possible. Here are two examples that could extend our framework:
+
+\begin{itemize}
+    \item \textbf{Comparative checks:} Building on generator-validator checks from \citet{liGeneratorValidatorConsistency2023}, we could ask a forecaster to predict both $\Forecaster(P)$, $\Forecaster(Q)$, and separately whether $P$ or $Q$ is more likely. The forecaster's probability estimates should match their comparative judgment.
+
+    \item \textbf{Monotonicity checks:} \citet{esmwcc} propose a variant of \ConsequenceChecker{} for real-valued quantities, where predictions must respect the monotonic ordering of a sequence of future values. \rebuttal{This connects to \emph{scope insensitivity} \citep{kahneman2000economic}, a cognitive bias where humans fail to scale probability estimates appropriately with the magnitude of outcomes.}
+\end{itemize}
+
+We do not include a specific consistency check for Bayesian updates, as conditional probabilities are already covered by \CondChecker{}, \CondCondChecker{}, and \ExpectedEvidenceChecker{}.

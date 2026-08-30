@@ -1,0 +1,142 @@
+% ============ PARAMETERS ============
+\def\levely{106}              % Vertical distance between layers
+\def\chosenx{-38}             % Horizontal offset for chosen (black) nodes
+\def\otherxstart{33}          % Horizontal offset for first non-chosen node
+\def\otherxskip{49}           % Horizontal spacing between non-chosen nodes
+\def\labelside{left}          % Position of info set labels: 'left' or 'right'
+\def\labeldist{4pt}          % Distance of info set labels from nodes
+\def\arrowlabelpos{0.5}       % Position of arrow labels (0 to 1)
+\def\specialarrowpos{0.8}     % Position for x^1_* label
+\def\lastlayerfrac{0.6}       % Fraction for last layer positioning
+\def\chosencolor{black}       % Color for chosen path
+\def\othercolor{gray!75}      % Color for non-chosen paths
+\def\coverrectlayer{3}        % Which layer to cover with rectangle (0 = no cover)
+
+\tikzset{every picture/.style={line width=0.75pt}}
+
+\begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
+
+% ============ LAYER 0 (ROOT) ============
+\coordinate (L0) at (331.71, 58.43);
+\fill[\chosencolor] (L0) circle (4.71pt);
+\node[align=left,\labelside=\labeldist] at (L0) {$\mathcal{I}^{0} \cup \dotsc \cup \mathcal{I}^{N-1}$};
+
+% ============ LAYER 1 ============
+\coordinate (L1C) at ($(L0) + (\chosenx, \levely)$);
+\coordinate (L1O1) at ($(L0) + (\otherxstart, \levely)$);
+\coordinate (L1O2) at ($(L0) + (\otherxstart + \otherxskip, \levely)$);
+\coordinate (L1O3) at ($(L0) + (\otherxstart + 2*\otherxskip, \levely)$);
+
+% Nodes
+\fill[\chosencolor] (L1C) circle (4.71pt);
+\fill[\othercolor] (L1O1) circle (4.71pt);
+\fill[\othercolor] (L1O2) circle (4.71pt);
+\fill[\othercolor] (L1O3) circle (4.71pt);
+
+% Arrows
+\draw[->, >=latex, line width=0.75pt, \chosencolor] (L0) -- (L1C)
+    node[pos=\arrowlabelpos, left] {$x_{*}^{N}$};
+\draw[->, >=latex, line width=0.75pt, \othercolor] (L0) -- (L1O1)
+    node[pos=\arrowlabelpos, right, \othercolor] {$x_{1}^{N}$};
+\draw[->, >=latex, line width=0.75pt, \othercolor] (L0) -- (L1O2)
+    node[pos=\arrowlabelpos, right, \othercolor] {$x_{2}^{N}$};
+\draw[->, >=latex, line width=0.75pt, \othercolor] (L0) -- (L1O3)
+    node[pos=\arrowlabelpos, right, \othercolor] {$x_{3}^{N}$};
+\node[right=3pt, \othercolor] at ($(L1O3) + (10pt, 0)$) {$\dotsc$};
+
+% Info set label
+\node[align=left, \labelside=\labeldist] at (L1C)
+    {$\begin{array}{l}\mathcal{I}^{0} \cup \dotsc \cup \mathcal{I}^{N-2}\\\cup x_{*}^{N}\end{array}$};
+
+% ============ LAYER 2 ============
+\coordinate (L2C) at ($(L1C) + (\chosenx, \levely)$);
+\coordinate (L2O1) at ($(L1C) + (\otherxstart, \levely)$);
+\coordinate (L2O2) at ($(L1C) + (\otherxstart + \otherxskip, \levely)$);
+\coordinate (L2O3) at ($(L1C) + (\otherxstart + 2*\otherxskip, \levely)$);
+
+% Nodes
+\fill[\chosencolor] (L2C) circle (4.71pt);
+\fill[\othercolor] (L2O1) circle (4.71pt);
+\fill[\othercolor] (L2O2) circle (4.71pt);
+\fill[\othercolor] (L2O3) circle (4.71pt);
+
+% Arrows
+\draw[->, >=latex, line width=0.75pt, \chosencolor] (L1C) -- (L2C)
+    node[pos=\arrowlabelpos, left] {$x_{*}^{N-1}$};
+\draw[->, >=latex, line width=0.75pt, \othercolor] (L1C) -- (L2O1)
+    node[pos=\arrowlabelpos, right, \othercolor] {$x_{1}^{N-1}$};
+\draw[->, >=latex, line width=0.75pt, \othercolor] (L1C) -- (L2O2)
+    node[pos=\arrowlabelpos, right, \othercolor] {$x_{2}^{N-1}$}; % Corrected label
+\draw[->, >=latex, line width=0.75pt, \othercolor] (L1C) -- (L2O3)
+    node[pos=\arrowlabelpos, right, \othercolor] {$x_{3}^{N-1}$}; % Corrected label
+\node[right=3pt, \othercolor] at ($(L2O3) + (10pt, 0)$) {$\dotsc$};
+
+% Info set label
+\node[align=left, \labelside=\labeldist] at (L2C)
+    {$\begin{array}{l}\mathcal{I}^{0} \cup \dotsc \cup \mathcal{I}^{N-3}\\\cup x_{*}^{N-1}\cup x_{*}^{N}\end{array}$};
+
+
+% ============ LAYER 3 (PENULTIMATE) ============
+\coordinate (L3C) at ($(L2C) + (\chosenx, \levely)$); % Corrected y-offset
+\coordinate (L3O1) at ($(L2C) + (\otherxstart, \levely)$);
+\coordinate (L3O2) at ($(L2C) + (\otherxstart + \otherxskip, \levely)$);
+\coordinate (L3O3) at ($(L2C) + (\otherxstart + 2*\otherxskip, \levely)$);
+
+% Nodes
+\fill[\chosencolor] (L3C) circle (4.71pt);
+\fill[\othercolor] (L3O1) circle (4.71pt);
+\fill[\othercolor] (L3O2) circle (4.71pt);
+\fill[\othercolor] (L3O3) circle (4.71pt);
+
+% Arrows (with special position for x^1_*)
+\draw[->, >=latex, line width=0.75pt, \chosencolor] (L2C) -- (L3C)
+    node[pos=\specialarrowpos, left] {$x_{*}^{1}$};
+\draw[->, >=latex, line width=0.75pt, \othercolor] (L2C) -- (L3O1)
+    node[pos=\specialarrowpos, right, \othercolor] {$x_{1}^{1}$}; % Corrected label position
+\draw[->, >=latex, line width=0.75pt, \othercolor] (L2C) -- (L3O2)
+    node[pos=\specialarrowpos, right, \othercolor] {$x_{2}^{1}$}; % Corrected label position
+\draw[->, >=latex, line width=0.75pt, \othercolor] (L2C) -- (L3O3)
+    node[pos=\specialarrowpos, right, \othercolor] {$x_{3}^{1}$}; % Corrected label position
+\node[right=3pt, \othercolor] at ($(L3O3) + (10pt, 0)$) {$\dotsc$};
+
+% Info set label
+\node[align=left, \labelside=\labeldist] at (L3C)
+    {$x_{*}^{1}\cup \dotsc \cup x_{*}^{N}$};
+
+
+% ============ WHITE RECTANGLE FOR COVERING ARROWS ============
+% \coordinate (L2_rect_center) at ($(L2C)!.5!(L3C)$);
+\coordinate (L2_rect_start) at ($(L2C)!.2!(L3C)$);
+\coordinate (L2_rect_end) at ($(L2C)!.65!(L3C)$);
+\filldraw[fill=white, draw=none] ($(L2_rect_start) - (110, 0)$) rectangle ($(L2_rect_end) + (110, 0)$);
+
+% ============ VERTICAL DOTS ============
+\node[\chosencolor] at ($(L2C) + (0.425*\chosenx, 0.425*\levely)$) {$\dotsc$};
+
+% ============ LAYER 4 (FINAL - UTILITIES) ============
+\coordinate (L4C) at ($(L3C) + (\chosenx, \levely * \lastlayerfrac)$);
+\coordinate (L4O1) at ($(L3C) + (\otherxstart, \levely * \lastlayerfrac)$);
+\coordinate (L4O2) at ($(L3C) + (\otherxstart + \otherxskip, \levely * \lastlayerfrac)$);
+\coordinate (L4O3) at ($(L3C) + (\otherxstart + 2*\otherxskip, \levely * \lastlayerfrac)$);
+
+% Nodes
+\fill[\chosencolor] (L4C) circle (4.71pt);
+\fill[\othercolor] (L4O1) circle (4.71pt);
+\fill[\othercolor] (L4O2) circle (4.71pt);
+\fill[\othercolor] (L4O3) circle (4.71pt);
+
+% Arrows (with special position for x^0_*)
+\draw[->, >=latex, line width=0.75pt, \chosencolor] (L3C) -- (L4C)
+    node[pos=\arrowlabelpos, left] {$x_{*}^{0}$};
+\draw[->, >=latex, line width=0.75pt, \othercolor] (L3C) -- (L4O1)
+    node[pos=\arrowlabelpos, left, \othercolor] {$x_{1}^{0}$};
+\draw[->, >=latex, line width=0.75pt, \othercolor] (L3C) -- (L4O2)
+    node[pos=\arrowlabelpos, left, \othercolor] {$x_{2}^{0}$};
+\draw[->, >=latex, line width=0.75pt, \othercolor] (L3C) -- (L4O3)
+    node[pos=\arrowlabelpos, left, \othercolor] {$x_{3}^{0}$};
+\node[right=3pt, \othercolor] at ($(L4O3) + (10pt, 0)$) {$\dotsc$};
+
+% Utility label
+\node[below=8pt] at (L4C) {$U\left(x_{*}^{0}, \dotsc, x_{*}^{N}\right)$};
+
+\end{tikzpicture}

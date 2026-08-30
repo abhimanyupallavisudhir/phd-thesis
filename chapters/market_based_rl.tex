@@ -1,0 +1,416 @@
+\chapter{Market-Based Architectures in Reinforcement Learning and Beyond}
+\label{chap:market-based-rl}
+
+\chapterprovenance{Adapted from the paper ``Market-based architectures in RL
+and beyond'' by Abhimanyu Pallavi Sudhir and Long Tran-Thanh.}
+
+\input{chapters/pre_market_based_rl}
+
+%\newcommand{\ltt}[1]{{ \color{blue}[ltt:#1]}}
+\newcommandx{\ltt}[2][1=]{\todo[linecolor=blue,backgroundcolor=blue!25,bordercolor=blue,#1]{\textbf{LTT:} #2}}
+
+
+\section*{Abstract}
+
+Market-based agents refer to reinforcement learning agents which determine their actions based on an internal market of sub-agents. We introduce a new type of market-based algorithm where the state itself is factored into several axes called ``goods'', which allows for greater specialization and parallelism than existing market-based RL algorithms. Furthermore, we argue that market-based algorithms have the potential to address many current challenges in AI, such as \emph{search}\todo{idk if it sounds weird to say this}, \emph{dynamic scaling} and \emph{complete feedback}, and demonstrate that they may be seen to generalize neural networks; finally, we list some novel ways that market algorithms may be applied in conjunction with Large Language Models for immediate practical applicability.
+% Market-based AI architectures refer to AI agents that determine their outputs based on some internal market-based mechanism
+%Market-based agents refer to AI agents whose beliefs and/or decisions are decided via an internal market mechanism, such as auctions or prediction markets. Such agents are theoretically promising, because they exhibit many of the properties that we would like from an aligned superintelligence: they generally serve their consumers rather than develop nefarious goals of their own, they generalize well from imperfectly given reward, and they are highly capable and (boundedly) rational. However, the performance of existing implementations of market-based agents has been unimpressive. We argue that two causes for this failure are (1) the absence of a property we call ``modularity of state'' in existing market-based agents, and (2) the positive externalities of information markets. We propose some solutions to these obstacles, and outline a research agenda for market-based agents.
+
+\section{Introduction}
+
+Before neural networks won the mandate of heaven, an AI research paradigm that had shown considerable promise was that of \emph{market-based architectures}, i.e. AI agents that determine their output based on some internal market-based mechanism \cite{kweeMarketBasedReinforcementLearning2001, changDecentralizedReinforcementLearning2020}.
+\ltt{refs}
+
+There are general intuitive arguments that motivate such a line of research. Philosophers and psychologists have long pondered multi-agent models of the mind \cite{minskySocietyMind1988}; moreover, one may imagine that ``any'' machine learning task could in principle be solved by a market of agents solving sub-tasks with their individual reward set by the sale value of their output. There is work suggesting that markets can capture some notion of \emph{bounded rationality}, e.g. the \emph{Boundedly Rational Inductive Agent} (BRIA) \cite{oesterheldTheoryBoundedInductive2023} and \emph{Algorithmic Bayesian Epistemology} \cite{neymanAlgorithmicBayesianEpistemology2024}. In some sense, markets ``aggregate'' the intelligence or capacities of their individual participants.\footnote{See e.g. Hayek on the role of markets in aggregating information \cite{hayekEconomicsKnowledge1937} -- or the famous parable ``I, Pencil'' \cite{leonardereadPencilMyFamily1958}: ``... no one person, no matter how smart, could create from scratch a small, everyday pencil [yet the market makes over a billion of them each year] ...''. There is also some empirical work on emergent intelligent behaviour in markets comprised of zero-intelligence traders \cite{godeAllocativeEfficiencyMarkets1993, schwartzHowMuchIrrationality2008, jamalSimpleAgentsIntelligent2015}}\todo{see commented-out stuff for potential extra stuff to add}
+% markets can form beliefs (e.g. prediction markets) and take decisions (often in the form of allocating goods, but also via explicit decision markets such as in futarchy \cite{hansonShallWeVote2013, oesterheldFutarchyImplementsEvidential2017});
+%from ``moreover'': markets and intelligent agents seem to do ``essentially the same things'': they take decisions (often in the form of allocating goods, but also via explicit decision markets such as in futarchy \cite{hansonShallWeVote2013} -- see e.g. \cite{oesterheldFutarchyImplementsEvidential2017} for a proposal for a ``futarchist agent'') and form beliefs (this is made explicit by prediction markets).
+
+% Market beliefs may be inconsistent (presenting arbitrage opportunities) or incomplete (there is not an asset for every state of the world); the budgeting mechanism in markets, wherein more successful agents gain wealth and therefore influence on probabilities and decisions, can be seen as a form of \emph{learning}. The philosophical problem of \emph{bounded rationality} (the hope of formalizing the intuitive notion of ``optimality conditional on algorithmic information'' -- see \cite{gigerenzerRationalTheoryHeuristics2016, russellRationalityIntelligenceBrief2016} for an overview) is fundamentally analogous to the computational troubles with the efficient market hypothesis -- indeed, it is probably more correct to say that markets are efficient \emph{conditional on algorithmic information}, and markets are also effective at aggregating algorithmic information, not just statistical (recent work on \emph{Algorithmic Bayesian Epistemology} \cite{neymanAlgorithmicBayesianEpistemology2024} sheds some light on the precise connection).
+
+% The majority of early work in this area has focused on market-based \emph{reinforcement learning} (RL) algorithms. The pioneering work in this domain consists of Holland's \emph{Learning Classifier Systems} or ``bucket brigade'' \cite{hollandPropertiesBucketBrigade1985a} in rule-based systems, where condition-action agents (``classifiers'') bid to post messages (which can be actions described in some language) onto a global message board. Improvements to this paradigm were made by Schmidhuber \cite{schmidhuberEvolutionaryPrinciplesSelfreferential1987, schmidhuberLocalLearningAlgorithm1989} who allowed agents to determine their own bids and imposed credit conservation, and by Baum \cite{baumModelIntelligenceEconomy1999} who further strictly enforced property rights, resulting in a much more familiar set-up called the ``Hayek Machine''. The Hayek machine, which can be applied to any Markov Decision Process (MDP), was subsequently extended to Partially Observed Markov Decision Processes (POMDPs) by \cite{kweeMarketBasedReinforcementLearning2001} by adding external memory, and more recently \cite{changDecentralizedReinforcementLearning2020} designed a framework that provably optimizes the global objective at Nash equilibrium.
+
+``Market-based architectures'' can be made concrete in the case of reinforcement learning (RL), where the majority of work in this area lies (see \ref{mba/sec:related} for a brief summary). For example in the \emph{Hayek machine} \cite{baumModelIntelligenceEconomy1999} and its derivatives, the setting is a Markov Decision Problem (MDP) and there is a single resource, the ``right to act and collect reward'', that is traded between sub-agents. At each time step, this resource is sold to the highest-bidding sub-agent, who performs some action that modifies the state of the world and collects the reward defined by the MDP. %Some works, such as the \emph{Neural Bucket Brigade} \cite{schmidhuberLocalLearningAlgorithm1989} have furthermore suggested a deep connection between markets and neural networks, which
+
+In this paper, we argue that market-based agents represent an underexplored and promising niche, \emph{especially} in the context of recent advancements in language models (LLMs), and have the potential to address a range of present challenges in contemporary AI research. Specifically, we make the following claims and contributions:
+
+\textbf{Theoretical framework for market-based agents.} We present two general frameworks for market-based RL agents: (1) the ``deep market'' (Def~\ref{def:deep}), where a single good, the \emph{state}, is passed through a sequence of transacting agents, and (2) the ``wide market'' (Def~\ref{def:goods}), in which the state space itself is partitioned into several factors called \emph{goods}. The deep framework is not much of a departure from existing algorithms such as the Hayek machine, and can be applied to any Partially Observed Markov Decision Process (POMDP); while to our knowledge the wide framework is original to us, and is a generalization of the deep framework which better mirrors the success of real-world markets allowing for greater specialization and parallelism. A Python library for creating and applying market-based algorithms to a variety of tasks will be released after publication.
+
+\textbf{Markets, neural networks and backpropagation.} We demonstrate that these market-based agents can in principle be applied even to basic supervised learning tasks such as classification, and that neural networks (though not backpropagation or gradient descent) emerge as a special case of such algorithms. Furthermore we generalize the result in \cite{wentworthCompetitiveMarketsDistributed2018} to wide markets, demonstrating a suggestive relationship between backpropagation and markets at equilibrium.
+
+\textbf{Search, complete feedback and alignment.} We claim that markets can address several present problems in AI research, specifically: they are a natural framework for \emph{search}, their scale or depth can be \emph{dynamic} rather than fixed, and they allow \emph{complete feedback} \cite{demskiCompleteFeedback2024}, a property widely regarded as valuable in AI alignment.
+
+\textbf{Markets and LLMs.} We present some novel ways in which market algorithms might be applied in conjunction with LLMs to address their limitations: they can be used for developing reasoning models like \texttt{o1}, and one may use LLMs to develop ``information markets'' that can in turn be used to improve human feedback mechanisms for training LLMs.
+
+\subsection{Related work}
+\label{mba/sec:related}
+
+\textbf{Market-based RL.} The majority of early work in this area has focused on market-based \emph{reinforcement learning} (RL) algorithms. The pioneering work in this domain consists of Holland's \emph{Learning Classifier Systems} or ``bucket brigade'' \cite{hollandPropertiesBucketBrigade1985a} in rule-based systems, where condition-action agents (``classifiers'') bid to post messages (which can be actions described in some language) onto a global message board. Improvements to this paradigm were made by Schmidhuber \cite{schmidhuberEvolutionaryPrinciplesSelfreferential1987, schmidhuberLocalLearningAlgorithm1989} who allowed agents to determine their own bids and imposed credit conservation, and by Baum \cite{baumModelIntelligenceEconomy1999} who further strictly enforced property rights, resulting in a much more familiar set-up called the ``Hayek Machine''. The Hayek machine, which can be applied to any Markov Decision Process (MDP), was subsequently extended to POMDPs by \cite{kweeMarketBasedReinforcementLearning2001} by adding external memory, and more recently \cite{changDecentralizedReinforcementLearning2020} modified the framework to use Vickrey auctions and prove that a Nash equilibrium of the market produces a globally optimal policy.\todo{is this much description necessary?}
+
+\textbf{Bounded rationality and markets.} Other, more recent work in this area includes: \emph{Logical Induction} \cite{garrabrantLogicalInduction2020}, an algorithm that assigns probabilities to mathematical sentences based on their prices in a prediction market that (roughly speaking) pays off when a sentence is proven; and the \emph{Boundedly Rational Inductive Agent} (BRIA) \cite{oesterheldTheoryBoundedInductive2023} which solves finite decision problems by assigning it to the highest-bidding trader, similar to in market-based RL. The key insight of these works is that markets are useful for modeling \emph{boundedly rational agents}. The main results of each work -- the fact that the logical inductor cannot by dominated by any polynomial-time trader, and the ``boundedly rational inductive agent criterion'' in the latter paper -- are specific and precise formulations of the Efficient Market Hypothesis \cite{neymanAlgorithmicBayesianEpistemology2024}.\todo{remove last sentence?}
+
+\textbf{Markets and neural networks.} A specific equivalence between classifier systems and neural networks has been studied in the \emph{Neural bucket brigade} \cite{davisMappingClassifierSystems1988, schmidhuberLocalLearningAlgorithm1989}, although this does not consider backpropagation. A suggestive analogy between markets and backpropagation is discussed in \cite{wentworthCompetitiveMarketsDistributed2018}, though only for the case of a strictly sequential, unit-width market like that in Def~\ref{def:deep}. In our work we make this more precise and generalize it to \ref{def:goods}\todo{maybe mention Agoric Computation, BitTensor and market-based scaffolding for LLMs? see comments}
+%\textbf{Decentralized software} Also worth a mention are market-based ``decentralized intelligence'' protocols such as Agoric Computation \cite{millerMarketsComputationAgoric1988,millerComparativeEcologyComputational1988, drexlerIncentiveEngineeringComputational1988}, BitTensor \cite{raoBitTensorPeertoPeerIntelligence2021} and markets comprised of LLM agents \cite{liEconAgentLargeLanguage2024a}. AI economist paper? I thought it was about something different but people have told me it's related.
+
+\section{Market algorithms}
+
+%\section{Market model with modularity of action}
+
+\NewDocumentCommand{\statevecs}{}{\mathcal{S}}
+\NewDocumentCommand{\statevec}{}{s}
+\NewDocumentCommand{\actions}{}{\mathcal{X}}
+\NewDocumentCommand{\action}{}{x}
+\NewDocumentCommand{\trans}{}{\mathbf{P}}
+\NewDocumentCommand{\reward}{}{\mathbf{R}}
+\NewDocumentCommand{\obss}{}{\Omega}
+\NewDocumentCommand{\obs}{}{\omega}
+\NewDocumentCommand{\obsd}{}{\mathbf{O}}
+\NewDocumentCommand{\agents}{}{\mathcal{A}}
+\NewDocumentCommand{\agent}{}{\alpha}
+\NewDocumentCommand{\agentact}{}{\hat{\agent}}
+\NewDocumentCommand{\agentbid}{}{{\agent}_b}
+\NewDocumentCommand{\consumer}{}{\gamma}
+\NewDocumentCommand{\consumers}{}{\mathcal{C}}
+\NewDocumentCommand{\consumeract}{}{\hat{\consumer}}
+\NewDocumentCommand{\consumerbid}{}{{\consumer}_b}
+\NewDocumentCommand{\messages}{}{\mathrm{str}}
+\NewDocumentCommand{\wealth}{}{w}
+\NewDocumentCommand{\bids}{}{b}
+\algnewcommand{\LeftComment}[1]{\(\triangleright\) #1}
+
+\begin{setup*}[POMDP]
+We assume a ususal POMDP setting, with a state space $\statevecs$, action space $\actions$, transition probability $\trans(\statevec'\mid\statevec,\action)$ (which allows us to treat actions as stochastic functions i.e. $\action(\statevec)\sim\trans(\statevec'\mid\statevec,\action)$), reward function $\reward(\statevec,\action,\statevec')$, and observation distribution $\obs(\statevec)\sim\obsd(\obs\mid\statevec)$ over a set of observations $\obss$. A policy is a map $\agent:\obss\to\actions$, and the process proceeds as per usual.
+\label{su:pomdp}
+\end{setup*}
+% $\actions_\statevec$ for each $\statevec\in\statevecs$
+
+Mirroring \cite{kweeMarketBasedReinforcementLearning2001} and similar to Belief-MDP formulations, we can extend the state and message spaces by taking the cartesian product space with a message space $\messages$ which is always preserved by $\obs$; this gives the policy a ``memory'', or in terms of markets, creates informational goods. % This also addresses the issue highlighted in \cite{baumModelIntelligenceEconomy1999}: ``agents can only take actions, there is no possibility of agents simply communicating the results of computations to other agents''.
+
+
+The first algorithm we describe is Def~\ref{def:deep}: here, agents (out of a possibly infinite collection of agents $\agents$) bid at each time step for the \emph{right to act and collect reward}, and the highest-bidding agent is chosen to act. The parameters of this algorithm are the wealths of each agent $\wealth[\agent]$. These are trained by the training loop \textsc{Capitalism}: at each step, the agent pays its bid to the previous agent, collects the reward generated by its actions and receives the bid of the next. This means that at equilibrium, each agent is incentivized to bid the value function, and perform the action with maximum Q-value.\todo{Is this ok for an explanation? idk if I should remove the last sentence as I'm not explicitly proving it}
+
+\begin{definition}[Deep market]
+Assume a POMDP setup, and let $\agents$ be a collection of ``agents'', which are (stochastic) maps $\agent:\obss\to\actions\times\Reals$. The first component $\agentact:\obss\to\actions$ of an agent is called its \emph{action}, the second component $\agentbid:\obss\to\Reals$ is called its \emph{bid}. The market algorithm then proceeds as in Algorithm~\ref{alg:deep}.\ltt{briefly explain Alg 1 in layman's language}\footnote{For training, this may be executed in multiple episodes with different initial state $\statevec$, either with finite episodes or in parallel (with shared wealth variables across running instances).}
+
+\begin{algorithm}[tb]
+\caption{Deep market}
+\label{alg:deep}
+\begin{algorithmic}
+
+\Procedure{Market}{}\Comment{Forward pass}
+\State \textbf{parameters: } $\wealth [\agent]\in\Reals$ \Comment{wealths of each $\agent\in\agents$}
+\State \textbf{input: $\obs\in\obss$}
+\State $\bids[\agent]\gets\min(\agentbid(\obs),\wealth[\agent])$ for $\agent\in\agents$\Comment{Cap bids by wealth}
+\State $\action\gets \agentact^*(\obs)$\Comment{Determine action}
+\State \Return $\action$, $\agent^*$
+\EndProcedure
+
+\Procedure{Capitalism}{}\Comment{Training loop}
+\State Initialize agent wealths $\wealth [\agent]\in\Reals$ for each $\agent\in\agents$
+\State Initialize original owner of the world $\agent^*$
+\State Initialize state $\statevec\in\statevecs$
+\While{$t\in\Nats$}
+\State $\obs\gets\obs(\statevec)$\Comment{Generate observation}
+\State $\agent^*_{\text{prev}}\gets\agent^*$
+\State $\action, \agent^*\gets \Call{Market}{\obs}$
+\State $\wealth[\agent^*]\gets\wealth[\agent^*]-\bids[\agent^*]$\Comment{Pay bid}
+\State $\wealth[\agent^*_{\text{prev}}]\gets\wealth[\agent^*_{\text{prev}}]+\bids[\agent^*]$\Comment{to previous owner}
+\State $\statevec_{\text{prev}}\gets\statevec$
+\State $\statevec\gets\action(\statevec)$\Comment{Transition state}
+\State $\wealth[\agent^*]\gets\wealth[\agent^*]+\reward(\statevec_{\text{prev}},\action,\statevec)$\Comment{add reward to wealth}
+\EndWhile
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\label{def:deep}
+\end{definition}
+
+Some details have been ignored. $\agents$ will usually be infinite and so tables like $\wealth[\agent]$ cannot simply be indexed on it: instead, $\agents$ must be countably enumerated and added to the economy one-by-one in the training loop with each agent being endowed with some allowance. To prevent holdout problems, one may impose a small fixed ``rent'' on $\agent^*$ at each training step i.e. $\wealth[\agent^*]\gets(1-\varepsilon)\wealth[\agent^*]$. A simple first-price auction is shown for simplicity, and may be replaced with a Vickrey auction in line with \cite{changDecentralizedReinforcementLearning2020}. One may also replace the explicit reward function $\reward$ with a class of ``consumers'' $\consumers$ who place bids upon desirable states, which may be a useful formulation for reinforcement learning from diverse human feedback\footnote{see \cite{conitzerPositionSocialChoice2024, geAxiomsAIAlignment2024a} for a primer on this area}.\todo{might instead move this to the markets and LLMs section}
+
+% Definiton~\ref{def:deep} already illustrates several defining properties of markets, which distinguish them from other ensemble models or multi-agent systems:
+% \begin{enumerate}
+%     \item \emph{Competition}: the mechanism by which markets choose the ``best'' action at each stage.
+%     \item \emph{Divide-and-conquer}: instead of having to choose a single optimal agent that can complete the entire task, a set of less capable agents can add to the task one at a time, only needing to learn where along the supply chain they can add value.
+%     \item \emph{Credit assignment}: In a perfectly competitive market, the price of the world state approaches the state value as the system learns (because an agent that bids the fair value can outbid those who don't, and still make a profit).
+%     \item \emph{Capitalism as learning}: The wealths of the agents in $\agents$ are the ``model parameters''; the accumulation of wealth to more competent agents is markets' ``learning mechanism''.
+% \end{enumerate}% \emph{competition}: the mechanism by which markets choose the ``best'' action at each stage; \emph{distributed action}: instead of having to choose a single optimal agent that can complete the entire task, a set of less capable agents can add to the task one at a time, only needing to learn where along the supply chain they can add value; \emph{credit assignment}: in a perfectly competitive market, the price of the world state approaches the state value as the system learns via the wealth mechanism.
+
+% Definition~\ref{def:deep} already illustrates several defining properties of markets that distinguish them from mere ensemble models or multi-agent systems: \emph{competition}: the mechanism by which markets choose the ``best'' action at each stage; \emph{divide-and-conquer}: the individual agents do not have to be too intelligent, as their actions are composable; \emph{credit assignment}: in perfect competition, the price of the world state approaches the state value as the system learns; \emph{agent wealths} as the model parameters, with wealth updates as the learning mechanism.
+
+% The second of these, divide-and-conquer, is recognizable to any student of economics: markets serve not only to \emph{select} (via market competition) the best process to achieve a task, but also to \emph{distribute} actions among relatively less informed or less capable agents\footnote{see e.g. \cite{hayekEconomicsKnowledge1937} or the famous parable ``I, Pencil'' \cite{leonardereadPencilMyFamily1958}}.
+
+% We might refer to this as the \emph{Emergent Intelligence Hypothesis} (hereby EIH):
+
+% \begin{quote}
+% \centering
+% \emph{Any arbitrarily complex task can be efficiently achieved by a market of ``simple'' agents.}
+% \end{quote}
+
+% This is a sentence that requires clarification on several points (``task'', ``efficiently'', ``market'', ``simple''), each one of which is a worthwhile research problem in its own right.
+
+%\footnote{see Appendix~\ref{app:special} for a demonstration of this for BRIA and Hayek machines}\todo{add this footnote after RL:}
+Definition~\ref{def:deep}, which subsumes existing market-based RL, already illustrates one of the key defining features of markets recognizable to any student of economics: markets serve not only to \emph{select} (via market competition) the best process to achieve a task, but also to \emph{distribute} a complex task among agents which are individually much too weak or uninformed to complete the entire task\footnote{see e.g. \cite{hayekEconomicsKnowledge1937} -- or the famous parable ``I, Pencil'' \cite{leonardereadPencilMyFamily1958}: ``... no one person, no matter how smart, could create from scratch a small, everyday pencil [yet the market makes over a billion of them each year] ...''.}. This means that the collection of actions $\agents$ can be a class of ``simple'' agents, so that enumerating $\agents$ can quickly find many valuable agents.
+
+Specifically, Def~\ref{def:deep} exploits modularity of \emph{action}, where the state can be transformed one step at a time. There is however another form of modularity, missed by all existing market-based RL algorithms, which we may call modularity of \emph{state}, and is crucial to the success of real-world markets:  here, agents are not constantly transacting the whole ``state of the world'': instead, the state of the world is decomposed into several components, called \emph{goods}\footnote{$\oplus$ denotes the direct sum of vector spaces, which is a Cartesian product equipped with a pointwise vector addition operator}: $\statevecs=\statevecs_1\oplus\dots\oplus\statevecs_n$. For instance, $\statevec_1\in\statevecs_1$ might represent the quantity of iron ore in the world. Agents bid for small quantities of each good; no agent owns the whole world, and does not have to bother performing a valuation of the whole world. The ``state of the world'' may be recovered as the vector sum of all agents' holdings.%, $\statevec_2$ might be the quantity of steel cups in the world, and $\statevec_3$ might be the quantity of cotton factories in the world
+
+\NewDocumentCommand{\equilibrium}{}{\operatorname{Equ}}
+\NewDocumentCommand{\price}{}{\mathbf{p}}
+
+At least two new difficulties are introduced by considering markets of multiple divisible goods:
+
+\textbf{General equilibrium theory.} Allocating goods is no longer as easy as an auction, because agents might have joint demand schedules for goods that are complementary or substitute to each other. The problem of matching buyers and sellers in this setting is the domain of ``General Equilibrium Theory'' in economics, where there are models such as the Fisher market and the Arrow-Debreu exchange market \cite{arrowExistenceEquilibriumCompetitive1954, mckenzieExistenceGeneralEquilibrium1959}. Computing the equilibrium in these models is non-trivial and often intractable \cite{chenSettlingComplexityArrowDebreu2009, chenSpendingNotEasier2009a}.
+
+\textbf{Property rights in POMDPs.} A more subtle difficulty lies in the fact that we want to divide the state $\statevec\in\statevecs$, which is not directly observed, among bidding agents (so that each of their actions only transform their respective portions of the state, i.e. their properties), but the agents only submit demand schedules over $\obs\in\obss$. It is not obvious how to map a decomposition of a vector $\obs(\statevec)$ back onto $\statevec$.
+
+Both of these have to do with specific questions of how buyers and sellers meet and match in real markets, i.e. having to do with \emph{institutions} such as property rights and mechanism design. These questions are out of scope for us, and we abstract them away by postulating some effective equilibrium computation algorithm $\equilibrium(\obs,\agentbid^1,\dots\agentbid^m)=(\price, \obs[\agent^1],\dots\obs[\agent^m])$ i.e. which takes the total perceived quantity of goods in the world $\obss$ and each agent's valuation function $\agentbid^i:\obss\to\Reals$, and returns a price vector $\price\in\obss$ and allocations to each agent $\obs[\agent^i]\in\obss$, such that (in line with a Walrasian equilibrium with quasilinear utilities \cite{millerNotesMicroeconomicTheory2006}):
+\begin{itemize}
+    \item $\obs=\sum\obs[\agent^i]$ (the full quantity is allocated)
+    \item $\price\cdot\obs[\agent^i]\le\agentbid^i(\obs[\agent^i])$ for all $\agent^i$ (no agent pays for what it doesn't value), and
+    \item $\obs[\agent^i]=\arg\max_{\obs'\in\obss}\agentbid^i(\obs')-\price\cdot\obs'$ for all $\agent^i$ (each agent gets a utility-maximizing bundle at the given price).
+\end{itemize}
+
+% And further that each action $\action\in\actions_\obs$ is applied only to some goods bundle $\statevec$ that is observed as $\obs$ i.e.
+
+% One way to have a more effective procedure, which better mimics how buyers and sellers meet and match in real markets, might be to instead have agents submit separate demand schedules $\agentbid:\prod_i(\obss_i\to\Reals)$ for each good, and leave it to the agent to marginalize its demand schedules based on its estimate of what other goods it will end up winning. For the sake of neatness, however, we will write Definition~\ref{def:goods} as though there is some effective equilibrium computation algorithm $\equilibrium(\statevec,\agentbid^1,\dots\agentbid^m)=(\price,\statevec[\agent^1],\dots\statevec[\agent^m])$ (i.e. which takes the total quantity of goods in the world $\statevec$ and each agent's valuation function $\agentbid^i$, and returns a price vector $\price\in\Reals^n$ and allocations to each agent $\statevec[\agent^i]\in\statevecs$).\footnote{such that (in line with a Walrasian equilibrium with quasilinear utilities \cite{millerNotesMicroeconomicTheory2006}): $\statevec=\sum\statevec[\agent^i]$ (the full quantity is allocated), $\price\cdot\statevec[\agent^i]\le\agentbid^i(\statevec[\agent^i])$ for all $\agent^i$ (no agent pays for what it doesn't value), and $\statevec[\agent^i]=\arg\max_{\sigma\in\statevecs}\agentbid^i(\sigma)-\price\cdot\sigma$ for all $\agent^i$ (each agent gets a bundle that maximizes its utility at the given price).}
+
+%$\equilibrium:\statevecs\times(\agents\to\statevecs\to\Reals)\to\Reals^n\times(\agents\to\statevecs)$
+
+%therefore we shall instead make the agents submit separate demand schedules for each good, and leave it to the agents to marginalize their demand schedules based on their estimates of what other goods they will end up getting in the auction. Whether this is an effective mechanism remains to be seen empirically, but this does better mimic how buyers and sellers meet and match in real markets.
+
+\begin{definition}[Wide market]
+  Everything from the POMDP setup and the agent type in Def~\ref{def:deep} remains the same; except that $\statevecs$ and $\obss$ are now vector spaces with each vector called a \emph{goods bundle}. Further, we have action spaces $\actions_\obs$ indexed by $\obs\in\obss$ such that (1) for any $\action\in\actions_\obs$, there is an ``exercised property right'' denoted $\statevec_\action(\obs)\in\statevecs$ such that $\obs(\statevec_\action(\obs))=\obs$ and $\action(\statevec)=\action(\statevec_\action(\obs))+(\statevec-\statevec_\action(\obs))$ (i.e. each agent's actions transform only the goods they own) and (2) there is an injective map $\xi:\actions_{\obs_1}\times\actions_{\obs_2}\to\actions_{\obs_1+\obs_2}$ such that $\xi(\action_{\obs_1}, \action_{\obs_2})=\action_{\obs_1}(\statevec_{\action_{\obs_1}}(\obs_1))+\action_{\obs_2}(\statevec_{\action_{\obs_2}}(\obs_2))+(\statevec-\statevec_{\action_{\obs_1}}(\obs_1)-\statevec_{\action_{\obs_2}}(\obs_2))$ (this is used to combine actions by different agents). The agents now have dependent type signatures $\agent:(\obs:\obss)\to\actions_\obs\times\Reals$, and the transition probability $\action(\statevec)\sim\trans(\statevec'\mid\statevec,\action)$, reward function $\reward(\statevec,\action,\statevec')$ and observation distribution $\obsd(\obs\mid\statevec)$ are now interpreted as applying to ``private property'', i.e. to any goods bundle in their respective domains, rather than to the whole state, e.g. each action $\action(\statevec)$ defines a \emph{production function} that transforms one goods bundle into another, and $\agentbid$ is an agent's \emph{valuation function} over all possible bundles, i.e. how much it is willing to pay for a particular perceived bundle (if it's differentiable, then $\nabla\agentbid(\obs)$ can be interpreted as the price vector it offers). The market algorithm proceeds as in Algorithm~\ref{alg:goods} \ltt{also explain Alg 2}.
+  %Everything from the POMDP setup and the agent type in Def~\ref{def:deep} remains the same; except that $\statevecs$ and $\obss$ are now vector spaces with each vector called a \emph{goods bundle}. Further, we have action spaces $\actions_\obs$ indexed by $\obs\in\obss$ such that the action of any $\action\in\actions_\obs$ can be written as $\action(\statevec)=\action(\statevec_0)+(\statevec-\statevec_0)$ where $\statevec_0$ is such that $\obs(\statevec_0)=\obs$ (i.e. each agent's actions transform only the goods they own) and there is an injective map $\xi:\actions_{\obs_1}\times\actions_{\obs_2}\to\actions_{\obs_1+\obs_2}$ such that $\xi(\action_{\obs_1}, \action_{\obs_2})=\action_{\obs_1}(\statevec_1)+\action_{\obs_2}(\statevec_2)+(\statevec-\statevec_1-\statevec_2)$ where $\obs(\statevec_1)=\obs_1,\obs(\statevec_2)=\obs_2$ (this is used to combine actions by different agents). The agents now have dependent type signatures $\agent:(\obs:\obss)\to\actions_\obs\times\Reals$, and the transition probability $\action(\statevec)\sim\trans(\statevec'\mid\statevec,\action)$, reward function $\reward(\statevec,\action,\statevec')$ and observation distribution $\obsd(\obs\mid\statevec)$ are now interpreted as applying to ``private property'', i.e. to any goods bundle in their respective domains, rather than to the whole state, e.g. each action $\action(\statevec)$ defines a \emph{production function} that transforms one goods bundle into another, and $\agentbid$ is an agent's \emph{valuation function} over all possible bundles, i.e. how much it is willing to pay for a particular perceived bundle (if it's differentiable, then $\nabla\agentbid(\obs)$ can be interpreted as the price vector it offers). The market algorithm proceeds as in Algorithm~\ref{alg:goods} \ltt{also explain Alg 2}.
+
+\begin{algorithm}[tb]
+\caption{Wide market}
+\label{alg:goods}
+\begin{algorithmic}
+
+\Procedure{Market}{}\Comment{Forward pass}
+\State \textbf{parameters: } $\wealth [\agent]\in\Reals$ \Comment{wealths of each $\agent\in\agents$}
+\State \textbf{input: $\obs\in\obss$}
+\State\LeftComment{Cap bids by budget}
+\State$\bids[\agent]\gets\lambda\statevec:\min(\agentbid(s),\wealth[\agent])$ for all $\agent\in\agents$
+\State\LeftComment{Compute equilibrium prices and allocations}
+\State $\price,\obs'[\agent^1],\dots\obs'[\agent^n]\gets\equilibrium(\sum\obs[\agent], \bids[\dots])$
+\State $\action[\agent]\gets\agentact(\obs'[\agent])$ for all $\agent\in\agents$\Comment{Determine actions}
+\State \Return $\action[\agent^1], \dots\action[\agent^n], \price,\obs'[\agent^1],\dots\obs'[\agent^n]$
+\EndProcedure
+
+\Procedure{Capitalism}{}\Comment{Training loop}
+\State Initialize agent wealths $\wealth [\agent]\in\Reals$ for each $\agent\in\agents$
+\State Initialize agent properties $\obs[\agent]\in\obss$ for each $\agent\in\agents$
+\State Initialize state $\statevec\in\statevecs$
+\While{$t\in\Nats$}
+\State $\obs\gets\obs(\statevec)$\Comment{Generate observation}
+
+\State $\dots\gets\Call{Market}{\obs}$\Comment{get all outputs}
+%\State $\action[\agent^1], \dots\action[\agent^n], \price,\obs'[\agent^1],\dots\obs'[\agent^n]\gets\Call{Market}{\obs}$
+
+\State $\wealth[\agent]\gets\wealth[\agent]-\price\cdot\obs'[\agent]$ for all $\agent$\Comment{Charge buyers}
+\State $\wealth[\agent]\gets\wealth[\agent]+\price\cdot\obs[\agent]$ for all $\agent$\Comment{Pay sellers}
+
+
+\State $\statevec[\agent]\gets\statevec_{\action[\agent]}(\obs[\agent])$ for all $\agent$\Comment{Calculate property rights}
+\State $\statevec'[\agent]\gets\action[\agent](\statevec[\agent])$ for all $\agent$\Comment{Transform goods}
+\State $\wealth[\agent]\gets\wealth[\agent]+\reward(\statevec[\agent], \action[\agent], \statevec'[\agent])$ for all $\agent$
+\State $\statevec\gets\sum\statevec'[\agent]$ \Comment{Update state}
+\EndWhile
+\EndProcedure
+
+
+% \State Initialize agent properties $\statevec[\agent]\in\statevecs$ for all $\agent\in\agents$
+% \State Initialize agent cash wealths $\wealth[\agent]\in\Reals$ for all $\agent\in\agents\cup\consumers$
+% \State Initialize total collected reward $r\gets 0$
+
+% \While{$t\in\Nats$}
+% \State $\wealth[\agent]\gets\wealth[\agent]-\price\cdot\statevec'[\agent]$ for all $\agent$\Comment{Charge buyers}
+% \State $\wealth[\agent]\gets\wealth[\agent]+\price\cdot\statevec[\agent]$ for all $\agent$\Comment{Reward sellers}
+% \State $\statevec[\agent]\gets\statevec'[\agent]$ for all $\agent$\Comment{Update agent properties}
+% \State $r\gets r + \sum_{\consumer\in\consumers}{\price\cdot\statevec[\consumer]}$\Comment{Add consumer reward}
+% \State\LeftComment{Transform goods}
+% \State $\statevec[\agent]\gets\agentact(\statevec[\agent])$ for all $\agent\in\agents\cup\consumers$
+% \EndWhile
+\end{algorithmic}
+\end{algorithm}
+
+\label{def:goods}
+\end{definition}
+\todo{is the preceeding explanation not enough? Otherwise I can add: [see following comment in tex source]}
+%Def~\ref{def:goods} captures the ``modularity of state'' that we want: instead of allocating the whole state $\statevec$ to the highest-bidding agent, we allow agents to bid for portions, i.e. ``goods'' of $\statevec$, treating it as a vector. Each agent only has the right to use its own allocated property, and can sell its own outputs in the next step.
+\textbf{Computing prices via backpropagation}. Though it remains to be seen how standard RL problems might be cast in this setting, we expect implementations of this algorithm to be much more effective than of Def~\ref{def:deep}, as it allows us to use simpler and more specialized agents in the collection $\agents$. In particular, these agents do not need to estimate the valuations of the whole world, but only of their particular input goods.
+
+This last point can be illustrated particularly nicely when the setup is an MDP, and rewards are replaced by consumers -- here, $\obss=\statevecs$ and $\obs(\statevec)=\statevec$, so $\agentact:\statevecs\to\actions$ can directly be interpreted as a production function $\agentact:\statevecs\to\statevecs:=\agentact(\statevec)(\statevec)$. Then if the agent can estimate what the market prices of its output goods will be (e.g. if prices are sufficiently stable that it makes sense to speak of a ``prevailing price'' $\price$), then it can compute its offered prices via the chain rule -- where $D\agentact$ denotes the Jacobian:
+
+\begin{equation}
+    \nabla\agentbid=D\agentact\cdot\price
+    \label{eq:backprop}
+\end{equation}
+
+i.e. once the market ``graph'' is fixed, prices can be computed by simply backpropagating consumer bids through the graph. This generalizes the result in \cite{wentworthCompetitiveMarketsDistributed2018}, which demonstrated this relationship for deep markets only.
+
+% Further, our model better allows approximating some notion of perfect competition, is more resistant to monopolies and holdout problems even without having to charge agents rent as in Appendix~\ref{app:macro}, and allows for parallel operation.%\todo{maybe move all this to the conclusion}
+
+
+\section{Motivation for market-based AI}
+
+% While market-based RL, at least with deep markets, has been studied in the past, we believe that this area is particularly promising for addresing several challenges in current AI paradigms.
+
+%In this section, we list some particular challenges in current AI paradigms that markets may be a natural solution to:
+
+\NewDocumentCommand{\nnX}{}{\mathbb{X}}
+\NewDocumentCommand{\nnY}{}{\mathbb{Y}}
+
+In this section, we describe how markets could potentially generalize neural networks and provide a more ``flexible training mechanism''. Although we have presented our algorithms in an RL setting, they can even be applied to supervised learning tasks by treating internal representations as ``states''. To see this, it is illustrative to see how a simple neural network can be recast as a market.
+
+\begin{theorem}[Neural networks as markets]
+  Consider a fully-connected neural network $f:\nnX\to\nnY:=f_n\circ\dots f_1$ where each $f_i:\Reals^{m_{i-1}}\to\Reals^{m_i}$ is a layer, i.e. a function of the form $f_i(\mathbf{x})=\sigma(W_i\mathbf{x}+\mathbf{b}_i)$ where $\sigma$ is a ReLU activation. Then there is a deep market whose forward pass performs the same operation as $f$.
+  \label{thm:nn}
+\end{theorem}
+\begin{proof}
+  The construction is straightforward. Define the state space $\statevecs:=\left[\bigoplus_{1\le i\le n}\statevecs_i\right]\oplus\nnY$ (with each $\statevecs_i:=\Reals^{m_i}$), with $\obs:\statevecs\to\obss$ discarding only the last component $\nnY$ which represents the true label which is unchanged under all actions. Each $\actions_{\obs}=\{(W_i,\mathbf{b}_i):W_i\in\Reals^{m_i\times m_{i-1}}, \mathbf{b}_i\in\Reals^{m_i}\}$ if $\obs\in\statevecs_{i-1}$ and empty if no such $i$ exists, and an action $\action=(W_i,\mathbf{i})$ acts on $\statevec\in\statevecs_{i-i}$ as $\action(\statevec)=\sigma(W_i\statevec+\mathbf{b}_i)$. The reward $\reward(\statevec,\action,\statevec')=-\ell(\statevec',\statevec'_{\nnY})$ for some loss function $\ell$ if $\statevec'\in\statevecs_n$ and $0$ otherwise. Finally, let $\agents$ consist of all constant maps to $\actions_\obs$ and endow non-zero wealth to only those agents whose actions' parameters are the same as some $f_i$.
+\end{proof}
+
+While the market model, i.e. the forward pass, in Theorem~\ref{thm:nn} is the same as the neural network, the training mechanism is \Call{Capitalism}{} (as defined in Algorithm~\ref{alg:deep}) rather than backpropagation. Detailed below are some strengths of this we anticipate:
+
+% To illustrate this, consider a fully-connected neural network $f:\nnX\to\nnY:=f_n\circ\dots f_1$ where each $f_i:\Reals^{m_{i-1}}\to\Reals^{m_i}$ is a layer, i.e. a function of the form $f_i(\mathbf{x})=\sigma(W_i\mathbf{x}+\mathbf{b}_i)$ where $\sigma$ is a ReLU activation.
+
+% Then there is a deep market which performs the same operation as $f$. Take $\statevecs:=\left[\bigoplus_{1\le i\le n}\statevecs_i\right]\oplus\nnY$ (with each $\statevecs_i:=\Reals^{m_i}$), with $\obs$ discarding only the last component $\nnY$ which represents the true label which is unchanged under all actions. Each $\actions_{\obs}=\{(W_i,\mathbf{b}_i):W_i\in\Reals^{m_i\times m_{i-1}}, \mathbf{b}_i\in\Reals^{m_i}\}$ if $\obs\in\statevecs_{i-1}$ and empty if no such $i$ exists, and an action $\action=(W_i,\mathbf{i})$ acts on $\statevec\in\statevecs_{i-i}$ as $\action(\statevec)=\sigma(W_i\statevec+\mathbf{b}_i)$. The reward $\reward(\statevec,\action,\statevec')=-L(\statevec',\statec'_{\nnY})$ if $\statevec'\in\statevecs_n$ and $0$ otherwise.
+
+%for example, a simple fully-connected neural network may be represented as a wide market with $\statevecs=\nnY\oplus\bigoplus_{(i,j)}\statevecs_{(i, j)}$ (where each $\statevecs_{(i, j)}\simeq\Reals$ denotes a state space assigned to the $j$th neuron in layer $i$ and the first component in $\nnY$ is the true label), only the true label hidden from observations, and the
+
+%To illustrate this, let $[n_{ij}]$ be a fully-connected neural network modeling some function $f:\nnX\to\nnY$ with the given notation representing the ``$j$th neuron in layer $i$''. Then define a wide market with state space $\statevecs=\nnY\oplus\bigoplus_{(i,j)}\statevecs_{(i, j)}$ (where each $\statevecs_{(i, j)}\simeq\Reals$) and observations that simply remove the first component $\nnY$ which represents the true label. Let $\agents$
+
+
+%Def~\ref{def:nn} illustrates this by showing how a simple feedforward neural network may be recast as a market with perceptrons as agents.
+
+% \begin{definition}[Neural networks as markets]
+%   Consider the task of learning some function $f:\nnX\to\nnY$ from data $\{(x_i, y_i)\}$ with the goal of minimizing some loss function $L(f(x_i), y_i)$.
+
+%   \label{def:nn}
+% \end{definition}
+
+
+\textbf{Search and dynamic scale.} \emph{Reasoning} is widely touted as a key limitation of current-day LLMs \cite{huangReasoningLargeLanguage2023,mclauAISearchBitterer2024}. A view held by some researchers including Yann LeCun \cite{yannlecunMachinesThatCan2023}\todo{is this ok to do?}, is that this is due to the fact that ``[neural networks] produce their answers with a constant number of computational steps between input and output'', independent of the complexity required by the problem. Some proposed architectures that avoid this limitation include dynamic neural networks \cite{hanDynamicNeuralNetworks2021}, adaptive computation time \cite{gravesAdaptiveComputationTime2017} as well as chain-of-thought based methods such as \texttt{o1} \cite{openaiLearningReasonLLMs2024}. Markets provide a principled alternative, as here the structure of the computational graph is itself learned, and different agents and structures may be active for different inputs.
+
+%There is a popular view, held by e.g. Yann LeCun \cite{yannlecunMachinesThatCan2023}, that one of the key limitations of
+
+%There is a popular view that \emph{reasoning} is one of the key limitations of current-day LLMs \cite{huangReasoningLargeLanguage2023}; in particular, Yann LeCun \cite{yannlecunMachinesThatCan2023} has attributed this
+
+\textbf{Complete feedback.} Informally speaking, markets allow \emph{any} aspect of the system to be optimized. Formal results are needed to make this statement precise, but intuitively: any aspect of a learner, such as any hyperparameter, or meta-learning, can be changed by adding a trader to the market who will profit if his changes are beneficial and the incentives are correctly designed. This is suggestive of the notion of ``complete feedback'' in AI alignment research, which refers to the property that ``the trainer can enact \emph{any} modification they'd like to make to the system'' \cite{demskiCompleteFeedback2024}, and is viewed as a desirable characteristic of an AI system for alignment. %In particular, it is known that Garrabrant induction, which uses prediction markets \cite{garrabrantLogicalInduction2020} has this property, and it just needs to be generalizd to other market-based algorithms.
+
+\section{Practicality and future work}\todo{is a merged conclusion+last section like this fine?}
+
+We have presented two general frameworks for market-based RL agents, and illustrated that they may be seen to generalize neural networks in a supervised learning setting, albeit with a more flexible training mechanism that holds promise to address the limitations of current-day AIs with respect to reasoning and alignment properties.\todo{too overconfident?}
+
+Despite these theoretical strengths, our algorithm as described faces practical challenges to implement in real-world machine learning tasks: blindly enumerating large classes of even simple agents is inefficient (compared to backpropagation, where the search is guided by gradients), and we have to store many more agents in memory than the ``size'' of the network (the exact number depending on the rule we use to prune low-wealth agents). Some potentially promising approaches include:
+\begin{itemize}
+\item ``integrated'' models which perform backpropagation by default but intelligently resort to markets when it expects changing the network structure to be worthwhile
+\item having each agent simultaneously learn its parameters via backpropagation
+\item decentralized set-ups, perhaps using frameworks such as BitTensor \cite{raoBitTensorPeertoPeerIntelligence2021}\todo{is it ok to mention bittensor?}, allowing traders to be shared across machine learning applications.
+\end{itemize}
+
+\textbf{Markets of LLMs.} A more immediately feasible practical application is to develop \emph{markets comprised of LLMs}, i.e. where $\agents$ is a collection of LLM agents. For instance, one may let $\statevecs=\obss$ be a message space, and let actions act on $\statevec$ by appending some ``chain-of-thought item'' to the current message. The final reward is determined by human feedback, and intermediate rewards are determined by bids. Such a market would function as a ``reasoning model'' analogous to \texttt{o1}.\todo{should I write this formally as a Definition?}
+
+The extension to a wide market is also immediate: agents may bid for the right to read only a portion of the message space\footnote{For the question of how to enable the agent to ``inspect'' the message to make an informed bid without letting it stealing the entire message, \cite{rahamanLanguageModelsCan2024} is relevant: the agent can subcontract another LLM to inspect the message and place the bid, and the latter can then have its context deleted.} -- this allows for more precise credit assignment to contributions by different agents, and may be understood as to \emph{trees-of-thought} \cite{yaoTreeThoughtsDeliberate2024} what \texttt{o1} is to \emph{chain-of-thought}.
+
+\textbf{Theoretical work.} The most pressing need at present is for \emph{precise theoretical results} on the effectiveness of market-based algorithms. An immediate research agenda includes the following:
+
+\begin{itemize}
+  \item Determining \textbf{convergence and optimality conditions} of market algorithms; in particular, generalizing the ``coverage'' results of BRIA \cite{oesterheldTheoryBoundedInductive2023} and logical induction \cite{garrabrantLogicalInduction2020} to demonstrate that the market can ``eventually test every possible policy'' (and so will give a fair chance to the best one) depending on how wealth endowments are allocated to each agent.
+  \item A \textbf{Learning Theory} perspective on markets and the wealth update mechanism. In particular, (real-world) markets appear to have many useful features from an alignment standpoint, such as their inherent capacity for online learning and generalization even from imperfect reward signals; these ought to be studied as properties of a learning algorithm. % from a learning theory standpoint, such as on the meta-learning and online learning properties of markets, and on their possible connection to backpropagation seen in Eq~\ref{eq:backprop}.
+  \item A thorough translation of \textbf{economic terminology} into our model -- especially concepts like perfect competition, economies of scale, growth and welfare -- may also prove valuable.\todo{maybe this should be removed?}
+\end{itemize}
+
+Finally, to accelerate empirical work with market-based algorithms, we plan to release a Python library for efficiently creating and applying market-based algorithms.\todo{not sure how to conclude}
+% We anticipate that market-based algorithms will serve as a valuable bridge between economic intuitions and machine learning, offering promise to address fundamental AI challenges such as reasoning and alignment. % claude wrote this
+
+% We anticipate that market-based algorithms will emerge as a
+
+% We hope that this work can trigger interest in
+
+
+% optimality, completeness, universal approximation
+
+% \footnote{In some domains such as formal theorem-proving or coding, ``chain-of-ghought items'' may be replaced by steps of a proof, or lines of code}
+
+% \section{Information markets and prediction markets}
+
+% % While to our knowledge there is no existing market-based algorithm in machine learning, which modularizes the state into goods as in Definition~\ref{def:goods}, all market-based approaches to RL do have modularity of actions whereby specialized agents contribute to the state one at a time.
+
+% Def~\ref{def:deep} subsumes market-based RL approaches. What about tasks whose goal is to produce a probability estimate or forecast for some given question? Many supervised learning tasks take this form; Logical Induction \cite{garrabrantLogicalInduction2020} is an example of applying market algorithms to such a question (specifically, probability estimates of mathematical sentences).
+
+% \NewDocumentCommand{\samples}{}{\Omega}
+% \NewDocumentCommand{\sigalg}{}{\mathcal{F}}
+
+% Let $(\samples,\sigalg)$ be a measurable space, and $X:\samples\to \bools$ be a random variable we're interested in knowing a probability distribution for.
+
+% Market mechanisms for information traditionally come in two forms \cite{conitzerPredictionMarketsMechanism2009}: \emph{direct revelation mechanisms}, where each agent directly provides its information (generally some set in $\sigalg$) and a Bayesian agent computes the probability distribution of some desired random variable $X$ conditional on all information provided; and \emph{prediction markets}, where each agent reports its subjective probability on $X$ and a market-maker computes the consensus probability based on some simple mathematical rule (e.g. logarithmic market scoring, see \cite{hansonLogarithmicMarketScoring2002}).
+
+% Although these mechanisms are qualitatively quite different from our traditional goods markets, one may construct an explicit information market from Def~\ref{def:goods}:
+
+% \begin{definition}[Information market]
+% Let $(\samples,\sigalg,\mathbf{P})$ be a measure space, $X:\samples\to \bools$ be a random variable, and $b$ the ``value of information on $X$''. Then an information market for $X$ is simply the market in Def~\ref{def:goods}, with:
+% \begin{itemize}
+% \item $\statevecs=\sigalg$ with $\cap$ as the vector addition operator and $\samples$ as $\mathbf{0}$; furthermore, decompose $\statevecs=\statevecs_0\oplus\bigoplus_{\agent\in\agents}{\statevecs_\agent}$ (where each $\statevecs_\agent$ is interpreted as the space of information of the form ``$\agent$ reports that \dots'').
+% \item A class of agents $\agents$ consisting only of $\agent$ satisfying $\agentact(\statevec)\subseteq\statevec$ and that $\agentact$ only transforms $\statevecs_\agent$, i.e. $\agentact\left(\statevec_\agent+\statevec_0+\sum_{\beta\ne\agent}{\statevec_\beta}\right)=\agentact(\statevec_\agent)+\statevec_0+\sum_{\beta\ne\agent}{\statevec_\beta}$ where each $\statevec_i\in\statevecs_i$.
+% \item A single consumer with bid $\consumerbid(\statevec)=b(H(X)-H(X|\statevec))$ where $H(X)$ denotes the entropy of $X$ and $H(X|\statevec)$ denotes its conditional entropy\footnote{If you're not comfortable taking a conditional entropy with respect to a set in a $\sigma$-algebra, take it to be the conditional entropy $H(X|i=1)$ where $i$ is the random variable that indicates $s$.}.
+% \end{itemize}
+% % How are buyers to verify that given information is correct? We construct so that \emph{all} information is correct, because each agent can only give information of the form ``$\agent$ reports that \dots''. In other words, we decompose $\statevecs=\statevecs_0\oplus\bigoplus_{\agent\in\agents}{\statevecs_\agent}$ and require that $\agents$ consist only of agents $\agent$ that transform their respective $\statevecs_\agent$. Agents would have to learn to establish trust and reputation (i.e. ensure their information is correlated with relevant information), so that other agents bid highly for their information.
+% \label{def:info}
+% \end{definition}
+
+% Note that by construction, all information given by agents is technically true, as it is only of the form ``$\agent$ reports that \dots''. Agents have to learn to establish trust and reputation (i.e. ensure their information is correlated with important information), so that other agents bid highly for their information.
+
+% As interesting as it is to see an explicit example of Def~\ref{def:goods}, this would not actually be an efficient market. The problem is that information does not have well-defined property rights \cite{hansonIPBarbedWire2011, hansonRahEfficientIP2011}: information becomes public very easily, either by its own nature or due to an inability to effectively restrict its use or redistribution.
+
+% This also applies to other mechanisms. Prediction markets famously need to be subsidized by the market-maker or are otherwise subject to no-trade theorems. The market-maker subsidy may be regarded as the ``price of information'', but this information is made publicly available in the price while the cost is born by the market-maker. In particular, this prevents modularity of action: if an agent needs some information on $Y$ to effectively make a bet on $X$, it is not incentivized to simply subsidize another market for $Y$, as the benefits of that will be borne by all other traders. In the language of economics: ``factor goods'' like $Y$ have positive externalities, and thus will be under-supplied.
+
+% % One solution proposed in \cite{conitzerPredictionMarketsMechanism2009} to more accurately reward such ``factor goods'' was to have a two-level nested for loop of ``information-providing agents'' and ``probability-updating agents''. At each iteration, an information agent (e.g. a news reporter) provides some information; then each probability agent places its bets in succession before the next information agent reports its information, and so on. Probability agents are rewarded normally; information agents are rewarded according to the total change in the score between their report and the next information agent's report. On expectation and myopically at least, this incentivizes information agents to give truthful information. However, this still only partially solves the problem -- information provided by information agents may also inform other information agents, not just probability agents, and they are still not rewarded for that.
+
+% \section{Outlook}
+
+% We have identified two major obstacles to the success of market-based AI so far: the lack of ``modularity of state'' in existing such algorithms, and the inherent inefficiency of information markets as a result of their positive externalities. In fact, the positive externalities of information are felt by even market-based RL agents, as information is quite generally a factor good to all kinds of decision-making. This point is briefly acknowleded also in \cite{baumModelIntelligenceEconomy1999}: ``agents can only take actions, there is no possibility of agents simply communicating the results of computations to other agents''.
+
+% Despite these challenges, work on market-based AI architectures remains valuable. There are two immediate solution approaches we can think of to solve the externality problem of information markets:
+
+% \textbf{Markets of LLMs.} Instead of trying to have the agent collection $\agents$ comprise of as simple agents as possible and having intelligence emerge from their co-operation, we could go the opposite route and populate $\agents$ with pre-trained complex intelligences, like in real-world markets. This would add to the growing area of work on LLM-based agent architectures, especially multi-agent architectures\footnote{see \cite{mastermanLandscapeEmergingAI2024} for a review}, except it seems probable that a market-based architecture may inherently have better incentives.
+
+% Consider, in particular, that LLMs can be deployed without a long-term memory. This means that they can be used in \emph{negotiations for purchasing information} -- both in real markets and our virtual ones! For example, if you wanted to rationally decide whether to purchase some private information (you cannot just inspect the good and return it if faulty, as you can with physical goods), then one solution would be to inspect the information and make your decision under an amnestic that temporarily blocks your mind from writing to long-term memory\footnote{This idea first appeared in a comment by John Wentworth on \href{https://www.lesswrong.com/posts/cgrgbboLmWu4zZeG8/\#mRTZtPhLNY7mweEnh}{lesswrong.com}}. An equivalent and much more reliable solution would be to have an LLM you trust make the decision for you.
+
+% \textbf{Combinatorial Prediction Markets (CPM).} Another potential solution to the problem of correctly subsidizing ``factor good'' prediction markets comes from \emph{Combinatorial Prediction Markets} \cite{hansonCombinatorialInformationMarket2003, sunProbabilityAssetUpdating2012, laskeyGraphicalModelMarket2018}. In a CPM, agents may place bets to adjust the probability of any vertex or edge in a BayesNet, and have the effects of the edit on other vertexes/edges computed via Belief Propagation; and the score they earn depends on their effect on the joint distribution, so they are effectively assigned credit for \emph{all} the information they provide.
+
+% % Despite these challenges, work on market-based AI architectures remains valuable. We lay out the following immediate research agenda for future work on market-based agents.
+
+% % \textbf{Efficient information markets.} We can think of two solutions to address the positive externalities inherent in information markets.
+
+% % \begin{itemize}
+% % \item\emph{Markets of LLMs.} Instead of trying to have the agent collection $\agents$ comprise of as simple agents as possible and having intelligence emerge from their co-operation, we could go the opposite route and populate $\agents$ with pre-trained complex intelligences, like in real-world markets. This would add to the growing area of work on LLM-based agent architectures, especially multi-agent architectures\footnote{see \cite{mastermanLandscapeEmergingAI2024} for a review}, except it seems probable that a market-based architecture may inherently have better incentives.
+
+% % Consider, in particular, that LLMs can be deployed without a long-term memory. This means that they can be used in \emph{negotiations for purchasing information} -- both in real markets and our virtual ones! For example, if you wanted to rationally decide whether to purchase some private information (you cannot just inspect the good and return it if faulty, as you can with physical goods), then one solution would be to inspect the information and make your decision under an amnestic that temporarily blocks your mind from writing to long-term memory\footnote{This idea first appeared in a comment by John Wentworth on \href{https://www.lesswrong.com/posts/cgrgbboLmWu4zZeG8/\#mRTZtPhLNY7mweEnh}{lesswrong.com}}. An equivalent and much more reliable solution would be to have an LLM you trust make the decision for you.
+
+% % \item\emph{Combinatorial Prediction Markets (CPM).} Another potential solution to the problem of correctly subsidizing ``factor good'' prediction markets comes from \emph{Combinatorial Prediction Markets} \cite{hansonCombinatorialInformationMarket2003, sunProbabilityAssetUpdating2012, laskeyGraphicalModelMarket2018}. In a CPM, agents may place bets to adjust the probability of any vertex or edge in a BayesNet, and have the effects of the edit on other vertexes/edges computed via Belief Propagation; and the score they earn depends on their effect on the joint distribution, so they are effectively assigned credit for \emph{all} the information they provide.
+% % \end{itemize}
+
+% While our work lays out some abstract formalisms, much more theoretical work is necessary to develop markets into a serious paradigm in Machine Learning. An immediate research agenda includes the following:
+
+% \begin{itemize}
+%     \item The implementation details left out in our abstraction must be addresssed: we must develop suitable, non-task-specific \textbf{classes of ``simple agents''} $\agents$ (perhaps possessing some universal representation theorem); find some precise way to get \textbf{modularity of state} in RL problems; and determine \textbf{convergence and optimality conditions} of the algorithms in Def~\ref{def:deep} and~\ref{def:goods}.% \footnote{In particular, demonstrate when Def~\ref{def:deep} solves the learning problem in Def~\ref{def:lp} for some particular discount rate that might be interpreted as the economy's natural interest rate}
+%     \item A \textbf{Learning Theory} perspective on markets and the wealth update mechanism. In particular, (real-world) markets appear to have many useful features from an alignment standpoint, such as their inherent capacity for online learning and generalization even from imperfect reward signals; these ought to be studied as properties of a learning algorithm. % from a learning theory standpoint, such as on the meta-learning and online learning properties of markets, and on their possible connection to backpropagation seen in Eq~\ref{eq:backprop}.
+%     \item A thorough translation of \textbf{economic terminology} into our model -- especially concepts like perfect competition, economies of scale and economic growth -- may also prove valuable.
+% \end{itemize}
+
+% In addition to theoretical work, we will also work towards building a comprehensive Python library for market-based AI agents, both for supporting theoretical research and to allow widespread implementation and testing.
+
+
+% % need theoretical results: * that modularity of state matters (actually an example is good enough) * proof that markets actually approach optimality (e.g. chang only shows that it's incentive compatible)
+
+% % also useful for theoretical economic work, as it is a simple dynamic model. A thorough translation of economic terminology into our model -- perfect competition, different kinds of goods, economies of scale ... -- will be useful. Our framework may not be sufficiently expressive for all relevant tasks in economics though -- agents may do more things than merely do production and submit demand schedules to a global market. They may form their own methods of trading, even discriminating between buyers and sellers (thus forming firms), they may steal from other agents (perhaps in retaliation against some action or to set incentives). These capabilities are probably not relevant for making AI agents.
+
+% % worth developing e.g. a Python library. ORCHID and Agoric systems, but they've both strayed from this goal
+
+% % other features of markets, e.g. they can plan for long-term, you can't just give them bad rewards for now and trick them
+% % wealths are the model parameters, but also drives the direction of updates -- some kind of meta-learning? Meta-learning seems built in to markets, updates are not as myopic
+% % maybe even mention algorithmic bayesian epistemology
+
+%\clearpage %%%%%
