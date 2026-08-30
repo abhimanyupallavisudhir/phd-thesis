@@ -1,0 +1,15 @@
+% Part I introduction (no \chapter heading; flows after the \part page).
+
+\begin{draftblock}
+\noindent This part asks what economics has to say about \emph{agency itself}: not yet about aligning an AI to a principal, but about what reward, credit assignment and rational behaviour are in the first place. The thesis of this part is that the market is not merely a metaphor for these things but a theory of them.
+\end{draftblock}
+
+% Lifted (adapted) from "thesis or report structure.org":
+When this research programme started, the motivating observation was that markets are \emph{naturally boundedly rational}: the efficient market hypothesis is best read as saying that markets are efficient \emph{conditional on the algorithmic information available}, which is exactly the property we want from a theory of bounded agents.
+
+% Adapted from the year-2 report, P1.
+\Cref{ch:market-rl} presents ``Market-based architectures in RL and beyond'': it introduces a new type of market algorithm in which the state itself is factored into several axes called ``goods'', allowing for greater specialization and parallelism than existing market-based RL algorithms; demonstrates that market algorithms can generalize neural networks, but with a more general learning algorithm that has potential to address challenges such as \emph{search}, \emph{dynamic scale} and \emph{complete feedback}; and proposes ways market algorithms may be applied in conjunction with Large Language Models.
+
+\begin{draftblock}
+\Cref{ch:agency} then develops the underlying theory: starting from the observation that \emph{reward is hyperstitional information} (a Bregman-divergence/mirror-ascent view of what a reward signal communicates to a learner), it argues that \emph{price recursion is the rational theory of reward} --- the recursive propagation of value through an economy of computations, of which backpropagation and TD-learning arise as special cases. The accompanying \texttt{marketgrad} library implements market-like optimization on production graphs.
+\end{draftblock}

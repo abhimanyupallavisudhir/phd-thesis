@@ -1,0 +1,34 @@
+% ============================================================
+% Chapter-local macros for chapters/solib.tex
+% (from solib-paper/preamble.tex; loaded inside a group by
+% \thesischapter, so definitions vanish after the chapter).
+% ============================================================
+
+% --- solib code objects ---
+\newcommand{\Protocol}{\texttt{Protocol}}
+\newcommand{\Protocolrun}{\texttt{run}}
+\newcommand{\Protocolexp}{\texttt{experiment}}
+\newcommand{\Agent}{\texttt{Agent}}
+\newcommand{\dundercall}{\texttt{\_\_call\_\_}}
+
+% --- model names ---
+\newcommand{\claudenewsonnet}{\texttt{claude-3-5-sonnet-20241022}}
+\newcommand{\claudehaiku}{\texttt{claude-3-5-haiku-20241022}}
+\newcommand{\claudeopus}{\texttt{claude-3-opus-20240229}}
+\newcommand{\llamathree}{\texttt{ollama\_chat/llama3.1:8b-instruct-q6\_K}}
+\newcommand{\deepseek}{\texttt{deepseek-v3}}
+\newcommand{\gptmini}{\texttt{gpt-4o-mini}}
+\newcommand{\deepseekr}{\texttt{deepseek-r1}}
+\newcommand{\oone}{\texttt{o1}}
+\newcommand{\oonemini}{\texttt{o1-mini}}
+\newcommand{\othree}{\texttt{o3}}
+\newcommand{\othreemini}{\texttt{o3-mini}}
+
+% --- custom commands for class-based pseudocode ---
+% (algpseudocode is loaded globally, so \algnewcommand is available)
+\algnewcommand{\Class}[1]{\State \textbf{Class} #1}
+\algnewcommand{\EndClass}{\State \textbf{End Class}}
+\algnewcommand{\Constructor}[1]{\Function{Constructor}{#1}}
+\algnewcommand{\EndConstructor}{\EndFunction}
+\algnewcommand{\Let}{\State}
+\algnewcommand{\Abstract}{\State \textbf{Abstract}}

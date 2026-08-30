@@ -1,0 +1,43 @@
+% ============================================================
+% Macros shared across chapters. Chapter-local macros (or
+% chapter-local overrides of these, e.g. \bools) belong in
+% macros/<chapter>.tex, which is loaded inside a group.
+% ============================================================
+
+% --- basic sets and objects ---
+\NewDocumentCommand{\Nats}{}{\mathbb{N}}
+\NewDocumentCommand{\Rats}{}{\mathbb{Q}}
+\NewDocumentCommand{\Ints}{}{\mathbb{Z}}
+\NewDocumentCommand{\Reals}{}{\mathbb{R}}
+\NewDocumentCommand{\bools}{}{\{\top,\bot\}}      % overridden to {0,1} where needed
+\NewDocumentCommand{\Bools}{}{\{\bot,\top\}}
+\NewDocumentCommand{\probs}{}{[0,1]}
+\NewDocumentCommand{\none}{}{\mathrm{None}}
+\NewDocumentCommand{\boolsopt}{}{\{\top,\bot,\none\}}
+\NewDocumentCommand{\zero}{}{\mathbf{0}}
+\NewDocumentCommand{\Powerset}{m}{\mathcal{P}\left(#1\right)}
+\NewDocumentCommand{\Props}{}{\operatorname{Prop}}
+\NewDocumentCommand{\strings}{}{\operatorname{string}}
+\NewDocumentCommand{\finset}{}{\operatorname{finset}}
+\NewDocumentCommand{\supp}{}{\operatorname{supp}}
+\NewDocumentCommand{\Indicator}{m}{\ensuremath{\delta_{#1}}}
+
+\newcommand{\eps}{\varepsilon}
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\norm}[1]{\lVert #1 \rVert}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+% --- probability ---
+% \Prob is \mathbf{P} thesis-wide (the long nonvf paper's \mathbf{Pr}
+% is unified to this).
+\NewDocumentCommand{\Prob}{}{\mathbf{P}}
+\NewDocumentCommand{\Probof}{m}{\Prob\left[#1\right]}
+\NewDocumentCommand{\Expect}{}{\mathbf{E}}
+\NewDocumentCommand{\Expectof}{m}{\Expect\left[#1\right]}
+\NewDocumentCommand{\Expectofu}{o m}{\Expect_{#1}\left[#2\right]}
+\NewDocumentCommand{\sigalg}{}{\mathcal{F}}
+\NewDocumentCommand{\sigalgalt}{}{\mathcal{G}}
+\NewDocumentCommand{\Sigalg}{}{\mathcal{F}}
+\NewDocumentCommand{\textsigalg}{}{$\sigma$-algebra}
+\NewDocumentCommand{\textsubsigalg}{}{$\sigma$-subalgebra}

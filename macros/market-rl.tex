@@ -1,0 +1,36 @@
+% Chapter-local macros for market-rl ("Market-based architectures in RL and beyond").
+% \Nats, \Reals, remark*/setup* envs, \rephrase etc. are global; only paper-specific macros here.
+
+% Coauthor todo command (from the source paper; todonotes is globally disabled)
+\newcommandx{\ltt}[2][1=]{\todo[linecolor=blue,backgroundcolor=blue!25,bordercolor=blue,#1]{\textbf{LTT:} #2}}
+
+% Market notation (from mba.tex, Section "Market algorithms")
+\NewDocumentCommand{\statevecs}{}{\mathcal{S}}
+\NewDocumentCommand{\statevec}{}{s}
+\NewDocumentCommand{\actions}{}{\mathcal{X}}
+\NewDocumentCommand{\action}{}{x}
+\NewDocumentCommand{\trans}{}{\mathbf{P}}
+\NewDocumentCommand{\reward}{}{\mathbf{R}}
+\NewDocumentCommand{\obss}{}{\Omega}
+\NewDocumentCommand{\obs}{}{\omega}
+\NewDocumentCommand{\obsd}{}{\mathbf{O}}
+\NewDocumentCommand{\agents}{}{\mathcal{A}}
+\NewDocumentCommand{\agent}{}{\alpha}
+\NewDocumentCommand{\agentact}{}{\hat{\agent}}
+\NewDocumentCommand{\agentbid}{}{{\agent}_b}
+\NewDocumentCommand{\consumer}{}{\gamma}
+\NewDocumentCommand{\consumers}{}{\mathcal{C}}
+\NewDocumentCommand{\consumeract}{}{\hat{\consumer}}
+\NewDocumentCommand{\consumerbid}{}{{\consumer}_b}
+\NewDocumentCommand{\messages}{}{\mathrm{str}}
+\NewDocumentCommand{\wealth}{}{w}
+\NewDocumentCommand{\bids}{}{b}
+\algnewcommand{\LeftComment}[1]{\(\triangleright\) #1}
+
+% Equilibrium computation and prices
+\NewDocumentCommand{\equilibrium}{}{\operatorname{Equ}}
+\NewDocumentCommand{\price}{}{\mathbf{p}}
+
+% Neural-network input/output spaces
+\NewDocumentCommand{\nnX}{}{\mathbb{X}}
+\NewDocumentCommand{\nnY}{}{\mathbb{Y}}

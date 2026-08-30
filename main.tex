@@ -1,0 +1,94 @@
+\documentclass[11pt,a4paper,oneside]{book}
+
+\input{preamble/thesis.tex}
+\input{preamble/macros-common.tex}
+
+% ============================================================
+% Chapter-loading mechanism.
+%
+% Each chapter lives in chapters/<name>.tex, with an optional
+% chapter-local macro file macros/<name>.tex. Chapter macros are
+% loaded inside a group, so different chapters may redefine the
+% same command (e.g. \bools, \claudehaiku) without clashing.
+% The \clearpage before \endgroup flushes floats while the
+% chapter-local macros are still in scope.
+% ============================================================
+\NewDocumentCommand{\thesischapter}{m}{%
+  \begingroup
+  \InputIfFileExists{macros/#1.tex}{}{}%
+  \input{chapters/#1.tex}%
+  \clearpage
+  \endgroup
+}
+
+% The ToC/LoF/LoT are typeset in the front matter, before any chapter's
+% macros are in scope — but section titles and captions written to
+% main.toc/.lof/.lot may use chapter-local macros. So we typeset them
+% inside a group that pre-loads ALL chapter macro files with tolerant
+% (last-wins) definitions; the few cross-chapter conflicts (e.g. \bools)
+% don't matter for headings/captions.
+\NewDocumentCommand{\withallchaptermacros}{+m}{%
+  \begingroup
+  \let\NewDocumentCommand\DeclareDocumentCommand
+  \let\RenewDocumentCommand\DeclareDocumentCommand
+  \let\newcommand\DeclareRobustCommand
+  \let\newcommandx\providecommandx
+  \let\algnewcommand\DeclareRobustCommand
+  \InputIfFileExists{macros/market-rl.tex}{}{}%
+  \InputIfFileExists{macros/agency.tex}{}{}%
+  \InputIfFileExists{macros/infonomy.tex}{}{}%
+  \InputIfFileExists{macros/solib.tex}{}{}%
+  \InputIfFileExists{macros/nonvf.tex}{}{}%
+  \InputIfFileExists{macros/consistency.tex}{}{}%
+  #1%
+  \endgroup
+}
+
+\begin{document}
+
+% ============================================================
+% FRONT MATTER
+% ============================================================
+\frontmatter
+\input{frontmatter/titlepage.tex}
+
+\withallchaptermacros{%
+  \tableofcontents
+  \listoffigures
+  \listoftables
+}
+
+\input{frontmatter/acknowledgements.tex}
+\input{frontmatter/declarations.tex}
+\input{frontmatter/abstract.tex}
+
+% ============================================================
+% MAIN MATTER
+% ============================================================
+\mainmatter
+
+\thesischapter{intro}
+
+\part{Economic theory of agency}\label{part:agency}
+\thesischapter{part1-intro}
+\thesischapter{market-rl}
+\thesischapter{agency}
+
+\part{Information asymmetry and scalable oversight}\label{part:oversight}
+\thesischapter{part2-intro}
+\thesischapter{infonomy}
+\thesischapter{solib}
+
+\part{Eliciting beliefs on subjective questions}\label{part:subjective}
+\thesischapter{part3-intro}
+\thesischapter{nonvf}
+\thesischapter{consistency}
+
+% ============================================================
+% BIBLIOGRAPHY
+% ============================================================
+\backmatter
+\bibliographystyle{plainnat}
+\bibliography{bib/thesis}
+
+\end{document}

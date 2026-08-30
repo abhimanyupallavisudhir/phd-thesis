@@ -1,0 +1,211 @@
+% ============================================================
+% Thesis preamble: packages, layout, theorem environments,
+% draft-marking commands. Union of the preambles of the papers
+% being compiled into the thesis, with conflicts resolved.
+% Chapter-specific macros live in macros/<chapter>.tex.
+% ============================================================
+
+% --- layout (University of Warwick guidelines: A4, >=40mm binding
+% --- margin, 1.5 line spacing for the main text) ---
+\usepackage[a4paper, left=40mm, right=25mm, top=25mm, bottom=25mm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{emptypage}
+
+% --- fonts / typography ---
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+
+% --- colour ---
+\usepackage[dvipsnames]{xcolor}
+
+% --- math ---
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage{mathrsfs}
+\usepackage{nicefrac}
+\usepackage{xfrac}
+
+% --- programming-style command definitions ---
+\usepackage{xparse}
+\usepackage{xargs}
+
+% --- graphics, figures, tables ---
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{threeparttable}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+
+% --- code and algorithms ---
+\usepackage{verbatim}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{pythonhighlight}
+
+% --- text formatting ---
+\usepackage{enumitem}
+\usepackage{changepage}
+\usepackage{mdframed}
+\usepackage{pifont}
+\newcommand{\xmark}{\ding{55}}
+\newcommand{\cmark}{\ding{51}}
+
+% --- boxes (promptbox etc., shared by several chapters) ---
+\usepackage{tcolorbox}
+
+% --- citations ---
+\usepackage{natbib}
+
+% --- appendices within chapters ---
+\usepackage{appendix}
+
+% --- hyperlinks (load late), cleveref (load last) ---
+\usepackage[hyphens]{url}
+\usepackage[
+  colorlinks=true,
+  linkcolor=MidnightBlue,
+  urlcolor=MidnightBlue,
+  citecolor=MidnightBlue,
+  anchorcolor=MidnightBlue,
+]{hyperref}
+\usepackage[capitalize,noabbrev]{cleveref}
+
+% ============================================================
+% Draft marking.
+%
+% All "glue" text composed for the thesis (i.e. not lifted from
+% the underlying papers/reports) is wrapped in \draft{...} or
+% \begin{draftblock}...\end{draftblock}. It renders in dark red
+% with a marginal [draft] tag. Flip \draftfinal to typeset
+% draft text as normal text (for the final submission).
+% ============================================================
+\colorlet{draftcolor}{BrickRed}
+\newif\ifdraftfinal
+\draftfinalfalse   % \draftfinaltrue -> draft text typesets normally
+\NewDocumentCommand{\draftmark}{}{%
+  \ifdraftfinal\else\marginpar{\scriptsize\color{draftcolor}[draft]}\fi}
+\NewDocumentCommand{\draft}{+m}{%
+  \ifdraftfinal#1\else{\color{draftcolor}#1}\draftmark\fi}
+\NewDocumentEnvironment{draftblock}{}
+  {\ifdraftfinal\else\color{draftcolor}\fi\draftmark}
+  {}
+
+% \chapterabstract{...}: paper abstracts re-used as chapter openers.
+\NewDocumentCommand{\chapterabstract}{+m}{%
+  \begin{quote}\itshape #1\end{quote}\medskip}
+
+% \chaptersource{...}: note attributing a chapter to its source paper.
+\NewDocumentCommand{\chaptersource}{+m}{%
+  \begin{mdframed}[backgroundcolor=black!5, linewidth=0pt]
+  \small #1
+  \end{mdframed}\medskip}
+
+% ============================================================
+% Theorem environments (shared by all chapters; numbered within
+% chapter so that e.g. Theorem 5.3 is the third result of Ch. 5).
+% ============================================================
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{nontheorem}[theorem]{Non-theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{lefinition}[theorem]{Predefinition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem*{remark*}{Remark}
+\newtheorem*{notation*}{Notation}
+\newtheorem*{setup*}{Setting}
+\newtheorem*{notes*}{Explanatory notes}
+\newtheorem*{constants*}{Constants}
+
+% proof sketch
+\newenvironment{hproof}{%
+  \renewcommand{\proofname}{Proof sketch}\proof}{\endproof}
+
+% centred bold-italic "thesis statement" display
+\newenvironment{thesisclaim}{%
+  \begin{center}\bfseries\itshape}{\end{center}}
+
+% ============================================================
+% Todo notes (disabled by default; commands kept so lifted text
+% containing them still compiles).
+% ============================================================
+\usepackage[disable, textsize=tiny]{todonotes}
+\newcommandx{\manyu}[2][1=]{\todo[linecolor=black,backgroundcolor=black!25,bordercolor=black,#1]{APS: #2}}
+\newcommandx{\manyuunimp}[2][1=]{\todo[linecolor=black!50,backgroundcolor=black!12.5,bordercolor=black!50,textcolor=black!50,#1]{APS: #2}}
+\newcommandx{\towrite}[2][1=]{\todo[linecolor=black,backgroundcolor=black,bordercolor=black,textcolor=white#1,inline]{ADD: #2}}
+\newcommandx{\rephrase}[2][1=]{\todo[linecolor=black,backgroundcolor=black!25,bordercolor=black,#1]{OR: #2}}
+\newcommandx{\bleg}[2][1=]{\todo[linecolor=blue,backgroundcolor=blue!25,bordercolor=blue,#1]{Q: #2}}
+\newcommandx{\dpaleka}[2][1=]{\todo[linecolor=cyan,backgroundcolor=cyan!25,bordercolor=cyan,#1]{DP: #2}}
+\newcommandx{\Alejandro}[2][1=]{\todo[linecolor=OliveGreen,backgroundcolor=OliveGreen!25,bordercolor=OliveGreen,#1]{Al: #2}}
+\newcommandx{\vin}[2][1=]{\todo[linecolor=magenta,backgroundcolor=magenta!25,bordercolor=magenta,#1]{VB: #2}}
+\newcommandx{\adam}[2][1=]{\todo[linecolor=blue,backgroundcolor=blue!25,bordercolor=blue,#1]{Adam: #2}}
+\newcommandx{\evan}[2][1=]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,#1]{Evan: #2}}
+\newcommandx{\ft}[2][1=]{\todo[linecolor=orange,backgroundcolor=orange!25,bordercolor=orange,#1]{FT: #2}}
+
+% ============================================================
+% Shared colours and boxes (from the cfcasting/solib preambles)
+% ============================================================
+\definecolor{pastelred}{HTML}{FFC0C0}
+\definecolor{pastelorange}{HTML}{FFDAC0}
+\definecolor{pastelyellow}{HTML}{FFFDC0}
+\definecolor{pastelgreen}{HTML}{a0e7a0}
+\definecolor{pastelcyan}{HTML}{C0FFFD}
+\definecolor{pastellightblue}{HTML}{D0E0FF}
+\definecolor{pastelblue}{HTML}{C0C0FF}
+\definecolor{pastelviolet}{HTML}{DAC0FF}
+\definecolor{pastelmagenta}{HTML}{FFC0FF}
+\definecolor{pastelrose}{HTML}{FFC0DA}
+\definecolor{darkred}{HTML}{C23B22}
+\definecolor{darkgreen}{HTML}{1cc650}
+\definecolor{lightgreen}{HTML}{caee9c}
+
+\newenvironment{promptbox}{
+  \begin{figure}[hbt!]
+  \begin{tcolorbox}[left=1.5mm, right=1.5mm, top=1.5mm, bottom=1.5mm]
+  \raggedright
+  \small
+  \textbf{User:} \texttt{...} \\[4pt]
+  \textbf{Assistant:} \texttt{...} \\[4pt]
+}{
+  \end{tcolorbox}
+  \end{figure}
+}
+
+\newenvironment{emptypromptbox}[1][]
+{
+  \begin{tcolorbox}[left=1.5mm, right=1.5mm, top=1.5mm, bottom=1.5mm]
+    \raggedright
+    \small
+    \ifx\relax#1\relax\else
+      \begin{center}
+        {\normalsize \textbf{\color{black} #1}}
+      \end{center}
+    \fi
+}{
+  \end{tcolorbox}
+}
+
+\newtcolorbox{questionbox}[2][]{colback=gray!10!white, colframe=gray!40!black, title=#2, #1}
+
+% misc text helpers
+\newcommand{\nicett}[1]{{\texttt{#1}}}

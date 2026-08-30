@@ -1,0 +1,90 @@
+% Chapter-local macros for consistency ("Consistency checks for language
+% model forecasters", ICLR 2025). Lifted from cfcasting-paper/preamble.tex.
+% \Reals, \bools, \probs, \none, \boolsopt, \Indicator, \eps, \abs, \norm,
+% \argmax, \argmin, \Prob, \nicett and the theorem/todo machinery are global.
+% The paper's \bools = \{\top,\bot\} matches the global definition.
+% \DeclareCaptionLabelFormat{andtable} from the paper preamble is preamble-only
+% and unused in the kept text, so it is not reproduced here.
+
+% forecasting question sets
+\NewDocumentCommand{\ForecastingQuestions}{}{\operatorname{Prop}}
+\NewDocumentCommand{\Resolutions}{}{\Theta}
+\NewDocumentCommand{\ResolutionsOpt}{}{\Theta'}
+\NewDocumentCommand{\Forecasts}{}{\Delta\Resolutions}
+\NewDocumentCommand{\Resolution}{}{\theta}
+\NewDocumentCommand{\ResolutionsVec}{}{\Omega}
+\NewDocumentCommand{\resolutionvec}{}{\omega}
+
+% forecasters
+\NewDocumentCommand{\Forecaster}{}{\mathbb{F}}
+
+% tuples
+\NewDocumentCommand{\Relation}{}{\mathcal{R}}
+\NewDocumentCommand{\CCheck}{}{\mathcal{S}}
+\NewDocumentCommand{\Violation}{}{\mathcal{V}}
+\NewDocumentCommand{\Arbitrageur}{}{\mathcal{A}}
+\NewDocumentCommand{\FullInstantiator}{}{\mathcal{J}}
+\NewDocumentCommand{\Instantiator}{}{\mathcal{I}}
+\NewDocumentCommand{\Generator}{}{\mathcal{G}}
+
+% frequentist metric
+\NewDocumentCommand{\TrueProb}{}{\mathbb{T}}
+\NewDocumentCommand{\Normal}{}{\mathsf{N}}
+
+% consistent forecaster (ArbitrageForecaster)
+\newcommand{\CFCaster}{\texttt{ArbitrageForecaster}}
+\NewDocumentCommand{\CFC}{o m}{%
+  \langle #2 \rangle%
+  \IfValueT{#1}{_{#1}}%
+}
+
+% arbitrage-metric helpers (defined inline in the paper's main text;
+% hoisted here because they are used across several subsections)
+\NewDocumentCommand{\score}{m}{\ensuremath{s\left(#1\right)}}
+\NewDocumentCommand{\consp}{}{p}
+\NewDocumentCommand{\argmaxmax}{}{\mathop{(\argmax,\max)}}
+
+% checker names
+\newcommand{\NegChecker}{\textsc{Negation}}
+\newcommand{\ConsequenceChecker}{\textsc{Consequence}}
+\newcommand{\ParaphraseChecker}{\textsc{Paraphrase}}
+\newcommand{\AndChecker}{\textsc{And}}
+\newcommand{\ButChecker}{\textsc{But}}
+\newcommand{\CondChecker}{\textsc{Cond}}
+\newcommand{\OrChecker}{\textsc{Or}}
+\newcommand{\AndOrChecker}{\textsc{AndOr}}
+\newcommand{\CondCondChecker}{\textsc{CondCond}}
+\newcommand{\SymmetryAndChecker}{\textsc{SymmetryAnd}}
+\newcommand{\SymmetryOrChecker}{\textsc{SymmetryOr}}
+\newcommand{\ExpectedEvidenceChecker}{\textsc{ExpEvidence}}
+
+\newcommand{\Yes}{\textsc{Yes}}
+\newcommand{\No}{\textsc{No}}
+\newcommand{\None}{\textsc{N/A}}
+
+% model names
+\newcommand{\gptfouro}{\texttt{gpt-4o}}
+\newcommand{\gptfouromay}{\texttt{gpt-4o-2024-05-13}}
+\newcommand{\gptfouroaug}{\texttt{gpt-4o-2024-08-06}}
+\newcommand{\gptfouromini}{\texttt{gpt-4o-mini}}
+\newcommand{\gptfourominijul}{\texttt{gpt-4o-mini-2024-07-18}}
+\newcommand{\claudesonnet}{\texttt{claude-3.5-sonnet}}
+\newcommand{\claudehaiku}{\texttt{claude-3-haiku}}
+\newcommand{\gptthreefiveturbo}{\texttt{gpt-3.5-turbo}}
+\newcommand{\llamaeight}{\texttt{llama-3.1-8B}}
+\newcommand{\llamaseventy}{\texttt{llama-3.1-70B}}
+\newcommand{\llamafourhundred}{\texttt{llama-3.1-405B}}
+\newcommand{\perplexityhuge}{\texttt{perplexity/llama-3.1-sonar-huge-128k-online}}
+\newcommand{\perplexitylarge}{\texttt{perplexity/llama-3.1-sonar-large-128k-online}}
+\newcommand{\oonemini}{\texttt{o1-mini}}
+\newcommand{\oonepreview}{\texttt{o1-preview}}
+\newcommand{\textembedsmall}{\texttt{text-embedding-3-small}}
+\newcommand{\verbatimbox}[1]{{\obeyspaces\obeylines\detokenize{#1}}}
+
+% rebuttal markers (identity; the lifted text uses them throughout)
+\newcommand{\rebuttal}[1]{#1}
+\newcommand{\rebuttaldeleted}[1]{}
+
+% Used in a figure caption, so defined here (pre-loaded for the LoF pass):
+\DeclareDocumentCommand{\priceP}{}{\Forecaster(P)}
+\DeclareDocumentCommand{\priceQ}{}{\Forecaster(Q)}
