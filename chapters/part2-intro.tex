@@ -1,0 +1,15 @@
+% Part II introduction (no \chapter heading; flows after the \part page).
+
+\begin{draftblock}
+\noindent The central claim of this part is an identification: \textbf{the outer alignment problem --- scalable oversight --- \emph{is} the economist's problem of information asymmetry}, transported from the market for goods to the market for AI behaviour.
+\end{draftblock}
+
+% Lifted from ways_to_think_alignment.org (A) / the infonomy paper's framing:
+The basic problem with RLHF is that it fundamentally relies on a human's ability to judge the correctness or value of a (potentially superhuman) AI's outputs: the AI is trained on the human supervisor's immediate, superficial volition, rather than on her \emph{extrapolated volition}. This is precisely the structure of a ``Market for Lemons'' \citep{lemons}: the seller (or information-giver) by definition possesses information the buyer (or evaluator) doesn't, so the prices given by the buyer only reflect her superficial preferences (based on the information she has) rather than what her true preferences would be with full information. If information markets ``just worked'', a buyer facing information asymmetry could simply purchase the information needed to bridge it --- \citet{barzelTransactionCostsAre1985} goes as far as claiming that under a suitably general framework, information is \emph{the} fundamental cause of all market failure.
+
+% Lifted (adapted) from "thesis or report structure.org" and the year-2 report (P2):
+Information asymmetry is what makes \emph{prediction} markets necessary at all, as opposed to plain \emph{information} markets: one cannot simply inspect information before buying it, because in doing so one obtains it without paying (the \emph{buyer's inspection paradox}). But this obstruction is peculiar to \emph{human} buyers --- an LLM buyer can inspect information and then verifiably ``forget'' it. Intelligence is now decoupled from the human ``architecture'': things like memory, train-of-thought and the inability to insulate oneself from outside information are now design parameters. This opens up new opportunities in epistemics --- questions like ``what would I think if I didn't know X?'' are now meaningful --- and new institutions, like workable information markets.
+
+\begin{draftblock}
+\Cref{ch:infonomy} builds on this observation (due to \citealt{weissRedesigningInformationMarkets2024}) to construct \emph{recursive information markets}: a mechanism by which a human rater's judgement is amplified by a recursive market of information-selling agents, so that the reward signal she emits approximates her extrapolated volition. Recursive information markets are a \emph{scalable oversight protocol}; evaluating such protocols in a principled way is an open problem in its own right, and \cref{ch:solib} constructs a benchmark for scalable oversight mechanisms --- defining the Agent Score Difference metric and evaluating protocols such as Debate and Consultancy --- to address it.
+\end{draftblock}

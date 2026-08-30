@@ -1,0 +1,26 @@
+% ============================================================
+% Chapter-local macros for chapters/agency.tex
+% ("Price recursion as the rational theory of reward").
+% Loaded inside a group by \thesischapter, so these vanish
+% after the chapter.
+% ============================================================
+
+% Operators used throughout the marketgrad notes.
+% (\DeclareMathOperator is preamble-only, so plain \operatorname here.)
+\newcommand{\KL}{\mathrm{KL}}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\diag}{\operatorname{diag}}
+\newcommand{\softmax}{\operatorname{softmax}}
+
+% The source articles use \mathbb{Q} for the goods/quantity vector space.
+\newcommand{\Qspace}{\mathbb{Q}}
+
+% Simplex of routing shares.
+\newcommand{\simplex}{\Delta}
+
+% Inline verbatim-ish code identifiers (pdflatex-safe).
+\newcommand{\code}[1]{\texttt{#1}}
+
+% "[verified]" marker from THEORY.md: identities checked numerically
+% against the marketgrad library.
+\newcommand{\verifiedmark}{\textnormal{\small\textbf{[verified]}}}

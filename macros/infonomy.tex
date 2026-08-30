@@ -1,0 +1,42 @@
+% Chapter-local macros for infonomy ("Extrapolating volition with recursive
+% information markets"), from infonomy-paper/preamble.tex.
+% \Nats \Ints \Reals \probs \eps \abs \norm \argmax \argmin \sigalg \sigalgalt
+% \Prob \Probof \Expect \Expectof \Expectofu \Powerset \Samples' companions
+% \Sigalg \textsigalg \textsubsigalg \zero are already global.
+% Global \finset (= \operatorname{finset} via NewDocumentCommand) suffices:
+% this chapter only uses \finset(\InfoOffers)^N (no subscripts/limits needed).
+
+% This paper uses {0,1} for \bools (global default is {\top,\bot}).
+\DeclareDocumentCommand{\bools}{}{\{0,1\}}
+
+% Citation aliases used throughout the paper source (paper had both -> \cite;
+% resolved to natbib author-year forms for the thesis).
+\newcommand{\citeps}{\citep}
+\newcommand{\citets}{\citet}
+
+%%% business logic
+\NewDocumentCommand{\Actions}{}{\mathcal{X}}
+\NewDocumentCommand{\Samples}{}{\Omega}
+\NewDocumentCommand{\infogood}{}{\mathbf{I}}
+\NewDocumentCommand{\Mech}{}{\mathcal{Y}}
+
+\NewDocumentCommand{\BuyerContext}{}{\textsc{BuyerContext}}
+\NewDocumentCommand{\InfoOffer}{}{\textsc{InfoOffer}}
+\NewDocumentCommand{\InfoOffers}{}{\textsc{InfoOffers}}
+\NewDocumentCommand{\BuyerContexts}{}{\textsc{BuyerContexts}}
+\NewDocumentCommand{\Seller}{}{\textsc{Seller}}
+\NewDocumentCommand{\Sellers}{}{\textsc{Sellers}}
+\NewDocumentCommand{\RIP}{}{\textsc{RIP}}
+\NewDocumentCommand{\LLM}{}{\texttt{LLM}}
+\NewDocumentCommand{\prompt}{}{\texttt{prompt}}
+
+\NewDocumentCommand{\infooffers}{}{\mathcal{I}}
+
+%% TODO(infonomy): anonymized review URL; replace with the public repository URL.
+\NewDocumentCommand{\infonomyurl}{}{\url{https://anonymous.4open.science/r/infonomy-server-5668/}}
+\NewDocumentCommand{\infonomy}{}{\texttt{infonomy-server}}
+
+% Algorithm shims from the paper preamble (algpseudocode is loaded globally).
+\newcommand{\Struct}[1]{\State \textbf{class} \textsc{#1}}
+\newcommand{\EndStruct}{\State \textbf{end class}}
+\newcommand{\LeftComment}[1]{\State \(\triangleright\) #1}

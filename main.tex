@@ -1,0 +1,69 @@
+\documentclass[11pt,a4paper,oneside]{book}
+
+\input{preamble/thesis.tex}
+\input{preamble/macros-common.tex}
+
+% ============================================================
+% Chapter-loading mechanism.
+%
+% Each chapter lives in chapters/<name>.tex, with an optional
+% chapter-local macro file macros/<name>.tex. Chapter macros are
+% loaded inside a group, so different chapters may redefine the
+% same command (e.g. \bools, \claudehaiku) without clashing.
+% The \clearpage before \endgroup flushes floats while the
+% chapter-local macros are still in scope.
+% ============================================================
+\NewDocumentCommand{\thesischapter}{m}{%
+  \begingroup
+  \InputIfFileExists{macros/#1.tex}{}{}%
+  \input{chapters/#1.tex}%
+  \clearpage
+  \endgroup
+}
+
+\begin{document}
+
+% ============================================================
+% FRONT MATTER
+% ============================================================
+\frontmatter
+\input{frontmatter/titlepage.tex}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\input{frontmatter/acknowledgements.tex}
+\input{frontmatter/declarations.tex}
+\input{frontmatter/abstract.tex}
+
+% ============================================================
+% MAIN MATTER
+% ============================================================
+\mainmatter
+
+\thesischapter{intro}
+
+\part{Economic theory of agency}\label{part:agency}
+\thesischapter{part1-intro}
+\thesischapter{market-rl}
+\thesischapter{agency}
+
+\part{Information asymmetry and scalable oversight}\label{part:oversight}
+\thesischapter{part2-intro}
+\thesischapter{infonomy}
+\thesischapter{solib}
+
+\part{Eliciting beliefs on subjective questions}\label{part:subjective}
+\thesischapter{part3-intro}
+\thesischapter{nonvf}
+\thesischapter{consistency}
+
+% ============================================================
+% BIBLIOGRAPHY
+% ============================================================
+\backmatter
+\bibliographystyle{plainnat}
+\bibliography{bib/thesis}
+
+\end{document}
