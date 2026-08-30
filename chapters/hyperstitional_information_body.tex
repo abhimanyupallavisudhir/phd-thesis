@@ -1,0 +1,171 @@
+The logarithmic scoring rule \(b\log q(x)\) \href{https://www.lesswrong.com/posts/fCGXK7oyhM4ei77gt/lmsr-subsidy-parameter-is-the-price-of-information}{exactly puts a price on information by the usual measure}: the expected score an agent with some belief distribution \(q\) gets is exactly \(-bH(p,q)\) where \(p\) is the true distribution (or, more accurately: the score we expect that agent to get is \(-bH(p,q)\), from our perspective/belief \(p\)).
+
+Consequently, the value of some information \(Y\) is precisely its mutual information \(bI(X;Y)\) with the event of interest, etc.
+
+Here's a question: \textbf{does every proper scoring rule correspond to an information measure?} For instance, does the quadratic scoring rule incentivize obtaining information in the sense of ``quadratic negentropy'' much like logarithmic scoring incentivizes obtaining information in the sense of ``logarithmic negentropy''?
+
+\hypertarget{generalized-entropies-and-bregman-divergence}{%
+\subsection{generalized entropies and Bregman divergence}\label{generalized-entropies-and-bregman-divergence}}
+
+A scoring rule is some function \(S(x, q)\) that tells you how much an agent gets for belief \(q\) when an outcome \(x\) is realized---equivalently that is how someone with belief \(\delta_x\) would score belief \(q\). This also tells you how someone with belief \(p\) would score belief \(q\):
+
+\[G(p,q)=\sum_x p(x)S(x,q)\] Properness means that \(q=p\) maximizes it, i.e.
+
+\[G(p):=G(p,p)=\max_q G(p,q)\] \(G(p)\) is the score we give to our own beliefs, thus there is no bias penalty, only an uncertainty penalty: it measures our ``certainty'' about our own beliefs.
+
+(So \(G(p)\) and \(G(p,q)\) are the generalized ``negentropy'' and ``cross-negentropy'' respectively, and their negatives are the generalized entropy and cross-entropy.)
+
+Now observe: fix \(q\) and look at the maps \(p\mapsto G(p)\) and \(p\to G(p,q)\). The latter is linear in \(p\), and they touch at the point \(p=q\) (everywhere else \(G(p,q)\) lies below \(G(p)\)).
+
+Thus for every \(q\), \(G(p,q)\) is the tangent plane under the graph of \(G(p)\) at the point \(p=q\). In other words, \textbf{any (neg-)entropy function \(G(p)\) naturally induces a cross (neg-)entropy function \(G(p,q)\)} by its tangent planes:
+
+\[G(p,q)=G(q)+\langle\nabla G(q), p-q\rangle\]
+
+When \(G(p)\) is convex, i.e.~it sits above all its tangent planes (in fact it is exactly the max of all its tangent planes), the resulting scoring rule is proper i.e.~\(G(p)=\max_q G(p,q)\). \textbf{Thus every convex function generates an information theory.}
+
+So the Generalized Scoring \(S(x,q)=G(\delta_x, q)\), the Generalized Cross-Entropy \(-G(p,q)\) and the Generalized Entropy \(-G(p)\) are all equally fundamental; you can derive the rest from any one of them.
+
+We also define the Generalized KL-divergence (``Bregman Divergence'') as the vertical gap between \(G(p)\) and the tangent plane \(G(p,q)\), i.e.~``how much does \(p\) believe itself to be better than \(q\)'':
+
+\[D(p\parallel q)=G(p)-G(p,q)\]
+
+For log score \(S(x, q)=\log q(x)\), we have usual information theory. For the quadratic score \(S(x,q)=-\|q-\delta_x\|^2\) we have cross-negentropy \(G(p,q)=\langle p, q\rangle-\|q\|^2-1\), negentropy \(G(p)=\|p\|^2-1\) (the negative of which, the quadratic entropy, is called the ``Gini impurity'') and Bregman divergence \(D(p\parallel q)=\|p-q\|^2\).
+
+An entropy function inducing a cross-entropy function may remind you of how norms naturally induce inner products (polarization identity). So is cross-entropy an inner product? Not really. If you take a quadratic form \(G(p)=\frac12 \langle p, A p\rangle\) (differing from the above quadratic entropy by constant term and factor) then \(\nabla H(p)=Ap\), and
+
+\[H(p,q)= \frac12 \langle q, A q\rangle+\langle Aq, p-q\rangle=\langle p,Aq\rangle-\frac12 \langle q,Aq\rangle\] Which is not the inner product, but it does suggest a generalized ``inner product'' of distributions: \(\langle p, q\rangle =G(p,q)+G(q)=G(p)+G(q)-D(p\parallel q)\). But it is not in general symmetric, etc.
+
+\hypertarget{mirror-ascent}{%
+\subsection{mirror ascent}\label{mirror-ascent}}
+
+What exactly is gradient ascent?
+
+\begin{quote}
+``Climbing in the direction of steepest ascent''
+\end{quote}
+
+ok, what is ``the direction of steepest ascent?''
+
+\begin{quote}
+Among all \(\varepsilon\)-steps in each direction, we choose the \(\varepsilon\)-step that gives the highest rise in the objective (as measured by a first-order Taylor approximation of the objective, i.e.~the gradient)
+\end{quote}
+
+I.e. given a current value \(x_t\), we want to find the \(x\) that maximizes \(f(x)-f(x_t)\). The first-order Taylor approximation for this is \(\langle\nabla f(x_t,), x-x_t\rangle\)---but we cannot trust the first-order Taylor approximation if we move too far, so we restrict the search to an \(\varepsilon\)-neighboruhood around \(x_t\). Thus:
+
+\[x_{t+1}=\arg\max\langle\nabla f(x_t,), x-x_t\rangle. \quad D(x, x_t)\le\varepsilon\]
+
+This is a constrained optimization problem, so define a Lagrangian:
+
+\[\mathcal{L}(x,\lambda)= \langle\nabla f(x_t,), x-x_t\rangle - \lambda (D(x, x_t)-\varepsilon)\]
+
+Differentiating we get:
+
+\[\nabla D(x_{t+1}, x_t) = \frac1\lambda \nabla f(x_t) \quad\quad (*)\] \[D(x_{t+1}, x_t)=\varepsilon\]
+
+For the usual Euclidean metric, \(\nabla D(x_{t+1}, x_t) = 2(x_{t+1}-x_t)\) so we can solve and get usual gradient ascent:
+
+\[x_{t+1} = x_t + \eta \nabla f(x_t) \]
+
+Instead suppose \(D(x_{t+1}, x_t)\) is an arbitrary Bregman divergence, i.e.~\(D(x, y) = G(x) - G(y) - \langle \nabla G(y), x-y)\) for convex \(G\). The gradient of this with respect to its first parameter is simply
+
+\[\nabla_x D(x, y) = \nabla G(x) - \nabla G(y)\]
+
+So plugging this back into \((*)\) we get the update rule:
+
+\[\nabla G(x_{t+1}) = \nabla G(x_t) + \eta\nabla f(x_t)\quad\quad (**)\]
+
+For convex \(G\), there is a one-to-one map between the values of \(x\) and the values of \(\nabla G(x)\); i.e.~the gradients live in a ``\(G\)-dual space'' or \textbf{mirror space} and this amounts exactly to doing gradient ascent in the mirror space, i.e.~``mirror ascent''.
+
+For \(G(x)= \|x\|^2\) (the usual quadratic metric), the map is the identity (scaled by \(2\)), and---
+
+\hypertarget{reward-is-hyperstitional-information}{%
+\subsection{reward is hyperstitional information}\label{reward-is-hyperstitional-information}}
+
+for \(G(p)=p\cdot\log(p)\) we have \(\nabla G(p) = 1+\log(p)\) thus the update rule is multiplicative (\textbf{entropic mirror ascent}):
+
+\[p_{t+1} \propto p_t\exp\left(\eta\nabla f(p_t)\right)\]
+
+(we are allowed to normalize because for probabilities the original problem is itself a constrained optimization problem with a simplex constraint)
+
+In other words: \textbf{optimizing some objective \(f(p)\) over probability space with entropic mirror ascent, is continuous-time Bayesian inference with likelihood function \(\exp\left(\eta\nabla f(p)\right)\)}.
+
+Unlike usual Bayesian inference:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  this likelihood function depends on the current \(p\)
+\item
+  this likelihood function can be \ldots{} anything.
+\end{enumerate}
+
+From a predictive processing/active infernece perspective, all rational behaviour must be Bayesian inference, and utility functions are fake. What you see as ``utility functions''/goals are actually the agent's prior: \textbf{and inference arbitrages between the agent's beliefs and the environment} (when the environment's information updates the agent that is ``learning''; when the agent's information influences the environment that is ``action'').
+
+And similarly, now we have that reward is also, information. What is it information about? Well, an RL agent produces probabilities \(\pi(x)\) for its actions and samples from them (so the policy also functions as the agent's beliefs about its own actions), and reward updates these probabilities---so it is simply information about ``what I will do'', and is definitionally rational, because ``what I will do'' is \emph{actually} updated and the agent's beliefs about it are updated in-sync. You can specify \emph{any} objective whatsoever, and optimizing it (at least through entropic mirror ascent) will still be rational Bayesian inference. In other words, reward is \emph{hyperstitional} information.
+
+(And if you multiply all the exponentiated rewards the agent gets through its training, you get its final prior, which expresses its exponentiated utility function. Kinda, maybe, oversimplified, whateever.)
+
+In bandits, the objective is just the reward; in more general RL you must use Q-values, and also do importance sampling (i.e.~use \(f(p)/p_i\) where \(i\) is the taken action instead of \(f(p)\)) because you only have access to the reward for one performed action. PPO methods used in modern RL also are approximately entropic mirror ascent (TRPO is exactly it; other stuff is kinda). You may also recall that evolution (replicator dynamics) is Bayesian inference (\href{https://arxiv.org/abs/0911.1763}{Harper 2009}, explained by \href{https://johncarlosbaez.wordpress.com/2012/06/01/information-geometry-part-9/}{John Baez here}). Indeed, it is exactly equivalent to this dynamic, with the fitness function as an exponentiated reward.
+
+\hypertarget{continuous-time-mirror-ascent-and-information-geometry}{%
+\subsection{continuous-time mirror ascent and information geometry}\label{continuous-time-mirror-ascent-and-information-geometry}}
+
+It is interesting to take the continuous limit of this dynamics. We have:
+
+\[\frac{d}{dt}\nabla G(x)= \nabla f(x)\]
+
+(i.e.~the velocity in the mirror space is the gradient of your objective function). What does this look like in the original primal space? Well we can apply the chain rule to rewrite the left side as \(\nabla^2 G(x)\frac{dx}{dt}\) (where \(\nabla^2\) is the Hessian) thus:
+
+\[\frac{dx}{dt}=[\nabla^2 G(x)]^{-1}\nabla f(x)\quad\quad (***)\]
+
+This gives us a very natural interpretation of mirror ascent: if you let the Hessian \(\nabla^2 G(x)\) defines a Riemannian metric on your space, \textbf{then mirror ascent is simply gradient ascent of the objective \(f(x)\) on that geometry.} Physicists are of course quite used to transforming between primal and dual spaces by multiplying by the metric and its inverse respectively.
+
+Pitfall prevention: this is not gravity, nor is it any Newtonian force (as that would drive the acceleration not the velocity).
+
+When \(G(x)\) is entropy, its Hessian is called the ``Fisher information matrix'' or ``Fisher-Rao metric'' \(\operatorname{diag}(1/p)\) and the geometry defined by this Riemannian metric is called information geometry.
+
+\hypertarget{advantage-is-rivalry}{%
+\subsection{Advantage is rivalry}\label{advantage-is-rivalry}}
+
+Actually, the rule in the above section is not exactly right for the probabilistic case, because it does not account for the probability normalization (i.e.~the fact that the original optimization itself has a constraint of probabilities adding up to 1).
+
+You can just take the continuous limit of the multiplicative update rule directly.
+
+In Bayesian inference, imagine the likelihood function to arrive over a period of time, so that over time \(dt\), you get infinitesimal evidence \(\exp(v\ dt)\). Call \(v\) the ``rate of evidence'' and it is a vector where each index is a hypothesis) --- and \(\bar{v}=p\cdot v\) is your ``expected evidence rate''. Then (where \(\odot\) is the pointwise product of vectors) Bayes's theorem is:
+
+\[p(t+dt)=\frac{p(t)\odot\exp(v\ dt)}{p(t)\cdot \exp(v\ dt)}\]
+
+Take first-order approximations \(\exp(x)\approx 1 + x\) and \(\frac1{1+x}\approx 1-x\): \[\begin{aligned}p(t+dt)&=\frac{p(t)\odot (1+ v\ dt)}{p(t)\cdot (1+ v\ dt)}\\
+&=p(t)\odot \frac{1+ v\ dt}{1 + \bar{v}\ dt}\\
+&= p(t)\odot (1+v\ dt) \odot (1-\bar{v}\ dt)\\
+&= p(t)\odot (1+v\ dt-\bar{v}\ dt)\\
+\implies dp/dt&= p(t)\odot(v-\bar{v})
+\end{aligned}\] This is the differential form of Bayes's theorem, and is the replicator equation from evolution.
+
+In the RL/entropic mirror ascent case, we have:
+
+\[
+\begin{aligned}p(t+dt) &=\frac{p(t)\odot \exp\left(\nabla f(p(t))\ dt\right)}{p(t)\cdot \exp\left(\nabla f(p(t))\ dt\right)}\\
+&= p(t)\odot (1 +\nabla f(p(t))\ dt-p(t)\cdot \nabla f(p(t))\ dt)\\
+dp/dt&= p(t)\odot (\nabla f(p)-p\cdot \nabla f(p))
+\end{aligned}\] Which is the same replicator equation, with the gradient of the reward \(\nabla f(p(t))\) as the ``evidence rate'' and the expected reward \(p(t)\cdot \nabla f(p(t))\) as the ``expected evidence rate''.
+
+But notice: this \(\nabla f(p)-p\cdot \nabla f(p)\) is \textbf{Advantage}, the difference between the \(Q\) and \(V\) values!
+
+Without ``rivalry'' (the constraint that probabilities would add up to 1), you would just have \(dp/dt= p(t)\odot \nabla f(p)\) (equivalent to the equation from the previous section---the inverse Fisher information is \(\mathrm{diag}(p)\) so left-multiplying by it is equivalent to doing \(p(t)\odot\)) . \textbf{\emph{Advantage} arises from rivalry}, i.e.~the constraint that these probabilities must add up to 1 (indeed, using advantage instead of the \(Q\)-value is only compulsory for tabular softmax parameterized policies).
+
+\hypertarget{what-im-confused-about-dynamics}{%
+\subsection{what I'm confused about: dynamics}\label{what-im-confused-about-dynamics}}
+
+Finally, the thing I am actually confused about:
+
+You know, a big problem in life is that people like expressing everything in terms of equilibrium (in economics, game theory, \href{https://yuxi.ml/essays/equilibrium-thermoeconomics}{entropostatics aka thermodynamics}) with little regard for the \emph{dynamics} that leads to the equilibrium.
+
+(This is closely related to how we just model agents as rational (i.e.~imagine that the utility function can just be arg-maxed) instead of modeling bounded rationality which has computational costs (and you can't just minus them from the objective either, because you don't know what those costs are) and is fundamentally dynamic because you can't instantly optimize something but that computational time is itself a cost\ldots)
+
+Entropic mirror ascent seems like a very promising model of dynamics. Because evolution (the most fundamental learning algorithm) actually follows it, and it is naturally a dynamical Bayesian inference. And I have some work suggesting that economies can naturally be thought of as doing it too.
+
+But on the other hand \ldots{} I can't imagine how dynamical thermodynamics could have anything to do with this? The simplest actually dynamical example in thermodynamics is Newton's law of cooling, and that actually happens to be \textbf{gradient ascent on entropy}, not continuous Bayesian inference/entropic mirror ascent.
+
+Modeling thermodynamic dynamics fundamentally seems to have something to do with thinking like ``Ok, I am not completely uncertain about this because I know where the system was 1 second ago; that is somehow a soft constraint'', i.e.~a generalized notion of ``fraction''. And I don't even know how gradient ascent on entropy comes out of this, maybe Newton's law of cooling is just a coincidence?

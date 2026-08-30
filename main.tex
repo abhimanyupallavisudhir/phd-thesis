@@ -1,0 +1,42 @@
+\documentclass[12pt,a4paper,oneside]{book}
+
+\input{preamble}
+
+\begin{document}
+
+\frontmatter
+\hypersetup{pageanchor=false}
+\input{frontmatter/titlepage}
+\hypersetup{pageanchor=true}
+\setcounter{page}{1}
+\input{frontmatter/declarations}
+\input{frontmatter/abstract}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\mainmatter
+
+\include{chapters/introduction}
+
+\part{Economic Theory of Agency}
+\include{chapters/part_agency}
+\include{chapters/market_based_rl}
+\include{chapters/price_recursion}
+
+\part{Information Asymmetry and Scalable Oversight}
+\include{chapters/part_scalable_oversight}
+\include{chapters/recursive_information_markets}
+\include{chapters/scalable_oversight_benchmark}
+
+\part{Eliciting Beliefs on Subjective Questions}
+\include{chapters/part_subjective_beliefs}
+\include{chapters/nonverifiable_betting}
+\include{chapters/consistency_checks}
+
+\backmatter
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

@@ -1,0 +1,64 @@
+\chapter{Introduction}
+\label{chap:introduction}
+
+\begin{drafttext}
+Economics and AI alignment begin from the same structural problem: how can a
+system produce coherent, desirable behaviour when relevant information,
+capability, and control are distributed among actors with different objectives?
+Economic theory studies institutions that turn local preferences and private
+information into prices, allocations, and incentives. AI alignment studies how
+to make increasingly capable artificial agents pursue objectives that remain
+desirable under novelty, scale, and informational advantage. The analogy is
+therefore not merely metaphorical. Markets provide both examples of composite
+agency and a mathematical language for reward, information, and delegation.
+\end{drafttext}
+
+Before neural networks won the mandate of heaven, an AI research paradigm that
+had shown considerable promise was that of \emph{market-based architectures},
+i.e. AI agents that determine their output based on some internal market-based
+mechanism \citep{kweeMarketBasedReinforcementLearning2001,
+changDecentralizedReinforcementLearning2020}.
+
+More broadly speaking, there are general intuitive arguments to imagine a close
+analogy between markets and AI. Philosophers and psychologists have long
+pondered multi-agent models of the mind \citep{minskySocietyMind1988}; moreover,
+one may imagine that ``any'' machine learning task could in principle be solved
+by a market of agents solving sub-tasks with their individual reward set by the
+sale value of their output. There is work suggesting that markets can capture
+some notion of \emph{bounded rationality}, e.g. the \emph{Boundedly Rational
+Inductive Agent} (BRIA) \citep{oesterheldTheoryBoundedInductive2023} and
+\emph{Algorithmic Bayesian Epistemology}
+\citep{neymanAlgorithmicBayesianEpistemology2024}. In some sense, markets
+``aggregate'' the intelligence or capacities of their individual participants.
+
+\section{Three levels of the economic alignment problem}
+
+\begin{drafttext}
+The thesis is organized around three levels. At the first level, economic
+mechanisms are studied \emph{as agents}: can market interaction among bounded
+sub-agents implement reinforcement learning, backpropagation, or rational reward?
+At the second level, economics is used to study the relationship between an
+agent and its evaluator: scalable oversight becomes an information-asymmetry
+problem in which the party being evaluated may understand its output better
+than the party assigning reward. At the third level, the object to be elicited
+is belief itself: how can a mechanism score forecasts or propositions when
+ground truth is delayed, non-verifiable, non-falsifiable, or partly subjective?
+
+The third level connects to the first two through information economics. Prices
+can guide agency only to the extent that they encode useful beliefs, while an
+oversight mechanism can reward an agent only to the extent that the evaluator
+can elicit or test those beliefs. Prediction markets, proper scoring rules,
+arbitrage, and consistency checks are therefore epistemic infrastructure for the
+same economic account of aligned agency.
+\end{drafttext}
+
+\section{Contributions and structure}
+
+\begin{drafttext}
+Part~I studies market-based reinforcement learning and a price-recursion account
+of reward. Part~II develops the information-asymmetry framing of scalable
+oversight, recursive information markets, and a benchmark for comparing
+oversight mechanisms. Part~III studies belief elicitation beyond promptly
+resolvable questions, first through verification--falsification games and then
+through logical consistency and arbitrage among forecasts.
+\end{drafttext}

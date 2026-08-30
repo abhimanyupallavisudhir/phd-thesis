@@ -1,0 +1,356 @@
+% Shared thesis preamble.  Paper-specific commands retained below allow the
+% source manuscripts to be incorporated with minimal textual intervention.
+\usepackage[pdftex,dvipsnames]{xcolor}
+\usepackage[
+  a4paper,
+  inner=35mm,
+  outer=25mm,
+  top=25mm,
+  bottom=30mm,
+  headheight=15pt
+]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\thepage}
+\fancyhead[L]{\nouppercase{\leftmark}}
+\renewcommand{\headrulewidth}{0.3pt}
+\usepackage{emptypage}
+
+
+% Recommended, but optional, packages for figures and better typesetting:
+\usepackage{microtype} %  Use "microtype" always; just \usepackage{microtype} and it'll make stuff awesome for free
+\usepackage{graphicx}
+\usepackage{subcaption}
+% \usepackage{subfigure}
+\usepackage{verbatim}
+\usepackage{booktabs} % READ the documentation of "booktabs" and then use it whenever you are preparing tables (the manual is awesome) https://ctan.org/pkg/booktabs
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{algpseudocode}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{mathpazo}
+\usepackage{caption}
+\usepackage{wrapfig}
+\usepackage{mdframed}
+\usepackage{mathtools}
+\usepackage{float}
+\newcommand{\squeezeup}{\vspace{-30mm}}
+\usepackage{pythonhighlight}
+
+
+
+
+\usepackage{natbib}
+
+% hyperref makes hyperlinks in the resulting PDF.
+% If your build breaks (sometimes temporarily if a hyperlink spans a page)
+% please comment out the following usepackage line and replace
+% \usepackage{icml2024} with \usepackage[nohyperref]{icml2024} above.
+\usepackage[hyphens]{url}
+\usepackage[
+colorlinks=true,
+linkcolor=blue,
+urlcolor=blue,
+citecolor=blue,
+anchorcolor=blue,
+pdftitle={Economic Theory for AI Alignment},
+pdfauthor={Abhimanyu Pallavi Sudhir}
+]{hyperref}
+\usepackage{siunitx}
+\usepackage{enumitem}
+\usepackage{xfrac}
+\usepackage{changepage}
+
+%\usepackage[accepted]{icml2024}
+%\usepackage{icml2024}
+
+\usepackage{ifthen}
+\usepackage{amssymb}% http://ctan.org/pkg/amssymb
+\usepackage{pifont}% http://ctan.org/pkg/pifont
+\newcommand{\xmark}{\ding{55}}%
+
+% Attempt to make hyperref and algorithmic work together better:
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+\makeatletter
+\providecommand{\theHALG@line}{}
+\renewcommand{\theHALG@line}{\thealgorithm.\arabic{ALG@line}}
+\makeatother
+
+\usepackage{threeparttable}
+
+
+
+\usepackage{xargs}
+
+\usepackage{xparse}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+% DO NOT USE \usepackage{geometry} IN THE ICML TEMPLATE
+
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+\usetikzlibrary{calc}
+
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{1.5em}
+\setlength{\parskip}{0.25em}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+% math
+\NewDocumentCommand{\Indicator}{m}{\ensuremath{\delta_{#1}}}
+\NewDocumentCommand{\Reals}{}{\mathbb{R}}
+\NewDocumentCommand{\bools}{}{\{\top,\bot\}}
+\NewDocumentCommand{\probs}{}{[0,1]}
+\NewDocumentCommand{\none}{}{\mathrm{None}}
+\NewDocumentCommand{\boolsopt}{}{\{\top,\bot,\none\}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\newcommand{\norm}[1]{\lVert #1 \rVert}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+% forecasting question sets
+\NewDocumentCommand{\ForecastingQuestions}{}{\operatorname{Prop}}
+\NewDocumentCommand{\Resolutions}{}{\Theta}
+\NewDocumentCommand{\ResolutionsOpt}{}{\Theta'}
+\NewDocumentCommand{\Forecasts}{}{\operatorname{Forecast}}
+\NewDocumentCommand{\Resolution}{}{\theta}
+\NewDocumentCommand{\ResolutionsVec}{}{\Omega}
+\NewDocumentCommand{\resolutionvec}{}{\omega}
+
+% forecasters
+\NewDocumentCommand{\Forecaster}{}{\mathbb{F}}
+\NewDocumentCommand{\Prob}{}{\mathbf{P}}
+\NewDocumentCommand{\finset}{}{\operatorname{finset}}
+\newcommand{\citeps}{\citep}
+\newcommand{\citets}{\citet}
+
+% tuples
+\NewDocumentCommand{\Relation}{}{\mathcal{R}}
+\NewDocumentCommand{\CCheck}{}{\mathcal{S}}
+\NewDocumentCommand{\Violation}{}{\mathcal{V}}
+\NewDocumentCommand{\Arbitrageur}{}{\mathcal{A}}
+\NewDocumentCommand{\FullInstantiator}{}{\mathcal{J}}
+\NewDocumentCommand{\Instantiator}{}{\mathcal{I}}
+\NewDocumentCommand{\Generator}{}{\mathcal{G}}
+
+% daniel's frequentist approach
+\NewDocumentCommand{\TrueProb}{}{\mathbb{T}}
+\NewDocumentCommand{\Normal}{}{\mathsf{N}}
+
+% consistent forecaster
+\newcommand{\CFCaster}{\texttt{ArbitrageForecaster}}
+\NewDocumentCommand{\CFC}{o m}{%
+  \langle #2 \rangle%
+  \IfValueT{#1}{_{#1}}%
+}
+
+% Todo notes
+\setlength {\marginparwidth }{2cm} % !!! REMEMBER TO COMMENT THIS OUT WHEN DONE WITH TODONOTES !!!
+\usepackage[
+    disable, % UNCOMMENT TO TURN OFF TODONOTES
+    textsize=tiny,
+]{todonotes}
+
+% Inline comment commands
+% unimp is if it's not crucial
+\newcommandx{\dpaleka}[2][1=]{\todo[linecolor=cyan,backgroundcolor=cyan!25,bordercolor=cyan,#1]{DP: #2}}
+\newcommandx{\dpalekaunimp}[2][1=]{\todo[linecolor=cyan!50,backgroundcolor=cyan!12.5 bordercolor=cyan!50,#1]{DP: #2}}
+\newcommandx{\manyu}[2][1=]{\todo[linecolor=black,backgroundcolor=black!25,bordercolor=black,#1]{APS: #2}}
+\newcommandx{\manyuunimp}[2][1=]{\todo[linecolor=black!50,backgroundcolor=black!12.5,bordercolor=black!50,textcolor=black!50,#1]{APS: #2}}
+\newcommandx{\Alejandro}[2][1=]{\todo[linecolor=OliveGreen,backgroundcolor=OliveGreen!25,bordercolor=OliveGreen,#1]{Al: #2}}
+\newcommandx{\Alejandrounimp}[2][1=]{\todo[linecolor=OliveGreen!50,backgroundcolor=OliveGreen!12.5,bordercolor=OliveGreen!50,#1]{Al: #2}}
+\newcommandx{\towrite}[2][1=]{\todo[linecolor=black,backgroundcolor=black,bordercolor=black,textcolor=white#1,inline]{ADD: #2}}
+\newcommandx{\vin}[2][1=]{\todo[linecolor=magenta,backgroundcolor=magenta!25,bordercolor=magenta,#1]{VB: #2}}
+\newcommandx{\vinunimp}[2][1=]{\todo[linecolor=magenta!50,backgroundcolor=magenta!12.5,bordercolor=magenta!50,#1]{VB: #2}}
+\newcommandx{\adam}[2][1=]{\todo[linecolor=blue,backgroundcolor=blue!25,bordercolor=blue,#1]{Adam: #2}}
+\newcommandx{\adamunimp}[2][1=]{\todo[linecolor=blue!50,backgroundcolor=blue!12.5,bordercolor=blue!50,#1]{Adam: #2}}
+\newcommandx{\evan}[2][1=]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,#1]{Evan: #2}}
+\newcommandx{\evanunimp}[2][1=]{\todo[linecolor=red!50,backgroundcolor=red!12.5,bordercolor=red!50,#1]{Evan: #2}}
+\newcommandx{\ft}[2][1=]{\todo[linecolor=orange,backgroundcolor=orange!25,bordercolor=orange,#1]{FT: #2}}
+
+
+
+% \newcommandx{\thiswillnotshow}[2][1=]{\todo[disable,#1]{#2}}
+
+
+\newcommand{\nicett}[1]{{\fontfamily{lmvtt}\fontsize{10.5pt}{12pt}\selectfont #1}}
+%\newcommand{\gptturbo}{\nicett{gpt-3.5-turbo}}
+
+
+% Use the following line for the initial blind version submitted for review:
+%\usepackage{icml2024}
+
+% If accepted, instead use the following line for the camera-ready submission:
+
+% if you use cleveref..
+\usepackage[capitalize,noabbrev]{cleveref}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% THEOREMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{nontheorem}[theorem]{Non-theorem}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem*{notation*}{Notation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FORMATTING
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% this some nice formatting taken from https://arxiv.org/abs/2404.13208
+\definecolor{pastelred}{HTML}{FFC0C0}
+\definecolor{pastelorange}{HTML}{FFDAC0}
+\definecolor{pastelyellow}{HTML}{FFFDC0}
+\definecolor{pastelgreen}{HTML}{a0e7a0}
+\definecolor{pastelcyan}{HTML}{C0FFFD}
+\definecolor{pastellightblue}{HTML}{D0E0FF}
+\definecolor{pastelblue}{HTML}{C0C0FF}
+\definecolor{pastelviolet}{HTML}{DAC0FF}
+\definecolor{pastelmagenta}{HTML}{FFC0FF}
+\definecolor{pastelrose}{HTML}{FFC0DA}
+
+\definecolor{darkred}{HTML}{C23B22}
+\definecolor{darkgreen}{HTML}{1cc650}
+\definecolor{lightgreen}{HTML}{caee9c}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{breakable,skins}
+
+\newenvironment{promptbox}{
+  \begin{figure}[hbt!]
+  \begin{tcolorbox}[left=1.5mm, right=1.5mm, top=1.5mm, bottom=1.5mm]
+  \raggedright
+  \small
+  \textbf{User:} \texttt{...} \\[4pt]
+  \textbf{Assistant:} \texttt{...} \\[4pt]
+}{
+  \end{tcolorbox}
+  \end{figure}
+}
+
+\newenvironment{emptypromptbox}[1][] % [Title (optional)]
+{
+  \begin{tcolorbox}[left=1.5mm, right=1.5mm, top=1.5mm, bottom=1.5mm]
+    \raggedright
+    \small
+    \ifx\relax#1\relax\else
+      \begin{center}
+        {\normalsize \textbf{\color{black} #1}}
+      \end{center}
+    \fi
+}{
+  \end{tcolorbox}
+}
+
+
+\newtcolorbox{questionbox}[2][]{colback=gray!10!white, colframe=gray!40!black, title=#2, #1}
+
+
+%\newcommand{\NegChecker}{\textsc{NegChecker}}
+%\newcommand{\ConsequenceChecker}{\textsc{ConsequenceChecker}}
+%\newcommand{\ParaphraseChecker}{\textsc{ParaphraseChecker}}
+%\newcommand{\AndChecker}{\textsc{AndChecker}}
+%\newcommand{\ButChecker}{\textsc{ButChecker}}
+%\newcommand{\CondChecker}{\textsc{CondChecker}}
+%\newcommand{\OrChecker}{\textsc{OrChecker}}
+%\newcommand{\AndOrChecker}{\textsc{AndOrChecker}}
+%\newcommand{\CondCondChecker}{\textsc{CondCondChecker}}
+%\newcommand{\SymmetryAndChecker}{\textsc{SymmetryAndChecker}}
+%\newcommand{\SymmetryOrChecker}{\textsc{SymmetryOrChecker}}
+
+
+\newcommand{\NegChecker}{\textsc{Negation}}
+\newcommand{\ConsequenceChecker}{\textsc{Consequence}}
+\newcommand{\ParaphraseChecker}{\textsc{Paraphrase}}
+\newcommand{\AndChecker}{\textsc{And}}
+\newcommand{\ButChecker}{\textsc{But}}
+\newcommand{\CondChecker}{\textsc{Cond}}
+\newcommand{\OrChecker}{\textsc{Or}}
+\newcommand{\AndOrChecker}{\textsc{AndOr}}
+\newcommand{\CondCondChecker}{\textsc{CondCond}}
+\newcommand{\SymmetryAndChecker}{\textsc{SymmetryAnd}}
+\newcommand{\SymmetryOrChecker}{\textsc{SymmetryOr}}
+\newcommand{\ExpectedEvidenceChecker}{\textsc{ExpEvidence}}
+
+\newcommand{\Yes}{\textsc{Yes}}
+\newcommand{\No}{\textsc{No}}
+\newcommand{\None}{\textsc{N/A}}
+
+\newcommand{\gptfouro}{\texttt{gpt-4o}}
+\newcommand{\gptfouromay}{\texttt{gpt-4o-2024-05-13}}
+\newcommand{\gptfouroaug}{\texttt{gpt-4o-2024-08-06}}
+\newcommand{\gptfouromini}{\texttt{gpt-4o-mini}}
+\newcommand{\gptfourominijul}{\texttt{gpt-4o-mini-2024-07-18}}
+\newcommand{\claudesonnet}{\texttt{claude-3.5-sonnet}}
+\newcommand{\claudehaiku}{\texttt{claude-3-haiku}}
+\newcommand{\gptthreefiveturbo}{\texttt{gpt-3.5-turbo}}
+\newcommand{\llamaeight}{\texttt{llama-3.1-8B}}
+\newcommand{\llamaseventy}{\texttt{llama-3.1-70B}}
+\newcommand{\llamafourhundred}{\texttt{llama-3.1-405B}}
+\newcommand{\perplexityhuge}{\texttt{perplexity/llama-3.1-sonar-huge-128k-online}}
+\newcommand{\perplexitylarge}{\texttt{perplexity/llama-3.1-sonar-large-128k-online}}
+\newcommand{\oonemini}{\texttt{o1-mini}}
+\newcommand{\oonepreview}{\texttt{o1-preview}}
+\newcommand{\textembedsmall}{\texttt{text-embedding-3-small}}
+\newcommand{\verbatimbox}[1]{{\obeyspaces\obeylines\detokenize{#1}}}
+
+% Thesis metadata. Update this in one place before submission.
+\newcommand{\thesissubmissiondate}{August 2026}
+
+% Every sentence newly composed to connect source manuscripts must be wrapped
+% in this environment.  It is deliberately visible in both source and PDF.
+\newenvironment{drafttext}{%
+  \begin{tcolorbox}[
+    enhanced,
+    breakable,
+    colback=yellow!8,
+    colframe=Goldenrod!65!black,
+    boxrule=0.5pt,
+    left=2mm,right=2mm,top=1mm,bottom=1mm,
+    title={\footnotesize\sffamily DRAFT GLUE --- AUTHOR REVIEW REQUIRED},
+    fonttitle=\bfseries
+  ]
+}{%
+  \end{tcolorbox}
+}
+
+\newcommand{\chapterprovenance}[1]{%
+  \begin{quote}\small\itshape\textbf{Source note.} #1\end{quote}
+}
+
+% Helpers emitted by Pandoc for the Markdown theory manuscript.
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\providecommand{\real}[1]{#1}
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
+
+% The consistency manuscript uses one level below subsubsection.
+\newcommand{\subsubsubsection}[1]{\paragraph{#1}\mbox{}\\}
+
+% These appear in a figure caption and therefore must exist when the list of
+% figures is read, before the appendix that normally defines them.
+\NewDocumentCommand{\priceP}{}{\Forecaster(P)}
+\NewDocumentCommand{\priceQ}{}{\Forecaster(Q)}

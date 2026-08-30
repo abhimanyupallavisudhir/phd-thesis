@@ -1,0 +1,412 @@
+\chapter{A Benchmark for Scalable Oversight Mechanisms}
+\label{chap:scalable-oversight-benchmark}
+
+\chapterprovenance{Adapted from ``A Benchmark for Scalable Oversight
+Mechanisms'' by Abhimanyu Pallavi Sudhir, Jackson Kaunismaa, and Arjun
+Panickssery.}
+
+\providecommand{\Protocol}{\texttt{Protocol}}
+\providecommand{\Protocolrun}{\texttt{run}}
+\providecommand{\Protocolexp}{\texttt{experiment}}
+\providecommand{\Agent}{\texttt{Agent}}
+\providecommand{\claudenewsonnet}{\texttt{claude-3-5-sonnet-20241022}}
+\providecommand{\deepseek}{\texttt{deepseek-v3}}
+\providecommand{\gptmini}{\texttt{gpt-4o-mini}}
+\providecommand{\deepseekr}{\texttt{deepseek-r1}}
+\providecommand{\othree}{\texttt{o3}}
+\algnewcommand{\Class}[1]{\State \textbf{Class} #1}
+\algnewcommand{\EndClass}{\State \textbf{End Class}}
+\algnewcommand{\Constructor}[1]{\Function{Constructor}{#1}}
+\algnewcommand{\EndConstructor}{\EndFunction}
+
+\section*{Abstract}
+	As AI agents surpass human capabilities, \emph{scalable oversight} -- the problem of effectively supplying human feedback to potentially superhuman AI models -- becomes increasingly critical to ensure alignment. While numerous scalable oversight protocols have been proposed, they lack a systematic empirical framework to evaluate and compare them. While recent works have tried to empirically study scalable oversight protocols -- particularly Debate -- we argue that the experiments they conduct are not generalizable to other protocols. We introduce the \emph{scalable oversight benchmark}, a principled framework for evaluating human feedback mechanisms based on our agent score difference (ASD) metric, a measure of how effectively a mechanism advantages truth-telling over deception. We supply a Python package to facilitate rapid and competitive evaluation of scalable oversight protocols on our benchmark, and conduct a demonstrative experiment benchmarking Debate.
+
+
+
+\section{Introduction}
+
+
+One way to frame the limitations of currently widely-used alignment techniques such as reinforcement learning from human feedback \citep{christianoDeepReinforcementLearning2017}, is that they fundamentally rely on a human's ability to judge the correctness or value of a (potentially superhuman) AI's outputs \citep{burnsWeaktoStrongGeneralizationEliciting2024}. In other words, the AI model is trained on the human supervisor's \emph{immediate, superficial} volition, rather than on her \emph{extrapolated volition} \citep{yudkowskyCoherentExtrapolatedVolition2004}.
+
+The problem of developing a human feedback mechanism that scales to superhuman intelligences is known as \emph{scalable oversight} \citep{bowmanMeasuringProgressScalable2022}. Broadly speaking, there are two ways to think about the scalable oversight problem:
+
+\begin{enumerate}
+
+	\item   The problem of developing a \textbf{training method} that makes   honesty (or more generally ``alignment'') the best policy for the model;   i.e. something to replace or extend RLHF to the superhuman realm.
+
+	\item   An \textbf{inference-time oversight mechanism} to catch a model when it says something false or does something bad; i.e. a mechanism design problem to get AIs to be truthful or useful.
+
+\end{enumerate}
+
+For example, in \emph{Debate}, the most widely-known scalable oversight protocol introduced in \citet{irvingAISafetyDebate2018}, the model is incentivized to tell the truth if it knows that a lie can be caught and convincingly refuted by its opponent. A list of other competing proposals is given in \cref{so:sec:related}.
+
+While there is mathematical and intuitive elegance underlying each of these protocols, their diversity and theoretical claims to superiority beg the question: \textbf{\emph{how can we evaluate and compare scalable oversight protocols themselves?}}
+
+\NewDocumentCommand{\allpreviousworks}{}{\citet{radhakrishnanAnthropicFall20232023,michael2023debateSuperviseUnreliableExperts,khanDebatingMorePersuasive2024,kentonScalableOversightWeak2024,arnesenTrainingLanguageModels2024}}
+\NewDocumentCommand{\previouswork}{}{previous debate experiments}
+\NewDocumentCommand{\Previouswork}{}{Previous debate experiments}
+\NewDocumentCommand{\previousworkalt}{}{previous work}
+% remember to put a {} after these commands, e.g. \previouswork{} to avoid spacing issues
+
+
+One approach, taken by recent works such as \allpreviousworks\footnote{we will collectively refer to these papers as ``\previouswork{}'' or ``\previousworkalt{}'' when making comments that apply to all of them}, is to evaluate these protocols (specifically Debate) \emph{empirically}, by measuring their effect on the accuracy of the ``judge'' (the human or weak model providing feedback).\todo{not sure what to put here vs in related work} %However, these works suffer from two critical limitations: first, they use the ``judge accuracy'' metric to evaluate protocols: as we argue in \cref{sec:asd}, this is not the correct metric from an alignment or safety point-of-view; second, while scalable oversight is designed for settings with a significant \emph{capabilities gap} between the agent (e.g. debater) and the judge, their experiments mainly simulate this capabilities gap with an \emph{information gap}, i.e. where the agent is exposed to information hidden from the judge.%%% leave this commented; it is bad to say they don't look at real capabilities gaps at all, because Kenton's paper is explicitly titled "judging strong LLMs with weak LLMs"
+
+Building and improving on their work, we introduce a \textbf{\emph{scalable oversight benchmark}}, a \emph{principled and general empirical framework} for evaluating human feedback mechanisms for their impact on AI alignment -- and run a small demonstrative experiment with it benchmarking the Debate, Consultancy and Propaganda protocols. Specifically, our contributions in this work are as follows.
+
+\paragraph{1) Principled metrics for evaluating scalable oversight protocols.} In \previouswork{}, protocols were evaluated based on ``judge accuracy'' -- i.e. they looked at how much Debate improved a (human or weak model) judge's accuracy at answering questions relative to a baseline ``Consultancy'' protocol. In Section~\ref{sec:asd}, we argue that this is the wrong metric to evaluate scalable oversight protocols on from an alignment perspective. Instead, we introduce the \emph{\textbf{agent score difference}} (ASD) metric, which measures how much the protocol ``advantages truth over falsehood'', by taking the difference in the score earned by an agent arguing for the true answer vs. for the false answer. For example, if under some scalable oversight protocol, a judge believes a truthful agent with probability \(0.8\) and a lying agent with probability \(0.6\), the ASD is \(\log(0.8)-\log(0.6)\approx 0.29\). This measure is equivalent to judge accuracy for \emph{Simultaneous Debate}; however it is not equivalent for Consultancy, hence the baseline comparison in \previouswork{} is incorrect.
+
+\NewDocumentCommand{\solib}{}{\textbf{\texttt{SOlib}}}
+
+\paragraph{2) A library for conducting systematic evaluations on scalable oversight protocols.} In \cref{sec:formal}, we characterize the class of experiments conducted in \previouswork{} and generalize it to ``any scalable oversight protocol'' (a term we formalize) -- and further provide a Python library \solib{}\footnote{\url{https://github.com/ArjunPanickssery/math_problems_debate}} to enable performing \emph{principled} and \emph{systematic} experiments evaluating scalable oversight protocols on our metric and meaningfully comparing between them. One may use our package by simply subclassing our \Protocol{} class and running its \Protocolexp{} method on any choice of agent and judge models and a labelled dataset of questions.%\footnote{the datasets directly supported in the package are GSM-8K \citep{cobbe2021gsm8k}, GPQA \citep{rein2024gpqa} and MMLU \citep{hendryckstest2021}}
+
+\paragraph{3) Experiments with tool use.} Scalable oversight is desired for settings with a significant \emph{capabilities asymmetry} between the agent (e.g. debater) and the judge, as it is intended to be used for judging superhuman AI models. \Previouswork{} have implemented this mainly by simulating this capabilities asymmetry with information asymmetry \citep{radhakrishnanAnthropicFall20232023,khanDebatingMorePersuasive2024}, and by using larger and more capable models for the agent than for the judge or allowing chain-of-thought tokens for the agent \citep{kentonScalableOversightWeak2024}. We introduce a third dimension of asymmetry: \emph{tool use}. Specifically, we run our benchmark for the \emph{Debate} and \emph{Consultancy} protocols on a demonstrative sample of the GSM8K dataset\footnote{\citet{cobbe2021gsm8k}, a dataset of grade-school math word problems}, with only the agent (but not the judge) equipped with a simple calculator tool. Our experiments are detailed in \cref{sec:results}.
+
+\paragraph{4a) Debate significantly outperforms both RLHF and Consultancy for incentivizing alignment.} To model a simplified RLHF mechanism, we introduce the baseline \emph{Propaganda} protocol: where the judge reports a probability for the answer after seeing a single argument from an AI for one side, which can straightforwardly be interpreted as the judge's score for the AI's answer. As seen in \cref{fig:asds}, Debate significantly outperforms Propaganda, as well as all other baselines when it comes to incentivizing alignment. %so subtracting its initial naive probability
+
+\paragraph{4b) Consultancy is an especially weak protocol.} \emph{Consultancy}, which is similar to \emph{Propaganda} except in that the client can itself interact with the consultant, has widely been used as a baseline in \previouswork{}. We find Consultancy to be especially weak for inducing alignment, underperforming a \texttt{NaiveJudge} baseline\footnote{Note that, unlike in previous works which used judge score for evaluating protocols, our use of ASD allows us to meaningfully compare to \texttt{NaiveJudge} as explained in \cref{sec:asd}.}.
+
+\paragraph{4c) Debating with more persuasive debaters incentivizes more truthful answers.} We reproduce the result in \citet{khanDebatingMorePersuasive2024}, observing that debating between debaters with higher ``Expected Agent Score'' (which measures capabilities) leads to higher ``Agent Score Difference'' (which measures incentive for alignment). Notably, this is not true for Consultancy, but \emph{is} true for Propaganda, suggesting that it is specifically the judge-consultant interaction in the former that enables the consultant to ``gaslight'' the judge.
+
+% \begin{enumerate}
+% 	% \item We give a \textbf{formalization} of a scalable oversight protocol specifically in view of a principled experimentation framework for evaluating these protocol. Specifically: in the class of experiments we are interested in, \todo{complete or remove this point}
+% 	\item We introduce the \textbf{agent score difference} metric for evaluating scalable oversight protocols, which is an improvement over the ``judge accuracy'' metric used by \previouswork{}. This metric seeks to measure how much the protocol ``advantages truth over falsehood'', i.e. the difference in the score earned by an agent arguing for the true answer vs. for the false answer. For example, if under some scalable oversight protocol, a judge believes a truthful agent with probability \(0.8\) and a lying agent with probability \(0.6\), the ASD is \(\log(0.8)-\log(0.6)\approx 0.29\). This measure is equivalent to the usual judge accuracy for \emph{Simultaneous Debate}; however it is not equivalent for e.g. Consultancy, which is used as a baseline protocol in \previouswork{}.
+% 	\item We provide a \textbf{Python package} to enable performing \emph{principled} and \emph{systematic} experiments evaluating scalable oversight protocols on our metric and meaningfully comparing between them. One may use our package by simply subclassing our \Protocol{} class and running its \Protocolexp{} method on any choice of agent and judge models and a labelled dataset of questions.%\footnote{the datasets directly supported in the package are GSM-8K \citep{cobbe2021gsm8k}, GPQA \citep{rein2024gpqa} and MMLU \citep{hendryckstest2021}}
+% 	% \item We run our benchmark for the \emph{Debate} and \emph{Consultancy} protocols on a demonstrative $N=100$ sample of the GSM8K dataset\footnote{\citet{cobbe2021gsm8k}, a dataset of grade-school math word problems}. The rationale for using this dataset is that it is crucial to evaluate scalable oversight mechanisms with a ``capabilities gap'' between the judge and the model receiving feedback, and working with math problems gives us a straightforward way to create this gap: \emph{we simply augment the model, but not the judge, with a calculator tool}. Our work is thus the first empirical test of Debate with a \textbf{true \emph{capabilities gap}}, while existing works only simulate this with an information gap (i.e. hiding some information from the judge).
+% 	\item We are currently running our benchmark for the \emph{Debate} and \emph{Consultancy} protocols on a demonstrative sample of the GSM8K dataset\footnote{\citet{cobbe2021gsm8k}, a dataset of grade-school math word problems}. The rationale for using this dataset is that it is crucial to evaluate scalable oversight mechanisms with a ``capabilities gap'' between the judge and the model receiving feedback, and working with math problems gives us a straightforward way to create this gap: \emph{we simply augment the model, but not the judge, with a calculator tool}. Our experiment, once complete, will be the first empirical test of Debate with a \textbf{true \emph{capabilities gap}}, while existing works only simulate this with an information gap (i.e. hiding some information from the judge).
+% \end{enumerate}
+
+%Our vision is a world where alignment researchers can rapidly prototype scalable oversight protocols and evaluate them on our benchmark, creating competitive pressures for better protocols.\todo{sounds crude?
+
+
+Our vision is that our work will enable alignment researchers to rapidly prototype scalable oversight protocols, evaluate them using our benchmark,
+and develop better protocols.
+
+
+\subsection{Related work}
+\label{so:sec:related}
+
+\paragraph{Scalable Oversight.} Apart from Debate, proposed protocols for scalable oversight include: \emph{Iterated Amplification} \citep{christiano2018IDA}, \emph{market-making} \citep{evanhubingerAISafetyMarket2020}, \emph{self-critique} \citep{saunders2022selfcritique}, \emph{reward-modelling} \citep{leike2018RewardModeling} and proposed improvements to Debate such as \emph{doubly-efficient debate} \citep{brown-cohenScalableAISafety2023}. A slightly dated review and discussion of these can be found in \citet{bowmanMeasuringProgressScalable2022}.
+
+\paragraph{Weak-to-strong generalization and human feedback.} Scalable oversight can be seen as an approach to \emph{weak-to-strong generalization} \citep{sangWeak2Strong, langWeak2Strong} that explicitly relies on the weak model (or human) providing reward to a strong model (as opposed to e.g. fine-tuning or transfer learning). The relationship between scalable oversight and human feedback is made explicit by e.g. \citet{cheng2024RLHFDebate}, who consider \emph{reinforcement learning from debate feedback}.
+
+\paragraph{Previous Debate Experiments.} The following works: \allpreviousworks, all apply an empirical lens to the scalable oversight problem (specifically Debate), similar to our work. While there are important differences in the experiments they conduct, their methodology can broadly be described as measuring the effect of Debate on \emph{judge accuracy}, relative to a baseline of ``Consultancy'' (a protocol where the agent AI is randomly assigned an answer to argue for, and does not have an adversary). % and subtleties
+
+\section{The Agent Score Difference metric}
+\label{sec:asd}
+
+Consider a binary question $Q$ with possible answers $A\in\{0, 1\}$ (i.e. denoting ``NO'' and ``YES''). The ``judge'' (human or weak model) is asked to give probabilities $p_0$, $p_1$ for these answers after witnessing the outputs (under some scalable oversight protocol, e.g. Debate) of some stronger ``agent''\footnote{We will make precise the term ``scalable oversight protocol'' in \cref{sec:formal}; for now we will just conceptualize it as a program that makes repeated calls to the agent (and possibly other agents, e.g. a debate adversary) then elicits a probability from the judge.}.
+
+The straightforward and naive way to evaluate a scalable oversight protocol, taken in \previouswork{}, is to measure ``judge score'' (e.g. $\log(p_\top)$ where $\top$ is the correct answer, or just $\mathbb{I}[p_\top>0.5]$ for plain ``judge accuracy'') -- the more accurate the judge's beliefs are under the protocol, the better it is. However, some simple examples demonstrate the weakness of this measure.
+
+\begin{example}[\texttt{OpenTrust}]
+    Consider a protocol \texttt{OpenTrust}, where the agent AI is allowed to freely choose its answer $A$, and the judge always believes it, i.e. reports $p_A=1$, $p_{\lnot A}=0$. But since current LLMs are already quite truthful, this would beat any scalable oversight protocol with weak judges and strong agents\footnote{straightforward experiments  with a sample of the GSM-8K dataset demonstrated that, as expected, \claudenewsonnet{} chose to argue for the correct answer over 90\% of the time, and 100\% of the time when explicitly told what the correct answer is} -- even though this is equivalent to having \emph{no} scalable oversight at all!
+\end{example}
+
+\begin{example}[The weak baseline problem]
+    The most natural baseline to evaluate scalable oversight protocols for judge accuracy would be \texttt{NaiveJudge}, where the judge reports its probability without any feedback from a stronger model. But this is a weak baseline: for example, if $Q$ is a comprehension task and we place an information asymmetry between the debater and the judge, then the judge sees \emph{less information} in the \texttt{NaiveJudge} case than in the \texttt{Debate} case. While this problem is clearest in the information asymmetry case, it is true much more generally: when comparing scalable oversight protocols, it is not obvious how to adjust for differences in the amount of ``information'' or ``intelligence'' delivered to the judge.
+\end{example}
+%% jackson says: one argument against this is that information asymmetries are pretty realistic to superhuman systems (they will know way more than humans do, and this might even be their primary advantage). Maybe add something like: "While superhuman AIs will likely be much more knowledgeable than their weaker auditors, it is in some sense a much less interesting gap than reasoning-based gaps, which seem much more worrisome. In general, it is unclear how to adjust for ..."
+%% No, I think NaiveJudge should is fine as a baseline even for the information asymmetry case. I shall edit this to explain that.
+
+To mitigate the weak baseline problem, \previouswork{} instead used \emph{Consultancy} (or more accurately ``Random Consultancy'' -- where the judge only listens to one side, the consultant, who has a 50\% chance of arguing for the right or wrong answer) as a baseline. However as \citet{kentonScalableOversightWeak2024} notes, this is still a weak baseline: the result ``Debate leads to better judge accuracy than Random Consultancy'' is conceptually equivalent to ``always hearing arguments for both sides is better than hearing only the wrong side 50\% of the time''. While this is a worthwhile empirical result, it is only a ``sufficing'' result, and does not help the goal of comparing across protocols or competitively optimizing for the ``best'' protocol.
+
+% At its root, judge accuracy measures ``\textbf{\emph{Is AI, when scaffolded with your SO protocol, useful to a human at all?}}'' not ``\textbf{\emph{Does human feedback under your SO protocol incentivize AI to be truthful/useful?}}''
+
+Instead we propose the \emph{agent score difference} metric: the relative reward received by the agent if it argues for the true answer as opposed to the false answer. {\emph{We conceptualize the AI trying to maximize a ``score''}}, which is a measure of how much it persuades the judge/how much the judge ends up agreeing with it -- and the difference between the score it would receive if it were truthful versus untruthful represents how incentivized it is to be truthful\footnote{for elegance, we use log scores in showing math; in practice it is better to use negative Brier scores to avoid infinities, i.e. $ASD=-|(p_\top,p_\bot)-(1,0)|^2+|(p_\top,p_\bot)-(0,1)|^2$. \solib{} calculates both.}:
+\todo{@jackson I think many of your questions are addressed by this addition. Yep, this framing helps a lot, thanks}
+
+\[ASD=\log p_\top-\log p_\bot\]
+
+Where \(p_\top\) and \(p_\bot\) are the judge probabilities for the true and false answer \emph{after listening to an AI agent arguing for that answer under the scalable oversight protocol}.
+
+
+Importantly, it is \emph{not} true in general that $p_\top=1-p_\bot$, because these represent the judge's probabilities in two different worlds: the world in which the agent argues for the true answer, and the world in which the agent argues for the false answer.
+
+Only in \emph{simultaneous\footnote{i.e. where both debaters make their arguments at the same time, rather than turn-by-turn} debate with identical debaters} are these worlds identical, because there the judge receives an identical transcript in both cases due to the opposite position being taken by the opponent Thus for simultaneous debate, ASD is equivalent to (a measure of) judge score.
+
+The main advantage of ASD is that it can generalize to arbitrary scalable oversight protocols. For example, evaluating Consultancy with judge score alone requires us to make assumptions about how consultants would behave under the protocol, like ``Random Consultancy'' (50\% chance of arguing for either) or ``Open Consultancy'' (the agent decides what to argue for) \citep{kentonScalableOversightWeak2024}. The former makes for a weak baseline, while experiments with the latter are heavily biased by the behaviour of current langauge models that may not generalize to future superhuman AIs. Our approach requires no such assumptions.
+
+% \begin{example}[Debate vs Consultancy]\todo{IDK whether to include this -- it's correct and true, but reviewers may get confused and say something like ``but I thought you said Consultancy was a WEAK baseline, now it's too unfair to Debate?''}
+% Consider a simplified model of a judge who believes the true answer with probability $p$ if a consultant argues for it, and probability $q$ if the consultant argues against it, and probability $\sqrt{pq}$ upon witnessing a debate between two AIs arguing for and against. Observe that a truthful debater receives a score of $\log(\sqrt{pq})$ while an untruthful debater receives $\log(1-\sqrt{pq})$; whereas a truthful consultant receives a score of $\log(p)$ and an untruthful consultant receives $\log(1-q)$ -- then as long as $p\ge q$ (which would realistically be the case), Debate provides a better training signal or incentive to be truthful than does Consultancy, i.e. its ASD is higher:
+% \[\log\frac{\sqrt{pq}}{1-\sqrt{pq}}\ge\log\frac{p}{1-q}\]
+% However, the judge score of Debate and Random Consultancy are equal in this case, because it doesn't take into account the impact on the agent's incentives.
+% \end{example}
+
+\begin{example}[\texttt{NaiveJudge} baseline as supervised learning]
+Observe that \texttt{NaiveJudge} can now be used as a baseline, even in the case of information asymmetry: the ASD for \texttt{NaiveJudge} is simply the judge's log-odds score before interacting with the agent -- i.e. the agent is incentivized to argue for whichever answer the judge already believes. This corresponds to a \emph{supervised learning} training protocol, like \texttt{Propaganda} corresponds to RLHF.
+\end{example}
+
+% Importantly:
+
+% \begin{itemize}
+% \item It is \emph{not} true in general that $p_\top=1-p_\bot$, because these represent the judge's probabilities in two different worlds: the world in which the agent argues for the true answer, and the world in which the agent argues for the false answer. Only in \emph{simultaneous\footnote{i.e. where both debaters make their arguments at the same time, rather than turn-by-turn} debate with identical debaters} are these worlds identical, because debate is ``symmetric'' (the protocol constructs an opposite debater for any position) and hence the judge receives an identical transcript in both cases.
+% \item Unlike judge score, ASD does not require us to make any choices of how to assign answers to agents/debaters, like ``Random'' (50\% chance of arguing for either) or ``Open'' (the agent decides what to argue for). Instead we perform both runs, and calculate the incentive for the agent to argue for the right answer.
+% \end{itemize}
+
+% In the specific case of simultaneous debate, ASD becomes equivalent to a measure of judge score. The main advantage of ASD is that it can generalize to arbitrary scalable oversight protocols: for example, to ask
+
+% \subsection{Expected Judge Score}
+% \label{sec:ejs}
+
+% Instead of arbitrarily having the consultant argue for each answer with 50\% probability, we may postulate an ``Open'' protocol, where the AI chooses which answer to argue for based on how much it is incentivized to do so:
+
+% \[\mathbf{q}=\left(\frac{e^{ASD/\beta}}{1+e^{ASD/\beta}}, \frac{1}{1+e^{ASD/\beta}}\right)\] Where \(\beta\) is some temperature parameter (e.g.~\(\beta=0\) implies the AI always just picks the answer with higher score). We may then define the Expected Judge Score: \[EJS=(JS_\top,JS_\bot)\cdot\mathbf{q}\] Which can be interpreted as a kind of combined capabilities and alignment measure.
+
+\subsection{Expected Agent Score}
+\label{sec:eas}
+
+Calculating ASD for a scalable oversight protocol with currently existing models gives us an estimate of how effective that protocol is \emph{now}, i.e. how good of an alignment training signal they provide to current-day models. However, we would like to know if they will continue to provide a useful training signal as models' capabilities improve.
+
+\Previouswork{} used debaters' ELO ratings as a measure of their capabilities (or ``persuasiveness'' as it is called in \citet{khanDebatingMorePersuasive2024}), and correlated them with judge accuracy. We generalize this to other scalable oversight protocols by defining ``Expected Agent Score'' as a pure measure of the agent's capabilities:
+
+\[EAS=(\log p_\top,\log p_\bot)\cdot\mathbf{q},\]
+
+where $\mathbf{q}$ is the ``propensity of the agent to argue for each answer''. If we take $\mathbf{q}=(1/2,1/2)$ we recover random assignment of answers as in \previouswork{}. We can better model the effect incentives have on agent behaviour with softmax action selection:\todo{is this better?}
+
+\[\mathbf{q}=\left(\frac{e^{ASD/\beta}}{1+e^{ASD/\beta}}, \frac{1}{1+e^{ASD/\beta}}\right),\] where \(\beta\) is some temperature parameter E.g. with \(\beta=0\), $\mathbf{q}$ is $(1,0)$ if $ASD>0$ and $(0,1)$ if $ASD<0$, implying the agent would always just pick the answer with higher score -- whereas \(\beta=\infty\) implies the agent randomly chooses).
+
+By correlating ASD with EAS, we can extrapolate how ASD will change with increasing model capabilities under a given scalable oversight protocol.
+
+We can similarly define an Expected Judge Score:
+
+\[EJS=(JS_\top,JS_\bot)\cdot\mathbf{q},\]
+
+which can be interpreted as a ``combined capabilities and alignment measure'' i.e. which takes into account both how much of the agent's capabilities the protocol keeps and how much it incentivizes the AI to use those capabilities for good.
+
+\section{Experimental framework}
+\label{sec:formal}
+
+We now describe precisely our experimental framework for estimating agent score difference -- equivalently, we describe the \Protocol{} class in \solib{}, in pseudo-Python.
+
+The agent AI is conceptualized as a class \Agent{} with a method \texttt{\_\_call\_\_(context,\ answer\_case)}, which \textbf{\emph{simulates}} what an agent arguing for a particular answer to a question \emph{would} say. This \texttt{answer\_case} is really a stand-in for the general ``alignment'' of the agent -- whether it argues for the true answer or the false answer, or for a valuable answer or a less valuable answer, etc. With instruction-following language models like we have now, we can simulate different alignments through prompting, as long as we know the ground truth correct answer.
+
+
+% \begin{algorithm}
+% 	\caption{Agent Class Definition}
+% 	\begin{algorithmic}[1]
+% 	\Class{Agent}
+% 		\Function{Call}{context, answer\_case}
+% 			\State \Return string representation of agent's response
+% 		\EndFunction
+% 	\EndClass
+% 	\end{algorithmic}
+% \end{algorithm}
+
+
+\begin{python}
+class Agent:
+	def __call__(context, answer_case) -> str:
+		...
+\end{python}
+
+Then the class \Protocol{} determines what reward an agent would get for having a particular alignment:
+
+% \begin{algorithm}
+% 	\caption{Protocol Class Definition}
+% 	\begin{algorithmic}[1]
+% 	\Class{Protocol}
+% 		\State \textbf{Abstract Class}
+
+% 		\Constructor{judge, ...}
+% 			\State Initialize protocol parameters
+% 		\EndConstructor
+
+% 		\Function{Run}{agent, question, answer\_case, ...}
+% 			\State context $\gets$ [question]
+% 			\State adversary\_answer $\gets$ $\lnot$ answer\_case
+% 			\For{$i \gets 1$ to num\_turns}
+% 				\State agent\_response $\gets$ agent.Call(context, answer\_case)
+% 				\State context.Append(agent\_response)
+% 				\State adversary\_response $\gets$ adversary.Call(context, adversary\_answer)
+% 				\State context.Append(adversary\_response)
+% 			\EndFor
+			% \State \Return judge(context, answer\_case)
+% 		\EndFunction
+
+% 		\Function{AgentScoreDifference}{agent, question}
+% 			\State probs $\gets$ empty map
+% 			\For{answer\_case in question.answer\_cases}
+% 				\State probs[answer\_case] $\gets$ Run(agent, question, answer\_case)
+% 			\EndFor
+% 			\State \Return $\log(\text{probs}) \cdot \text{question.answer\_values}$
+% 		\EndFunction
+% 	\EndClass
+% 	\end{algorithmic}
+% \end{algorithm}
+
+
+\begin{python}
+class Protocol:
+
+  def __init__(self, judge, ...):
+    ...
+
+  @abstractmethod
+  def run(self, agent, question, answer_case, ...) -> Prob:
+    # This should be subclassed. E.g. for Simultaneous Debate:
+    context = [question]
+    adversary_answer = not answer_case # 'B' if answer_case == 'A' else 'A'
+    for i in num_turns:
+      agent_response = agent(context, answer_case)
+      adversary_response = adversary(context, adversary_answer)
+      context.append(agent_response)
+      context.append(agent_response)
+    return self.judge(context, answer_case)
+
+
+  def agent_score_difference(self, agent, question):
+    probs = {
+      answer_case: self.run(agent, question, answer_case)
+      for answer_case in question.answer_cases
+    }
+    return np.dot(log(probs), question.answer_values) # answer_values = e.g. {'A': -1, 'B': 1} if B is the correct answer
+\end{python}
+
+
+The full implementation is available at \url{https://github.com/ArjunPanickssery/math_problems_debate}.
+
+\subsection{Limitations of the benchmark}
+
+It is worth stressing that an empirical benchmark is not a substitute for formal or mathematical guarantees. The explicit description in Section~\ref{sec:formal} reveals a key limitation of our benchmark, as well as of \previouswork{}: it only computes and compares the reward given to \emph{simulated} aligned versus mis-aligned behaviour -- i.e. it only works because existing language models follow instructions and act truthfully or untruthfully when we tell them to. Thus all the results obtained from experiments such as these are predicated on the assumption that current language models can simulate aligned and misaligned behaviour ``reasonably well''.% -- if you tested with models that are not good at following instructions (e.g. consistently refuse instructions to lie), then your results will mean nothing, because the ``agent arguing for a lie'' is not actually a faithful simulation of a misaligned AI.
+
+Secondly, a fundamental limitation of such empirical research is that we can only experiment with currently-existing models. As discussed in \cref{sec:eas}, we may observe and extrapolate trends in ASD vs EAS to predict ASD in the superhuman regime -- however, this is not a formal guarantee. Similarly, it is possible that mechanisms that do well on our experiments only work so well on domains where ground truth is available.
+
+% As one example of where the caveats matter, here's one thing I believe: \textbf{multi-agent systems are \emph{necessary}} (though not sufficient) for a human feedback mechanism to work at the scale of superintelligence --- so it doesn't matter if Debate is worse than RLHF or ``Consultancy'' in your experiments, because the latter has literally no hope of working for a superintelligence.
+
+% Why? Because assuming your mechanism is only imperfectly correlated with truth (which it is, there is no way to absolutely decide truth) a superintelligence can simply Goodhart your mechanism if your mechanism isn't also training at the same time.
+
+
+% \section{\texorpdfstring{Using the \texttt{seerbench} library}{Using the seerbench library}}\label{using-the-seerbench-library}
+
+% Github repo link: https://github.com/ArjunPanickssery/math\_problems\_debate
+
+% The module provides a class \texttt{Experiment} that is initialized with: - some dataset \texttt{questions:\ list{[}Question{]}} (a question has some question text, a list of answer choices, and their corresponding values e.g.~1 and 0 for True and False) - \texttt{judge\_models:\ list{[}str{]}} for parameterizing the experiment - \texttt{agent\_models:\ list{[}str{]}} for parameterizing the experiment - \texttt{agent\_toolss:\ list{[}list{[}callable{]}{]}} e.g.~\texttt{{[}{[}{]},\ {[}calculator{]}{]}} for experimenting with both tool-less agents and agents with calculators - \texttt{protocols:\ dict{[}str,\ type{[}Protocol{]}{]}} - \texttt{num\_turnss:\ list{[}int{]}} which was the only protocol initialization kwarg we've needed to parameterize so far, though this may change/be subclassed. - \texttt{write\_path:\ Path}, directory to write to
+
+% Running an experiment with \texttt{Experiment.experiment()} produces files like \texttt{write\_path/"Debate\_t0\_n2"/"A\_gpt-4o-mini\_J\_gpt-4o-mini\_A\_gpt-4o-mini"/("results.jsonl",\ "stats.json")} and \texttt{write\_path/all\_stats.json}. A line of \texttt{results.jsonl} looks like:
+
+% \begin{python}
+% {
+% 	"question": "...",
+% 	"answer_cases": [ # contains the results of arguing for each answer case
+% 		{ # case_probs after arguing for answer A
+% 			"short": "A",
+% 			"long": "...",
+% 			"value": 1.0, # True
+% 			"judge_prob": null,
+% 			"case_probs": {
+% 				"answer_cases": [
+% 					{ # prob for A after arguing for A
+% 						"short": "A",
+% 						"long": "...",
+% 						"value": 1.0,
+% 						"judge_prob": {"prob": 1.0}
+% 					},
+% 					{ # prob for B after arguing for A
+% 						...
+% 					}
+% 				],
+% 				"transcript": [
+% 					# transcript dump of how it went when the agent
+% 					# argued for A
+% 					...
+% 				],
+% 				# score for giving these probabilities
+% 				"judge_score": {"log": 0.0, "logodds": Infinity, "accuracy": 1.0},
+% 			},
+% 			# how much do case_probs after arguing for A align with A
+% 			"agent_score": {"log": 0.0, "logodds": Infinity, "accuracy": 1.0}
+% 		},
+% 		{ # case_probs after arguing for answer B
+% 			...
+% 		}
+% 	],
+% 	"asd": {"log": Infinity, "logodds": Infinity, "accuracy": 1.0}
+% 	"jse_b0": ..., # can be recomputed for any beta
+% 	"jse_b1": ...,
+% 	"jse_binf": ...,
+% 	"ase_b0": ...,
+% 	"ase_b1": ...,
+% 	"ase_binf": ...,
+% }
+% \end{python}
+
+\section{Experimental results}
+\label{sec:results}
+
+We conducted a small experiment to evaluate the following protocols on our benchmark. Configuration details and precise pseudo-Python for each protocol are given in the original paper's supplementary material.
+
+\begin{itemize}
+\item \texttt{Propaganda} -- this simulates a ``reinforcement learning from human feedback'' setting. Here, the judge reports probabilities by looking at the response of an agent arguing for that answer. The probability it reports for the answer the agent is arguing for can be interpreted as a human preference signal for the agent AI.
+\item \texttt{NaiveJudge} -- this simulates a ``supervised learning'' setting. Here, the judge does not give feedback based on the agent's response, but reports its probability independently. The agent is scored based on its agreement with the judge.
+\item \texttt{Consultancy} -- similar to \texttt{Propaganda}, but the judge can interact with the Consultant. Four different versions of the consultancy protocol are tested, depending on the number of turns (\texttt{\_n2} or \texttt{\_n4}) and whether the Consultant (\texttt{\_t1}) or the judge (\texttt{\_t0}) initiates the interaction.
+\item \texttt{Debate} -- Four different versions of the debate protocol are tested, depending on the number of turns (\texttt{\_n2} or \texttt{\_n4}) and whether the debate is simultaneous (\texttt{\_t1}) or sequential (\texttt{\_t0}).
+\end{itemize}
+
+We conduct two main types of experiment with these protocols: one, we \emph{benchmark them on ASD} (see~\cref{fig:asds}) to study how well they incentivize truthful behaviour; and two, we study how ASD changes with EAS for each protocol (see~\cref{fig:correlation}), to study how capabilities affect the ability of the protocol to incentivize alignment. All scores are calculated using negative Brier scores for its favourable numerical properties.
+
+\begin{figure}
+  \includegraphics[width=\textwidth]{figures/scalable-oversight/asds.png}
+  \caption{Average ASD by scalable oversight protocol; the different protocol configurations are described in \cref{sec:results}.} %\texttt{Debate\_t0} is \emph{sequential debate}, where debaters take turns, while \texttt{Debate\_t1} is \emph{simulataneous debate}, where they generate answers simultaneously. In \texttt{Consultancy\_t0} the client starts the conversation while in \texttt{Consultancy\_t1} the consultant does. In all cases, \texttt{n} is the total number of turns.}
+  \label{fig:asds}
+\end{figure}
+
+% \begin{figure}
+%   \includegraphics[width=\textwidth]{figures/scalable-oversight/Debate_t1_n4.png}
+%   \caption{Debating with more capable debaters better incentivizes truthfulness.}%\texttt{Debate\_t0} is \emph{sequential debate}, where debaters take turns, while \texttt{Debate\_t1} is \emph{simulataneous debate}, where they generate answers simultaneously. In \texttt{Consultancy\_t0} the client starts the conversation while in \texttt{Consultancy\_t1} the consultant does. In all cases, \texttt{n} is the total number of turns.}
+%   \label{fig:asds_ases_sample}
+% \end{figure}
+
+
+\begin{figure}
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/scalable-oversight/Debate_t0_n2.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/scalable-oversight/Consultancy_t0_n2.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/scalable-oversight/Debate_t1_n2.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/scalable-oversight/Consultancy_t1_n2.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/scalable-oversight/Debate_t0_n4.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/scalable-oversight/Consultancy_t0_n4.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/scalable-oversight/Debate_t1_n4.png}
+  \end{subfigure}
+  \begin{subfigure}[b]{0.48\textwidth}
+    \includegraphics[width=\textwidth]{figures/scalable-oversight/Consultancy_t1_n4.png}
+  \end{subfigure}
+  \caption{Debate (left) but not Consultancy (right) makes truthfulness increasingly attractive for more capable judges. Points are labelled by the model of the agent (i.e. debater, consultant); \gptmini{} was the judge in all instances. All scores are calculated based on negatives of brier scores (higher is better).}
+  \label{fig:correlation}
+\end{figure}
+
+Our main insights from the results are summarized as follows:
+
+\begin{enumerate}
+    \item \textbf{Debate outperforms all other tested protocols,} both on inducing alignment (\cref{fig:asds}) as well as on the ``combined'' capabilities and alignment measure of Expected Judge Score (\cref{fig:jses}).
+    \item \textbf{There is no significant effect of changing the number of turns or changing between simultaneous and sequential debate.} This finding has been consistently replicated in \previouswork{}; however, we will note that according to the original debate proposal \citep{irvingAISafetyDebate2018}, the benefit to increasing turns or turn-unbounded debate is only seen for problems higher up on the polynomial hierarchy, so this may be an artifact of the relatively simple problems in our dataset.
+    \item \textbf{Debating with more persuasive debaters incentivizes more truthful answers.} We reproduce the finding in \citet{khanDebatingMorePersuasive2024} with our new, more general metrics, observing that in Debate, higher EAS is associated with higher ASD. This suggests that Debate will continue to incentivize alignment as capabilities scale, though it is not a formal guarantee that this will remain true in the superhuman regime.
+    \item \textbf{Judge interaction with the agent AI makes it especially vulnerable to manipulation.} Consultancy significantly underperforms both the \texttt{NaiveJudge} and \texttt{Propaganda} baselines for ASD, and also does not exhibit any significant trends between EAS and ASD. We observe that EAS is particularly consistently high for Consultancy, suggesting that the judge interaction that differentiates Consultancy from Propaganda makes the judge (or at least a \gptmini{} judge) systematically more vulnerable to manipulation.
+    \item \textbf{\texttt{Propaganda} (RLHF) does not beat a \texttt{NaiveJudge} (supervised learning) baseline on inducing alignment.} However, Propaganda \emph{does} show the same positive association between EAS and ASD.
+\end{enumerate}
+
+\begin{figure}
+  \includegraphics[width=\textwidth]{figures/scalable-oversight/jses.png}
+  \caption{Expected Judge Score (based on propensity to argue) by protocol} %\texttt{Debate\_t0} is \emph{sequential debate}, where debaters take turns, while \texttt{Debate\_t1} is \emph{simulataneous debate}, where they generate answers simultaneously. In \texttt{Consultancy\_t0} the client starts the conversation while in \texttt{Consultancy\_t1} the consultant does. In all cases, \texttt{n} is the total number of turns.}
+  \label{fig:jses}
+\end{figure}
+
+A summary of results, with ASD, JSE and ASD vs EAS slope values, is given in \cref{tab:results}.
+
+\input{figures/scalable-oversight/results_table}
+
+\section{Future work}
+
+Our main contribution as of this workshop is a benchmark; the experiments themselves are small and demonstrative, conducted with only 100 questions, one judge model (\gptmini{}) and five agent models (\claudenewsonnet{}, and \claudehaiku{} with and without tools, and \deepseek{} without). The results of our preliminary experiments with Debate are promising: apart from benchmarking more protocols, future work should extend our experiments to a wider range of agent models and judge models, as well as with larger numbers of questions to increase statistical significance. Using reasoning models like \deepseekr{} and \othree{} for the agent AI would be particularly novel and valuable.
