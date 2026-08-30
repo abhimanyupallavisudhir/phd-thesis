@@ -21,7 +21,7 @@ python3 tools/merge_bibs.py   # writes bib/thesis.bib (deduped by key, first win
 | `chapters/intro.tex` | y2 report intro, `alignment_summary.org`, `ways_to_think_alignment.org`, marketic-agents intro |
 | Part I: Economic theory of agency | |
 | `chapters/market-rl.tex` | "Market-based architectures in RL and beyond" (y2 report, `chaps/mba.tex`) |
-| `chapters/agency.tex` | marketgrad-theory articles ("Price recursion…", "Bregman divergences…", THEORY.md, ATTENTION.md) + marketgrad library |
+| `chapters/agency.tex` | marketgrad-theory articles ("Price recursion…", "Bregman divergences…"; incl. the alignment lemma from the research notes) + marketgrad library |
 | Part II: Information asymmetry and scalable oversight | |
 | `chapters/infonomy.tex` | "Extrapolating Volition with Recursive Information Markets" (infonomy-paper) |
 | `chapters/solib.tex` | "A Benchmark for Scalable Oversight Mechanisms" (solib-paper) |
@@ -44,4 +44,4 @@ See `CONVENTIONS.md`. Key points:
 - Acknowledgements are a placeholder; titlepage date is draft-marked.
 - `\infonomyurl` still points to the anonymized review URL.
 - Part III intro's characterization of Conitzer (2012)'s two-layer construction should be verified against the paper.
-- The agency chapter keeps the source articles' literal equation-tag numbering (two schemes); harmonize before submission.
+- The agency chapter keeps the source articles' literal equation-tag numbering ; harmonize before submission.

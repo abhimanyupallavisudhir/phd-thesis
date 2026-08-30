@@ -30,52 +30,6 @@ Research at the intersection of markets and AI may be split into two overarching
 % Lifted from marketic_agents_project_intro.org ("Analogies between markets and agents").
 Markets and agents do the ``same kinds of things'' (i.e. have the same ``type signature''): they compute \emph{decisions} (in the form of goods allocation) and \emph{beliefs} (via e.g. prediction markets). Both markets and \emph{boundedly rational} agents are only ``rational given the available algorithmic information''. Markets have \emph{self-awareness}: they can contain prediction markets for the market's own properties, and can also self-improve, because the algorithmic functionality of markets is itself provided by goods (e.g. ``the labour supply of arbitrageurs'') whose supply can be adjusted and optimized. Abstraction is like \emph{economies of scale}; \emph{transaction costs} are like \emph{computational costs}. Markets are \emph{general intelligence}: they can be asked (paid) to accomplish \emph{any} task --- and they are intelligent about managing this generality, forming abstractions (factor goods) that will be useful for the distribution of tasks they expect to be asked to accomplish.
 
-\section{The alignment problem, economically}\label{intro:sec:alignment}
-
-\begin{draftblock}
-If markets are the economist's model of distributed intelligence, the alignment problem is the economist's principal--agent problem at scale. It is useful to decompose the standard rebuttal to ``why can't we just set the right reward function?'' into three levels:
-\end{draftblock}
-
-% Lifted from alignment_summary.org ("Summary").
-\begin{itemize}
-\item \textbf{The problem of specification} --- How do you communicate what you want?
-\item \textbf{The problem of information asymmetry (outer alignment)} --- Giving reward signals to a superhuman AI for its behaviour is fundamentally subject to ``information asymmetry'': you are not good enough to correctly evaluate the AI's behaviour. How do you ensure your reward signals reflect your \emph{extrapolated volition} (i.e. incorporating all the information in the world) rather than your immediate, superficial volition?
-\item \textbf{The problem of being weak and pathetic (inner alignment)} --- To a superhuman AI, your reward function is a \emph{joke}. You have a being of unfathomable intelligence and you are trying to edit its brain bit-by-bit with something called ``backpropagation''. The reward function is not the utility function; it is your puny and laughable attempt to shape a superhuman AI into something desirable.
-\end{itemize}
-
-% Lifted from ways_to_think_alignment.org (A).
-\subsection{Buying under information asymmetry}\label{intro:sec:infoasym}
-
-The basic problem with RLHF is that it fundamentally relies on a human's ability to judge the correctness or value of a (potentially superhuman) AI's outputs. In other words, the AI is trained on the human supervisor's immediate, superficial volition, rather than on her extrapolated volition.
-
-The standard measurement device for human values is the ``market'' --- you put something on the market, and see how much it sells for. But markets, too, only price things correctly when assuming \emph{perfect information} --- if you are unable to know (or verify/trust, if told) something about a product, e.g. ``how many years will this battery last?'' ``what is the polyphenolic content of this olive oil?'' ``is this item adulterated?'', it doesn't affect your decision to buy, so the producer has no reason to optimize on it, so he makes the cheapest possible product; you learn to expect this and revise down your valuation of it. More generally, fixing this is the goal of any \emph{scalable oversight} mechanism.
-
-% Lifted from ways_to_think_alignment.org (B), abridged.
-\subsection{Utility $\neq$ reward}\label{intro:sec:utility-reward}
-
-As a simple demonstrative example: the \emph{reward function} that trains (trained) humans is ``survival and reproduction in the (current) (ancestral) environment''. But this is not the \emph{utility function}, i.e. what we care about in life. Your specified reward function is not the \emph{true} reward function given by nature: ``supplying a reward function'' is just your attempt at modifying the natural environment --- specifically by constantly editing the AI by tweaking its parameters based on gradient descent. This training process will work \emph{only as long as that is the dominant selective pressure on the AI}.
-
-The market analogy is instructive: the market selects for agents which serve the consumers well --- such agents gain influence in the market, and as a result the aggregate of agents learns to optimize for social value. But this does not mean you have selected for agents that ``care'' about what you want, just ones which are very good at giving you what you want. The market mechanism does not, in itself, prevent a corporation from simply going rogue; it doesn't even make agents care about money.
-
-\begin{draftblock}
-Understanding what reward \emph{is} --- what role it actually plays in producing agency, and what the rational theory of it looks like --- is thus itself a foundational question for alignment, prior to any particular alignment scheme. \Cref{part:agency} of this thesis develops an answer in economic terms: reward as price, and price recursion as the rational theory of reward.
-\end{draftblock}
-
-% Lifted from ways_to_think_alignment.org (C), abridged.
-\subsection{Prover--verifier games and subjective questions}\label{intro:sec:pv}
-
-There are, one might say, three sorts of information in the world:
-\begin{itemize}
-\item ``Ideas'': math/science theories and models, inventions, business ideas, solutions to open-ended problems;
-\item ``Answers'': math theorems, experimental observations, results of computations;
-\item ``Proofs'': math proofs, arguments, evidence, digital signatures, certifications, reputations, signalling.
-\end{itemize}
-\ldots{} and a reasonable analogy: Ideas~:~search, Answers~:~inference, Proofs~:~\emph{alignment}. Suppose you have a mechanism that bridges the information asymmetry gap between the human and the AI. You still need to ensure that the human \emph{learns} to correctly update on this information --- the AI (the prover) and the human (the verifier) need to learn in tandem, so the former can produce ``proofs'' understandable by the latter. This is never a problem if the human were a \emph{Bayesian} agent --- the AI could simply provide all the relevant evidence to convince the human of the truth. The ability to ``rationalize'' a belief update mechanism as ``just Bayesian lacking real information'' is what characterizes \emph{bounded rationality}.
-
-\begin{draftblock}
-A special difficulty arises when the questions on which beliefs must be elicited are not even \emph{verifiable}: when no ground truth will ever arrive to settle the bet. Human values, latent variables, and ``subjective'' judgements are of exactly this character. The economist's elicitation devices --- proper scoring rules and prediction markets --- presuppose eventual resolution; extending them beyond that boundary is the subject of \cref{part:subjective}.
-\end{draftblock}
-
 \section{Three levels: overview of the thesis}\label{intro:sec:overview}
 
 \begin{draftblock}
