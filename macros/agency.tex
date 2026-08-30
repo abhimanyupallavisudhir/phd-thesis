@@ -10,7 +10,6 @@
 \newcommand{\KL}{\mathrm{KL}}
 \newcommand{\Var}{\operatorname{Var}}
 \newcommand{\diag}{\operatorname{diag}}
-\newcommand{\softmax}{\operatorname{softmax}}
 
 % The source articles use \mathbb{Q} for the goods/quantity vector space.
 \newcommand{\Qspace}{\mathbb{Q}}
@@ -20,15 +19,6 @@
 
 % Inline verbatim-ish code identifiers (pdflatex-safe).
 \newcommand{\code}[1]{\texttt{#1}}
-
-% "[verified]" marker from THEORY.md: identities checked numerically
-% against the marketgrad library.
-\newcommand{\verifiedmark}{\textnormal{\small\textbf{[verified]}}}
-
-% \draft variant safe inside floats/captions (the global \draft uses
-% \marginpar, which is illegal in inner par mode).
-\NewDocumentCommand{\draftnomargin}{+m}{%
-  \ifdraftfinal#1\else{\color{draftcolor}#1}\fi}
 
 % This chapter keeps the source articles' literal equation tags (\tag{1.1},
 % (0.1), ...), which do not step the equation counter; give each equation a
