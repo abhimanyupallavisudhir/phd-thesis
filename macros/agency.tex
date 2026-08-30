@@ -24,3 +24,23 @@
 % "[verified]" marker from THEORY.md: identities checked numerically
 % against the marketgrad library.
 \newcommand{\verifiedmark}{\textnormal{\small\textbf{[verified]}}}
+
+% \draft variant safe inside floats/captions (the global \draft uses
+% \marginpar, which is illegal in inner par mode).
+\NewDocumentCommand{\draftnomargin}{+m}{%
+  \ifdraftfinal#1\else{\color{draftcolor}#1}\fi}
+
+% This chapter keeps the source articles' literal equation tags (\tag{1.1},
+% (0.1), ...), which do not step the equation counter; give each equation a
+% unique hyperref anchor so pdfTeX does not emit duplicate-destination
+% warnings.
+\makeatletter
+% Guarded: this file is loaded twice (ToC/LoF pre-load + chapter group),
+% and counters are global.
+\ifcsname c@agencyheq\endcsname\else\newcounter{agencyheq}\fi
+\let\agency@orig@equation\equation
+\renewcommand{\equation}{%
+  \stepcounter{agencyheq}%
+  \renewcommand{\theHequation}{agency.\arabic{agencyheq}}%
+  \agency@orig@equation}
+\makeatother

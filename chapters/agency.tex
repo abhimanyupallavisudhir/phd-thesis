@@ -1,0 +1,1771 @@
+% ============================================================
+% Chapter: Price recursion as the rational theory of reward
+% Compiled from:
+%   marketgrad-theory/Price recursion is the rational theory of reward.md   (backbone)
+%   marketgrad-theory/Bregman divergences, mirror ascent and reward as
+%       hyperstitious information.md                                        (Section \ref{agency:sec:hyperstition})
+%   marketgrad-theory/THEORY.md                                             (Section \ref{agency:sec:theory})
+%   marketgrad-theory/ATTENTION.md                                          (Subappendix \ref{agency:sec:attention})
+%   marketgrad/README.md, marketgrad/SPEC.md                                (Section \ref{agency:sec:library})
+% ============================================================
+
+\chapter{Price recursion as the rational theory of reward}\label{ch:agency}
+
+\chaptersource{This chapter is based on the informal articles
+``\href{https://www.lesswrong.com/posts/z7DBBn9RaDyKJRidg/reward-is-hyperstitional-information}{Reward
+is hyperstitional information}'' and ``Price recursion is the rational theory of reward''
+(originally titled ``Markets are equivalent to stuff''), written as part of the author's work
+at MATS~10.0 in Richard Ngo's stream, together with the accompanying research notes
+(\texttt{THEORY.md}, \texttt{ATTENTION.md}) and the \texttt{marketgrad} library
+(Section~\ref{agency:sec:library}) developed there.}
+
+\chapterabstract{\draft{Rational behaviour for a purely predictive agent is completely
+specified by Bayes's theorem; but for any agent that acts in the world there is an arbitrary
+thing called the ``utility function'', shaped by an equally arbitrary reward. This chapter
+develops an economic answer to where reward comes from. First, entropic mirror ascent ---
+the natural optimization dynamic on probability space --- is shown to be continuous-time
+Bayesian inference, so that reward is (hyperstitional) information. Then, in a general model
+of a production economy, shadow prices are shown to obey a recursion that is simultaneously
+backpropagation and Bellman recursion: chain economies are exactly multi-layer perceptrons,
+markets are exactly MDPs with matrix-valued discount factors, and entropic mirror ascent on
+routing shares is exactly replicator dynamics/continuous Bayesian inference, with revenue as
+the evidence rate. The economy is thus the ``super-agent'' that generates reward for its
+sub-agents, and price recursion is the rational theory of reward. Supporting results
+(the advantage identity, the fundamental theorem of welfare dynamics, the market--attention
+adjunction, and the decentralization of backprop into a market protocol) and the
+\texttt{marketgrad} library that numerically verifies them are included.}}
+
+A bunch of people have vaguely noticed intuitive analogies between economies/markets and
+machine learning algorithms:
+\href{https://www.lesswrong.com/posts/brhWPoNsBN7za3xjs/competitive-markets-as-distributed-backprop}{John Wentworth},
+Aanjaneya Kumar and Anders Sandberg at the
+\href{https://ai.objectives.institute/projects}{AI Objectives institute}, the ancient Neural
+Bucket Brigade
+(\href{https://proceedings.neurips.cc/paper/1988/hash/82aa4b0af34c2313a562076992e50aa3-Abstract.html}{Davis},
+\href{https://www.tandfonline.com/doi/abs/10.1080/09540098908915650}{Schmidhuber}). Several
+papers discuss RL algorithms based on sequentially auctioning a unit ``right to act'' among
+agents---most recently \href{https://arxiv.org/abs/2307.05068v1}{Caspar Oesterheld's BRIA}
+but also Baum's \href{https://link.springer.com/article/10.1023/a:1007593124513}{Hayek
+Machine}, its predecessors the classifier systems (Holland 1985,
+\href{https://mediatum.ub.tum.de/813180}{Schmidhuber 1987},
+\href{https://www.tandfonline.com/doi/abs/10.1080/09540098908915650}{Schmidhuber 1989}) and
+its successors Hayek-for-POMDPs
+(\href{https://link.springer.com/chapter/10.1007/3-540-44668-0_120}{Kwee et al 2001}) and
+Hayek with Vickrey auctions
+(\href{https://proceedings.mlr.press/v119/chang20b.html}{Chang et al 2020}). In
+``\href{https://arxiv.org/pdf/2503.05828}{Market-based architectures in RL and beyond}''
+I suggested that a better market model for RL might come out of factoring the ``right to
+act'' into ``goods'' axes, just like in real markets.
+
+The analogy is attractive and suggestive:
+\begin{enumerate}
+  \item Economies are intelligent agents built out of sub-agents much less capable than
+  themselves (see e.g.\ ``I, Pencil'') suggesting that markets are an example of
+  intelligence being an ``emergent phenomenon''.
+  \item Bounded rationality is very analogous to the Efficient Market Hypothesis. How can
+  you be rational when computing the rational decision itself has a cost---how do you
+  optimize over that? You are rational/markets are efficient ``conditional on the
+  information (including computational information) present in the system'', whatever that
+  means.
+  \item Markets have analogs of inconsistency (arbitrage) and
+  \href{https://www.lesswrong.com/posts/xqxXrAohXSD3akYCg/meaningful-things-are-those-the-universe-possesses-a}{G\"odel's
+  incompleteness theorem}: a prediction market is limited in its ability to efficiently
+  price the question ``This question will resolve YES if this market gives less than 50\%
+  probability to it''. (More specifically, a market must give zero subsidy to such a
+  question: its subjective ``value for information'' on that question must be zero.)
+  \item Related to 3: ``Market dynamics'' is famously under-studied because again it is
+  fundamentally computational and boundedly-rational rather than ``there exists an
+  equilibrium, DONE''.
+  The dynamical nature of markets feels very similar to backpropagation (as well as e.g.\
+  Bellman recursion): prices are gradients (specifically: gradients on activations, not
+  weights---they do not zero out at equilibrium).
+  %% TODO(agency): the source sentence trails off here ("..., the gradient"); completed
+  %% minimally by closing the parenthetical.
+\end{enumerate}
+
+In this chapter we will formalize this intuition, and explain that in fact, markets are
+equivalent to a lot of things: backprop, RL, and continuous Bayesian inference (aka
+``replicators'').
+
+\begin{draftblock}
+The chapter is organized as follows. Section~\ref{agency:sec:hyperstition} reproduces the
+precedent article ``Reward is hyperstitional information'', which develops the machinery of
+Bregman divergences and entropic mirror ascent and argues that reward, under this dynamics,
+is exactly (hyperstitional) Bayesian evidence; the market dynamics of
+Section~\ref{agency:sec:cbi} instantiate this. Sections~\ref{agency:sec:setup}
+to~\ref{agency:sec:rationalize} are the main article: the economic model and price
+recursion, the market--MDP and market--MLP equivalences, continuous Bayesian inference as
+market dynamics, and the resulting rationalization of reward.
+Section~\ref{agency:sec:theory} compiles the supporting theorems from the research notes
+accompanying the \texttt{marketgrad} library, and Section~\ref{agency:sec:library} briefly
+describes the library itself. Appendix~\ref{agency:sec:caveats} collects the main article's
+caveats and open questions, and Appendix~\ref{agency:sec:attention} is a self-contained
+exposition of attention and its duality with market routing.
+Figure~\ref{agency:fig:poster} shows the MATS poster summarizing the chapter.
+\end{draftblock}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figs/agency/mats-poster.pdf}
+  \caption[MATS poster: markets as the theory of rational action]{\draftnomargin{The
+  MATS~10.0 poster (``Markets as the theory of rational action'') summarizing the results of
+  this chapter.}}
+  \label{agency:fig:poster}
+\end{figure}
+
+% ============================================================
+\section{Bregman divergences, mirror ascent and reward as hyperstitious information}
+\label{agency:sec:hyperstition}
+% Source: marketgrad-theory/Bregman divergences, mirror ascent and reward as
+% hyperstitious information.md (the precedent article, lifted in full).
+
+The logarithmic scoring rule $b\log q(x)$
+\href{https://www.lesswrong.com/posts/fCGXK7oyhM4ei77gt/lmsr-subsidy-parameter-is-the-price-of-information}{exactly
+puts a price on information by the usual measure}: the expected score an agent with some
+belief distribution $q$ gets is exactly $-bH(p,q)$ where $p$ is the true distribution (or,
+more accurately: the score we expect that agent to get is $-bH(p,q)$, from our
+perspective/belief $p$).
+
+Consequently, the value of some information $Y$ is precisely its mutual information
+$bI(X;Y)$ with the event of interest, etc.
+
+Here's a question: \textbf{does every proper scoring rule correspond to an information
+measure?} For instance, does the quadratic scoring rule incentivize obtaining information in
+the sense of ``quadratic negentropy'' much like logarithmic scoring incentivizes obtaining
+information in the sense of ``logarithmic negentropy''?
+
+\subsection{Generalized entropies and Bregman divergence}\label{agency:sec:bregman}
+
+A scoring rule is some function $S(x, q)$ that tells you how much an agent gets for belief
+$q$ when an outcome $x$ is realized---equivalently that is how someone with belief
+$\delta_x$ would score belief $q$. This also tells you how someone with belief $p$ would
+score belief $q$:
+$$G(p,q)=\sum_x p(x)S(x,q)$$
+Properness means that $q=p$ maximizes it, i.e.
+$$G(p):=G(p,p)=\max_q G(p,q)$$
+$G(p)$ is the score we give to our own beliefs, thus there is no bias penalty, only an
+uncertainty penalty: it measures our ``certainty'' about our own beliefs.
+
+(So $G(p)$ and $G(p,q)$ are the generalized ``negentropy'' and ``cross-negentropy''
+respectively, and their negatives are the generalized entropy and cross-entropy.)
+
+Now observe: fix $q$ and look at the maps $p\mapsto G(p)$ and $p\mapsto G(p,q)$. The latter
+is linear in $p$, and they touch at the point $p=q$ (everywhere else $G(p,q)$ lies below
+$G(p)$).
+
+Thus for every $q$, $G(p,q)$ is the tangent plane under the graph of $G(p)$ at the point
+$p=q$. In other words, \textbf{any (neg-)entropy function $G(p)$ naturally induces a cross
+(neg-)entropy function $G(p,q)$} by its tangent planes:
+$$G(p,q)=G(q)+\langle\nabla G(q), p-q\rangle$$
+
+When $G(p)$ is convex, i.e.\ it sits above all its tangent planes (in fact it is exactly the
+max of all its tangent planes), the resulting scoring rule is proper i.e.\
+$G(p)=\max_q G(p,q)$. \textbf{Thus every convex function generates an information theory.}
+
+So the Generalized Scoring $S(x,q)=G(\delta_x, q)$, the Generalized Cross-Entropy $-G(p,q)$
+and the Generalized Entropy $-G(p)$ are all equally fundamental; you can derive the rest
+from any one of them.
+
+We also define the Generalized KL-divergence (``Bregman Divergence'') as the vertical gap
+between $G(p)$ and the tangent plane $G(p,q)$, i.e.\ ``how much does $p$ believe itself to
+be better than $q$'':
+$$D(p\parallel q)=G(p)-G(p,q)$$
+
+For log score $S(x, q)=\log q(x)$, we have usual information theory. For the quadratic score
+$S(x,q)=-\|q-\delta_x\|^2$ we have cross-negentropy $G(p,q)=\langle p, q\rangle-\|q\|^2-1$,
+negentropy $G(p)=\|p\|^2-1$ (the negative of which, the quadratic entropy, is called the
+``Gini impurity'') and Bregman divergence $D(p\parallel q)=\|p-q\|^2$.
+
+An entropy function inducing a cross-entropy function may remind you of how norms naturally
+induce inner products (polarization identity). So is cross-entropy an inner product? Not
+really. If you take a quadratic form $G(p)=\frac12 \langle p, A p\rangle$ (differing from
+the above quadratic entropy by constant term and factor) then $\nabla H(p)=Ap$, and
+$$H(p,q)= \frac12 \langle q, A q\rangle+\langle Aq, p-q\rangle=\langle p,Aq\rangle-\frac12 \langle q,Aq\rangle$$
+Which is not the inner product, but it does suggest a generalized ``inner product'' of
+distributions: $\langle p, q\rangle =G(p,q)+G(q)=G(p)+G(q)-D(p\parallel q)$. But it is not
+in general symmetric, etc.
+
+\subsection{Mirror ascent}\label{agency:sec:mirror}
+
+What exactly is gradient ascent?
+\begin{quote}
+``Climbing in the direction of steepest ascent''
+\end{quote}
+ok, what is ``the direction of steepest ascent?''
+\begin{quote}
+Among all $\varepsilon$-steps in each direction, we choose the $\varepsilon$-step that gives
+the highest rise in the objective (as measured by a first-order Taylor approximation of the
+objective, i.e.\ the gradient)
+\end{quote}
+
+I.e.\ given a current value $x_t$, we want to find the $x$ that maximizes $f(x)-f(x_t)$. The
+first-order Taylor approximation for this is $\langle\nabla f(x_t), x-x_t\rangle$---but we
+cannot trust the first-order Taylor approximation if we move too far, so we restrict the
+search to an $\varepsilon$-neighbourhood around $x_t$. Thus:
+$$x_{t+1}=\argmax_x \langle\nabla f(x_t), x-x_t\rangle, \quad D(x, x_t)\le\varepsilon$$
+
+This is a constrained optimization problem, so define a Lagrangian:
+$$\mathcal{L}(x,\lambda)= \langle\nabla f(x_t), x-x_t\rangle - \lambda (D(x, x_t)-\varepsilon)$$
+
+Differentiating we get:
+\begin{equation}
+\nabla D(x_{t+1}, x_t) = \frac1\lambda \nabla f(x_t) \tag{$*$}
+\end{equation}
+$$D(x_{t+1}, x_t)=\varepsilon$$
+
+For the usual Euclidean metric, $\nabla D(x_{t+1}, x_t) = 2(x_{t+1}-x_t)$ so we can solve
+and get usual gradient ascent:
+$$x_{t+1} = x_t + \eta \nabla f(x_t)$$
+
+Instead suppose $D(x_{t+1}, x_t)$ is an arbitrary Bregman divergence, i.e.\
+$D(x, y) = G(x) - G(y) - \langle \nabla G(y), x-y\rangle$ for convex $G$. The gradient of
+this with respect to its first parameter is simply
+$$\nabla_x D(x, y) = \nabla G(x) - \nabla G(y)$$
+
+So plugging this back into $(*)$ we get the update rule:
+\begin{equation}
+\nabla G(x_{t+1}) = \nabla G(x_t) + \eta\nabla f(x_t)\tag{$**$}
+\end{equation}
+
+For convex $G$, there is a one-to-one map between the values of $x$ and the values of
+$\nabla G(x)$; i.e.\ the gradients live in a ``$G$-dual space'' or \textbf{mirror space} and
+this amounts exactly to doing gradient ascent in the mirror space, i.e.\ ``mirror ascent''.
+
+For $G(x)= \|x\|^2$ (the usual quadratic metric), the map is the identity (scaled by $2$),
+and---
+
+\subsection{Reward is hyperstitional information}\label{agency:sec:hyperstitional}
+
+for $G(p)=p\cdot\log(p)$ we have $\nabla G(p) = 1+\log(p)$ thus the update rule is
+multiplicative (\textbf{entropic mirror ascent}):
+$$p_{t+1} \propto p_t\exp\left(\eta\nabla f(p_t)\right)$$
+
+(we are allowed to normalize because for probabilities the original problem is itself a
+constrained optimization problem with a simplex constraint)
+
+In other words: \textbf{optimizing some objective $f(p)$ over probability space with
+entropic mirror ascent, is continuous-time Bayesian inference with likelihood function
+$\exp\left(\eta\nabla f(p)\right)$}.
+
+Unlike usual Bayesian inference:
+\begin{enumerate}
+  \item this likelihood function depends on the current $p$
+  \item this likelihood function can be \ldots\ anything.
+\end{enumerate}
+
+From a predictive processing/active inference perspective, all rational behaviour must be
+Bayesian inference, and utility functions are fake. What you see as ``utility
+functions''/goals are actually the agent's prior: \textbf{and inference arbitrages between
+the agent's beliefs and the environment} (when the environment's information updates the
+agent that is ``learning''; when the agent's information influences the environment that is
+``action'').
+
+And similarly, now we have that reward is also, information. What is it information about?
+Well, an RL agent produces probabilities $\pi(x)$ for its actions and samples from them (so
+the policy also functions as the agent's beliefs about its own actions), and reward updates
+these probabilities---so it is simply information about ``what I will do'', and is
+definitionally rational, because ``what I will do'' is \emph{actually} updated and the
+agent's beliefs about it are updated in-sync. You can specify \emph{any} objective
+whatsoever, and optimizing it (at least through entropic mirror ascent) will still be
+rational Bayesian inference. In other words, reward is \emph{hyperstitional} information.
+
+(And if you multiply all the exponentiated rewards the agent gets through its training, you
+get its final prior, which expresses its exponentiated utility function. Kinda, maybe,
+oversimplified, whatever.)
+
+In bandits, the objective is just the reward; in more general RL you must use Q-values, and
+also do importance sampling (i.e.\ use $f(p)/p_i$ where $i$ is the taken action instead of
+$f(p)$) because you only have access to the reward for one performed action. PPO methods
+used in modern RL also are approximately entropic mirror ascent (TRPO is exactly it; other
+stuff is kinda). You may also recall that evolution (replicator dynamics) is Bayesian
+inference (\href{https://arxiv.org/abs/0911.1763}{Harper 2009}, explained by
+\href{https://johncarlosbaez.wordpress.com/2012/06/01/information-geometry-part-9/}{John
+Baez here}). Indeed, it is exactly equivalent to this dynamic, with the fitness function as
+an exponentiated reward.
+
+\subsection{Continuous-time mirror ascent and information geometry}\label{agency:sec:infogeom}
+
+It is interesting to take the continuous limit of this dynamics. We have:
+$$\frac{d}{dt}\nabla G(x)= \nabla f(x)$$
+
+(i.e.\ the velocity in the mirror space is the gradient of your objective function). What
+does this look like in the original primal space? Well we can apply the chain rule to
+rewrite the left side as $\nabla^2 G(x)\frac{dx}{dt}$ (where $\nabla^2$ is the Hessian)
+thus:
+\begin{equation}
+\frac{dx}{dt}=[\nabla^2 G(x)]^{-1}\nabla f(x)\tag{$*\!*\!*$}
+\end{equation}
+
+This gives us a very natural interpretation of mirror ascent: if you let the Hessian
+$\nabla^2 G(x)$ define a Riemannian metric on your space, \textbf{then mirror ascent is
+simply gradient ascent of the objective $f(x)$ on that geometry.} Physicists are of course
+quite used to transforming between primal and dual spaces by multiplying by the metric and
+its inverse respectively.
+
+Pitfall prevention: this is not gravity, nor is it any Newtonian force (as that would drive
+the acceleration not the velocity).
+
+When $G(x)$ is entropy, its Hessian is called the ``Fisher information matrix'' or
+``Fisher--Rao metric'' $\diag(1/p)$ and the geometry defined by this Riemannian metric is
+called information geometry.
+
+\subsection{Advantage is rivalry}\label{agency:sec:advantage-rivalry}
+
+Actually, the rule in the above section is not exactly right for the probabilistic case,
+because it does not account for the probability normalization (i.e.\ the fact that the
+original optimization itself has a constraint of probabilities adding up to 1).
+
+You can just take the continuous limit of the multiplicative update rule directly.
+
+In Bayesian inference, imagine the likelihood function to arrive over a period of time, so
+that over time $dt$, you get infinitesimal evidence $\exp(v\ dt)$. Call $v$ the ``rate of
+evidence'' (and it is a vector where each index is a hypothesis)---and $\bar{v}=p\cdot v$ is
+your ``expected evidence rate''. Then (where $\odot$ is the pointwise product of vectors)
+Bayes's theorem is:
+$$p(t+dt)=\frac{p(t)\odot\exp(v\ dt)}{p(t)\cdot \exp(v\ dt)}$$
+
+Take first-order approximations $\exp(x)\approx 1 + x$ and $\frac1{1+x}\approx 1-x$:
+\begin{align*}
+p(t+dt)&=\frac{p(t)\odot (1+ v\ dt)}{p(t)\cdot (1+ v\ dt)}\\
+&=p(t)\odot \frac{1+ v\ dt}{1 + \bar{v}\ dt}\\
+&= p(t)\odot (1+v\ dt) \odot (1-\bar{v}\ dt)\\
+&= p(t)\odot (1+v\ dt-\bar{v}\ dt)\\
+\implies dp/dt&= p(t)\odot(v-\bar{v})
+\end{align*}
+This is the differential form of Bayes's theorem, and is the replicator equation from
+evolution.
+
+In the RL/entropic mirror ascent case, we have:
+\begin{align*}
+p(t+dt) &=\frac{p(t)\odot \exp\left(\nabla f(p(t))\ dt\right)}{p(t)\cdot \exp\left(\nabla f(p(t))\ dt\right)}\\
+&= p(t)\odot (1 +\nabla f(p(t))\ dt-p(t)\cdot \nabla f(p(t))\ dt)\\
+dp/dt&= p(t)\odot (\nabla f(p)-p\cdot \nabla f(p))
+\end{align*}
+Which is the same replicator equation, with the gradient of the reward $\nabla f(p(t))$ as
+the ``evidence rate'' and the expected reward $p(t)\cdot \nabla f(p(t))$ as the ``expected
+evidence rate''.
+
+But notice: this $\nabla f(p)-p\cdot \nabla f(p)$ is \textbf{Advantage}, the difference
+between the $Q$ and $V$ values!
+
+Without ``rivalry'' (the constraint that probabilities would add up to 1), you would just
+have $dp/dt= p(t)\odot \nabla f(p)$ (equivalent to the equation from the previous
+section---the inverse Fisher information is $\diag(p)$ so left-multiplying by it is
+equivalent to doing $p(t)\odot$). \textbf{\emph{Advantage} arises from rivalry}, i.e.\ the
+constraint that these probabilities must add up to 1 (indeed, using advantage instead of the
+$Q$-value is only compulsory for tabular softmax parameterized policies).
+
+\subsection{What I'm confused about: dynamics}\label{agency:sec:dynamics-confusion}
+
+Finally, the thing I am actually confused about:
+
+You know, a big problem in life is that people like expressing everything in terms of
+equilibrium (in economics, game theory,
+\href{https://yuxi.ml/essays/equilibrium-thermoeconomics}{entropostatics aka
+thermodynamics}) with little regard for the \emph{dynamics} that leads to the equilibrium.
+
+(This is closely related to how we just model agents as rational (i.e.\ imagine that the
+utility function can just be arg-maxed) instead of modeling bounded rationality which has
+computational costs (and you can't just minus them from the objective either, because you
+don't know what those costs are) and is fundamentally dynamic because you can't instantly
+optimize something but that computational time is itself a cost\ldots)
+
+Entropic mirror ascent seems like a very promising model of dynamics. Because evolution (the
+most fundamental learning algorithm) actually follows it, and it is naturally a dynamical
+Bayesian inference. And I have some work suggesting that economies can naturally be thought
+of as doing it too.
+
+But on the other hand \ldots\ I can't imagine how dynamical thermodynamics could have
+anything to do with this? The simplest actually dynamical example in thermodynamics is
+Newton's law of cooling, and that actually happens to be \textbf{gradient ascent on
+entropy}, not continuous Bayesian inference/entropic mirror ascent.
+
+Modeling thermodynamic dynamics fundamentally seems to have something to do with thinking
+like ``Ok, I am not completely uncertain about this because I know where the system was 1
+second ago; that is somehow a soft constraint'', i.e.\ a generalized notion of ``fraction''.
+And I don't even know how gradient ascent on entropy comes out of this, maybe Newton's law
+of cooling is just a coincidence?
+
+% ============================================================
+\section{Setup}\label{agency:sec:setup}
+% Source: main article, Section 1.
+
+Here is how we will define an ``economy''.
+
+\begin{definition}[economy]\label{agency:def:economy}
+There is a vector space $\Qspace$ in which quantity vectors live (so its dimensionality is
+the number of unique goods). There is a directed graph, where every node $i$ is a
+``factory'' labelled with production function $f_i:\Qspace\to\Qspace$ and every edge $ij$ is
+labelled by a quantity vector $q_{ij}\in\Qspace$. The graph is subject to physical
+constraints:
+$$f_i(x_i)=y_i$$
+where $x_i=\sum_k q_{ki}$ and $y_i=\sum_j q_{ij}$. Furthermore some nodes, called
+``consumers'', have a utility function $U_i(x_i,y_i)$.
+\end{definition}
+
+We may imagine a global welfare objective $W = \sum_i U_i(x_i, y_i)$ (WLOG all the weights
+are 1).
+
+\textbf{U.S.O.W.} We will usually think of $(V,E)$ as a DAG and $f_i, U_i$ are continuous
+and differentiable; utilities have no explicit dependence on flows or shares. Cyclic graphs
+are certainly \emph{interesting}, but they are hard in general.
+
+(\textbf{But what about factories choosing what to produce? Shouldn't $f_{i}(x_i)$ be a set
+and $y_i$ be chosen from this set?} For now we will treat that as a set of every possible
+$f_i$, and the choice of what to produce amounts to routing to the right $f_i$. Maybe this
+is bad from a computational POV or whatever; alternatively we may consider the $f_i$'s
+themselves as trainable sub-agents with some internal parameters.)
+
+\subsection{General price recursion}\label{agency:sec:price-recursion}
+
+Introduce Lagrange multipliers $\lambda_i$ for the production constraints:
+$$\mathcal L = \sum_i U_i(x_i,y_i) -\sum_i \lambda_i\cdot (y_i-f_i(x_i))$$
+Differentiate with respect to quantity vectors $q_{i\to j}$, we get the recursion:
+\begin{equation}
+\lambda_i=\nabla_{y_i}U_i+\nabla_{x_j}U_j+J_{f_j}(x_j)^\top\lambda_j\tag{1.1}\label{agency:eq:lambda-recursion}
+\end{equation}
+i.e.\ the price of output from $i$ equals the direct marginal utility/cost at $i$, plus the
+direct marginal utility at $j$, plus the downstream production value obtained by sending the
+good through $j$. The term $J_{f_j}(x_j)^\top\lambda_j$ is the backpropagation operation.
+
+However, this does not directly let us perform backpropagation on the market graph, since
+$q_{i\to j}$ are not free variables: they must satisfy the constraint
+$\sum_j q_{i\to j}=y_i$. So instead parameterize quantity flows using routing shares:
+$$q_{i\to j}=s_{ij}\odot y_i$$
+$$s_{ij,g}\geq 0,\qquad \sum_j s_{ij,g}=1$$
+
+The forward computation is (where $\odot$ indicates the elementwise product, and $r_i$ is an
+exogenous resource endowment if any):
+$$x_i = r_i+\sum_h s_{hi}\odot y_h$$
+$$y_i=f_i(x_i)$$
+
+Defining adjoints $a_i=\frac{\partial W}{\partial x_i}$ and
+$b_i=\frac{\partial W}{\partial y_i}$, $c_{ij}=\frac{\partial W}{\partial s_{ij}}$ and
+differentiating:
+\begin{equation}
+a_i=\nabla_{x_i}U_i+J_{f_i}(x_i)^\top b_i\tag{1.2}\label{agency:eq:adjoint-a}
+\end{equation}
+\begin{equation}
+b_i=\nabla_{y_i}U_i+\sum_j s_{ij}\odot a_j\tag{1.3}\label{agency:eq:adjoint-b}
+\end{equation}
+\begin{equation}
+c_{ij} = y_i\odot a_j\tag{1.4}\label{agency:eq:share-gradient}
+\end{equation}
+Now, these shadow price propagation equations themselves are just \emph{true}: not dependent
+on any particular dynamics/optimization algorithm. They are highly \emph{suggestive} of a
+backprop-like dynamics, and the fact that these prices actually are so important in
+real-world economic decision-making suggests that this suggestiveness is right.
+
+You can transform the shares into logit space to do normal backpropagation without simplex
+constraints, or you can directly do optimization on a simplex, e.g.\ via entropic mirror
+ascent which gives the update rule (with geometric learning rate $\eta$) as in
+Section~\ref{agency:sec:cbi}. Regardless, the optimization rule is always: ``move outputs
+towards buyers with higher marginal value $a_j$''. At equilibrium, all active destinations
+of the same good from the same source have equal marginal value, i.e.\ for active edges
+($q_{i\to j,g}>0$, $q_{i\to k,g}>0$):
+$$a_{j,g}=a_{k,g}$$
+
+% ============================================================
+\section{Markets are MDPs; advantage = rivalrous goods}\label{agency:sec:mdp}
+% Source: main article, Section 2.
+
+Here is a nice interpretation of our economic model. Imagine there is only \emph{one} unit
+good, i.e.\ a particle in the whole market. If the production functions are identity, then
+its movement through the market is governed by policy $s_{ij,g}$, collecting rewards
+$\nabla U$ along the way.
+
+Production makes the particle ``branch'': at node $i$ a unit of good becomes a bundle
+$J_{f_i} \cdot (\text{unit})$. We may regard the Jacobian $J_{f_i}$ as a ``matrix-valued
+discount factor''. We also have a Bellman recursion:
+\begin{equation}
+\bar a_{i} := \sum_j s_{ij}\odot a_{j}\tag{2.1}\label{agency:eq:vbar}
+\end{equation}
+\begin{equation}
+a_j = \underbrace{\nabla_{x_j} U_j+ J_{f_j}^\top\nabla_{y_j} U_j}_{\text{reward}} + J_{f_j}^\top \bar{a_i} \tag{2.2}\label{agency:eq:bellman}
+\end{equation}
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+RL & market \\
+\midrule
+state                         & ``one unit of good $g$ sits at node $i$''             \\
+action                        & ``ship it to $j$''                                    \\
+policy $\pi(j \mid i)$        & routing share $s_{ij,g}$                              \\
+reward                        & marginal utility $\nabla U$ collected along the way   \\
+action value $Q(i,j)$         & destination price $a_{j,g}$                           \\
+state value $V(i)$            & average received price $\bar a_{i,g}$                 \\
+advantage $A(i,j)$            & price premium $a_{j,g} - \bar a_{i,g}$                \\
+visitation measure $d^\pi(i)$ & quantity present $y_{i,g}$                            \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Optimizing this market (computing the $s_{ij}$s) is then equivalent to solving this MDP. In
+fact, we have a ``Policy Gradient Theorem'' (the $c_{ij}$
+equation~\eqref{agency:eq:share-gradient} from earlier):
+$$c_{ij} := \frac{\partial W}{\partial s_{ij}} = y_i\odot a_j$$
+
+Or parameterizing with logits $s_{ij,g} = \exp(\theta_{ij,g}) / \sum_k \exp(\theta_{ik,g})$:
+\begin{equation}
+\frac{\partial W}{\partial \theta_{ij,g}}
+  \;=\; s_{ij,g}\, y_{i,g} \left( a_{j,g} - \bar a_{i,g} \right)
+  \;=\; q_{i\to j, g} \left( a_{j,g} - \bar a_{i,g} \right)\tag{2.3}\label{agency:eq:logit-gradient}
+\end{equation}
+
+\begin{proof}
+Chain rule through the softmax Jacobian
+$\partial s_{ik}/\partial \theta_{ij} = s_{ik}(\delta_{kj} - s_{ij})$ applied
+to~\eqref{agency:eq:share-gradient}.
+\end{proof}
+
+In fact even the interpretation of $J_{f_i}^\top$ as a ``matrix-valued discount factor'' has
+a natural interpretation. Generalizing $\gamma <1$, we have in a cyclic economy the
+Hawkins--Simon condition $\rho(S^\top J_f) < 1$ where $S$ is the full matrix of $s_{ij}$'s
+(for a particular good) and $\rho$ is the spectral radius (the largest absolute eigenvalue),
+which tells us that a cyclic economy cannot be a perpetual motion machine.
+
+(Well actually, it kinda can be a perpetual motion machine, if the dynamics of the cyclic
+economy represent actual time rather than just convergence to an equilibrium. But tbh I
+would rather represent that unrolled, as an infinite graph with nodes stretching out into
+the future.)
+
+(In the ``wide market RL'' I introduced in my paper
+\href{https://arxiv.org/abs/2503.05828}{Market-based RL}, I don't think of the MDP itself as
+a market, but the transition probabilities are determined by an additional Garrabrant-like
+program market of traders and the network is more ``fundamentally dynamic'' rather than
+graph-like. Something in-between---dynamic like program markets but efficient like
+graphs---like a graph that forms new connections or performs search of some sort when shadow
+prices exceed some friction-induced background transaction cost, seems like a good model for
+describing real markets, Knightian uncertainty etc.)
+
+% ============================================================
+\section{Chain markets are MLPs}\label{agency:sec:mlp}
+% Source: main article, Section 3; remarks folded in from THEORY.md Section 5.
+
+\begin{theorem}[chain = MLP]\label{agency:thm:chainmlp}
+Let the economy be a directed chain $0 \to 1 \to \cdots \to L$ with resource $r$ injected at
+node $0$, production functions $f_\ell$, and a single consumer with utility $u$ at node $L$.
+Then all shares are trivially equal to 1, and:
+\begin{enumerate}
+  \item The forward pass is the feedforward computation $h_{\ell+1} = f_\ell(h_\ell)$,
+  $h_0 = r$, with welfare $W = u(h_L)$: \textbf{goods bundles are activation vectors} (one
+  neuron per good; a node/factory is a whole layer).
+  \item The market's shadow prices are the backprop gradients:
+  $a_\ell = \partial W / \partial h_\ell = J_{f_\ell}^\top \cdots J_{f_{L-1}}^\top \nabla u$.
+  \item \textbf{Internal parameterization.} If $f_\ell$ has parameters $w_\ell$, then by
+  Lemma~\ref{agency:lem:alignment}, gradient ascent by each firm on its own profit at posted
+  prices is identical to backprop/SGD on the network's weights:
+  $\nabla_{w_\ell}(\text{profit}_\ell) = \nabla_{w_\ell} W$.
+  \item Conversely, every MLP whose activations are nonnegative (i.e.\ with ReLU or similar
+  activation functions) arises this way, with \textbf{bias vectors = exogenous endowments}
+  $r_\ell$ injected at layer $\ell$ and the objective function as the terminal consumer's
+  utility.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+1--2 are the forward/backward recursions of Section~\ref{agency:sec:setup} with a single
+out-edge; 3 is Lemma~\ref{agency:lem:alignment}; 4 is construction.
+\end{proof}
+
+Theorem~\ref{agency:thm:chainmlp} completely formalizes the ``economies = backprop/neural
+networks'' intuition that people have been groping at. Note that economies are more
+\emph{general} than classical MLPs: they are neural networks with \emph{routing} (which is
+kind of ``transposed static attention'': in markets, the goods are scarce while in
+transformers, the receiver-side attention budget is scarce).
+
+% The following remarks are lifted from THEORY.md Section 5 (whose Theorem 5 restates
+% Theorem \ref{agency:thm:chainmlp} and is therefore not repeated in
+% Section \ref{agency:sec:theory}).
+\begin{remark}\label{agency:rem:chainmlp}
+(i) The nonnegativity caveat is real: goods live in $\mathbb{R}_{\ge 0}$, so
+ReLU-family/positive nets embed directly; signed activations require signed goods or
+good-pairs (long/short). (ii) The converse direction shows the market class is
+\emph{strictly larger}: a general market is an MLP \textbf{plus trainable conserved
+routing}---in the language of Section~\ref{agency:sec:theory-attention}, a feedforward net
+interleaved with transposed-attention layers. (iii) An economy is ``deep'' in the same sense
+a network is: chains give compositional depth; routing gives width and credit-assigned
+allocation.
+\end{remark}
+
+% ============================================================
+\section{Continuous Bayesian inference as a dynamics for markets}\label{agency:sec:cbi}
+% Source: main article, Section 4.
+
+In Section~\ref{agency:sec:hyperstition}
+(\href{https://www.lesswrong.com/posts/z7DBBn9RaDyKJRidg/reward-is-hyperstitional-information}{Reward
+as hyperstitional information}), I conveyed that entropic mirror ascent (aka continuous-time
+Bayesian inference) is the natural dynamics for probabilities. Rewards and such are just an
+``evidence rate''.
+
+It seems very suggestive that our routing shares are literally just probabilities (of ``a
+particle of good being sent to some factory''). Indeed, we can let the dynamics of our
+market be ``entropic mirror ascent on total welfare'' i.e.\ update the shares each time step
+as (indices $i,j,g$ are implicit):
+$$s'=\argmax_{s'} \{\eta\langle \partial W/\partial s, s'\rangle - \KL(s'\|s)\}$$
+From~\eqref{agency:eq:share-gradient} we know that the share gradient equals the revenue
+rate $\partial W/\partial s = ya =: c$ thus the solution to this is (read
+Section~\ref{agency:sec:hyperstition} if this isn't immediately clear):
+\begin{equation}
+s' \propto s \exp{(\eta c)}\tag{4.1}\label{agency:eq:mwu}
+\end{equation}
+
+Differentiate with respect to time to get the usual replicator flow/continuous-time Bayesian
+inference:
+\begin{equation}
+\dot s = s\left( c - \bar c \right) \tag{4.2}\label{agency:eq:replicator}
+\end{equation}
+
+So: \textbf{the market (under entropic mirror ascent) is a Bayesian learner}, with each
+agent doing ``hyperstitious'' learning. I.e.\ each agent $i$ has a belief distribution
+$s_{i,-}$ on the question ``where will I send an infinitesimal quantity to?'' and the
+infinitesimal evidence it receives for each hypothesis $j$ is exponentiated revenue ratio
+$\exp{(\eta c_{ij})}/Z$.
+
+\begin{thesisclaim}
+Revenues are rewards are information (log-likelihoods).
+\end{thesisclaim}
+
+You can use this equivalence to transfer any result.
+
+\begin{center}
+\small
+\begin{tabular}{@{}llp{4.2cm}p{5.2cm}@{}}
+\toprule
+domain & mass & fitness / evidence & equilibrium \\
+\midrule
+evolution & population shares      & reproductive fitness & fitness equalized (Fisher) \\
+markets   & supply shares / wealth & prices, revenue      & law of one price, no arbitrage \\
+inference & posterior probability  & log-likelihood       & likelihoods equalized/posterior support \\
+RL        & policy $\pi(j \mid i)$ & $Q$-values ($d^\pi(i)\,Q(i,j)$ visitation-weighted; advantage $A = Q - V$ as the relative form) & advantage vanishes on support, $\le 0$ off it---Bellman optimality/policy improvement stops; generally a greedy deterministic policy, or Boltzmann $\pi \propto e^{Q/\tau}$ under entropy regularization \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Much like Fisher's fundamental theorem of natural selection we have the ``fundamental
+theorem of welfare dynamics'': fix the technologies $f_i$ and utilities $U_i$ and let all
+shares evolve simultaneously by~\eqref{agency:eq:replicator}. Then
+\begin{equation}
+\dot{W}
+  = \sum_{i \in V} \sum_{g \in G} y_{i,g}^2\;
+        \Var_{j \sim s_{i\cdot,g}}\!\left( a_{j,g} \right) \tag{4.3}\label{agency:eq:ftwd}
+\end{equation}
+
+\begin{proof}
+$\dot W = \sum_{i,j,g} \frac{\partial W}{\partial s_{ij,g}} \dot s_{ij,g}$ (since the
+partials are total derivatives). Substituting~\eqref{agency:eq:share-gradient}
+and~\eqref{agency:eq:replicator}, each $(i,g)$ block contributes
+$y_{i,g}^2 \sum_j s_{ij,g} a_{j,g}(a_{j,g} - \bar a_{i,g}) = y_{i,g}^2 (\mathbb{E}[a^2] - \bar a^2)$.
+\end{proof}
+
+% ============================================================
+\section{Markets rationalize reward and identity}\label{agency:sec:rationalize}
+% Source: main article, Section 5.
+
+I started my MATS work with the following observation:
+
+\begin{quote}
+Utility functions and hyperstitional ``identities'' (in the sense of predictive
+processing---i.e.\ you do what you predict you'll do) are the same thing.
+\begin{enumerate}
+  \item Both are ``arbitrary'': the choice of utility function, nor the co-ordinated choice
+  of equilibrium (or whatever) are determined by existing rules of rationality.
+  \item Purely predictive agents (i.e.\ \textbf{non-embedded} agents, \emph{not}
+  Predict-o-matic) do not have identities; their beliefs are completely specified by Bayes
+  (in the limit of all information being supplied). [I mean sure you could say that some
+  priors may not allow convergence to the same thing, or debate what it means to take the
+  limit of ``all information being supplied'', or talk about boundedly rational agents
+  having ``globally inconsistent'' beliefs, but this seems like a qualitatively different
+  thing.]
+\end{enumerate}
+So ideally, we would like to have a theory where internal sub-agent co-ordination is
+equivalent to a choice of utility function. More precisely: the theory should connect this
+to \emph{reward} (which ultimately ``selects'' or trains the identity), and build a
+satisfying picture that explains how that exogenous reward itself fits into a broader
+predictive-processing-only picture.
+\end{quote}
+
+Or more simply: rational behaviour for a \emph{purely predictive}/non-embedded agent is
+completely specified by Bayes's theorem, but for any agent that performs \emph{actions} in
+the world/whose beliefs affect the world, there is an arbitrary thing called the ``utility
+function''. The utility function is shaped by reward, but then reward is arbitrary.
+
+I continued:
+
+\begin{quote}
+The picture I expect right now is vaguely something like:
+\begin{itemize}
+  \item ``the universe as a whole'' (or closed systems more generally) do not have
+  identities/utility functions, but individual sub-agents do
+  \item Identities are the result of the universe hierarchically enforcing its will on its
+  sub-agents via reward/selection. [But the question of exactly how actions i.e.\ things
+  causally determined by agent beliefs, emerge, should be clarified].
+  \item Reward has to do with constraints in statistical mechanics
+\end{itemize}
+This intuition is largely based on Point 2, and also the suggestive connection between
+evolutionary fitness functions and Bayesian evidence
+(\href{https://arxiv.org/abs/0911.1763}{Harper 2009, The Replicator Equation as an Inference
+Dynamic}), which supports the idea that evolutionary selection is somehow the universe
+``inserting its information'' into an agent.
+\end{quote}
+
+Now observe how markets have two processes going on simultaneously:
+\begin{enumerate}
+  \item \textbf{Agents learn the shares $s_{ij}$}, e.g.\ through continuous-time Bayesian
+  inference, with prices (or rather revenue) as the ``information'' or reward supplied.
+  \item \textbf{Price recursion} i.e.\
+  equations~\eqref{agency:eq:lambda-recursion}--\eqref{agency:eq:share-gradient} or
+  equivalently \eqref{agency:eq:vbar}--\eqref{agency:eq:bellman} which follow a
+  Bellman/backprop-like rule.
+\end{enumerate}
+
+\begin{quote}
+\emph{FAQ: Wait, how can price recursion be equivalent to both Bellman and backprop?}
+
+Backprop/reverse-mode autodiff on \emph{any} computation graph produces a ``Bellman-shaped''
+recursion, i.e.\ value of a node = sum of its consumer nodes' values transformed by
+$J_{f_i}^\top$.
+
+What makes the market price recursion actual Bellman (with matrix-valued discount factors
+$J_{f_i}^\top$) rather than merely ``Bellman-shaped'' is the simplex constraint which lets
+the routing shares be interpreted as probabilities.
+\end{quote}
+
+In other words:
+
+\begin{thesisclaim}
+The economy is exactly the ``super-agent'' that generates reward to its sub-agents, and
+price recursion is the ``rational theory of reward''.
+\end{thesisclaim}
+
+In Section~\ref{agency:sec:hyperstition}
+(\href{https://www.lesswrong.com/posts/z7DBBn9RaDyKJRidg/reward-is-hyperstitional-information}{Reward
+as hyperstitional information}), reward was entirely an underdetermined hyperstition.
+Markets (equations \eqref{agency:eq:vbar}--\eqref{agency:eq:bellman}) tell you how to
+determine it.
+
+\draft{The main article's appendix of caveats and open questions is reproduced in
+Appendix~\ref{agency:sec:caveats}.}
+
+% ============================================================
+\section{Supporting theory: markets as differentiable programs}\label{agency:sec:theory}
+% Source: marketgrad-theory/THEORY.md. Central results included; expository passages
+% trimmed are flagged with %% TODO notes below.
+
+\begin{draftblock}
+This section compiles the central results from the research notes (\texttt{THEORY.md})
+accompanying the \texttt{marketgrad} library of Section~\ref{agency:sec:library}. The notes
+are stated in the notation of the library's specification (\texttt{SPEC.md}), which
+coincides with that of Section~\ref{agency:sec:setup}; section references of the form
+``SPEC \S$n$'' point into that specification. Equation tags in this section follow the
+source notes' own numbering ((0.1), (1.1), \ldots) and are independent of the tags used in
+the preceding sections. Identities marked \verifiedmark{} are checked numerically against
+the library in \code{tests/test\_replicator\_identities.py}.
+\end{draftblock}
+
+\subsection{Setup and notation}\label{agency:sec:theory-setup}
+
+An \textbf{economy} is a finite directed graph $(V, E)$ over a goods space
+$G = \{1, \dots, n_g\}$. Each node $i$ has a production function
+$f_i : \mathbb{R}^{n_g}_{\ge 0} \to \mathbb{R}^{n_g}_{\ge 0}$ and optionally a utility
+$U_i(x_i, y_i)$. Routing is parameterized by shares: for each source $i$ and good $g$, the
+vector $s_{i \cdot, g} = (s_{ij,g})_{j : (i,j) \in E}$ lies on the simplex
+$\simplex_i = \{ s \ge 0, \sum_j s_{ij,g} = 1 \}$, and
+$$q_{i \to j} = s_{ij} \odot y_i, \qquad
+  x_j = r_j + \sum_i q_{i \to j}, \qquad
+  y_i = f_i(x_i).$$
+
+The planner objective is welfare $W = \sum_i \alpha_i U_i(x_i, y_i)$ (take $\alpha_i = 1$
+w.l.o.g.). Throughout, \textbf{adjoints} are total derivatives along the graph:
+$$a_i = \frac{\partial W}{\partial x_i} \quad (\text{input value / shadow price at } i),
+\qquad
+  b_i = \frac{\partial W}{\partial y_i} \quad (\text{output value at } i),$$
+computed by the backward recursion (SPEC \S4.3)
+$$b_i = \nabla_{y_i} U_i + \sum_j s_{ij} \odot a_j, \qquad
+  a_i = \nabla_{x_i} U_i + J_{f_i}(x_i)^\top b_i.$$
+
+Define the \textbf{average price received} by producer $i$:
+$$\bar a_{i,g} \;=\; \sum_j s_{ij,g}\, a_{j,g} \;=\; b_{i,g} - \partial_{y_{i,g}} U_i .$$
+
+\begin{assumption}[standing assumptions]\label{agency:ass:standing}
+$(V,E)$ is a DAG and $f_i, U_i$ are $C^1$; utilities have no explicit dependence on flows or
+shares. All statements extend to cyclic graphs whenever the fixed point
+$x = r + S^\top f(x)$ is locally unique and differentiable in $s$ (then $a$ is the implicit
+adjoint of SPEC \S6.2 and every identity below holds verbatim with these total derivatives).
+\end{assumption}
+
+The basic share-gradient identity (SPEC \S4.4) is
+\begin{equation}
+\frac{\partial W}{\partial s_{ij,g}} = y_{i,g}\, a_{j,g} \tag{0.1}\label{agency:eq:theory-share-gradient}
+\end{equation}
+---the marginal welfare of routing more of good $g$ from $i$ to $j$ is the volume shipped
+times the shadow price at the destination.
+
+\subsection{The advantage identity (softmax logits = policy gradient)}\label{agency:sec:theory-advantage}
+
+Recall from RL: say we have an MDP with states like $i$, actions like $j$ and a
+differentiable policy $\pi_\theta(j\mid i)$ parameterized by $\theta$. Then in general the
+expected return is:
+$$J(\theta)
+= \sum_{i} d^\pi(i) V^\pi(i)
+= \sum_{i} d^\pi(i) \sum_{j} \pi_\theta(j \mid i) Q^\pi(i, j)$$
+where $d^\pi(s) = \lim_{t \to \infty} P(s_t = s \mid s_0, \pi_\theta)$ is the stationary
+distribution of the Markov chain under $\pi$. The policy gradient theorem tells us that the
+gradient of the expected return can be calculated by just differentiating the policy:
+$$\nabla_\theta J \;=\; \sum_i d^\pi(i) \sum_j \nabla_\theta\, \pi_\theta(j \mid i)\; Q^\pi(i,j)$$
+While we are used to thinking of $\theta$ as like neural net parameters, this can also be
+applied to tabular RL agents, i.e.\ $\theta$ simply being the matrix $\pi(j|i)=s_{ij}$.
+
+Parameterize $s_{ij,g} = \exp(\theta_{ij,g}) / \sum_k \exp(\theta_{ik,g})$.
+
+\begin{theorem}[advantage identity; \verifiedmark]\label{agency:thm:advantage}
+\begin{equation}
+\frac{\partial W}{\partial \theta_{ij,g}}
+  \;=\; s_{ij,g}\, y_{i,g} \left( a_{j,g} - \bar a_{i,g} \right)
+  \;=\; q_{i\to j, g} \left( a_{j,g} - \bar a_{i,g} \right). \tag{1.1}\label{agency:eq:theory-advantage}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Chain rule through the softmax Jacobian
+$\partial s_{ik}/\partial \theta_{ij} = s_{ik}(\delta_{kj} - s_{ij})$ applied
+to~\eqref{agency:eq:theory-share-gradient}.
+\end{proof}
+
+\textbf{Interpretation.} Gradient ascent on routing logits raises the share sent to buyer
+$j$ if and only if $j$'s shadow price exceeds the flow-weighted average price the producer
+currently receives, at a rate proportional to current volume. This is \emph{``shift supply
+toward buyers paying above your average price.''}
+
+\begin{corollary}[law of one price]\label{agency:cor:onelaw}
+At any stationary point of~\eqref{agency:eq:theory-advantage} with $q_{i\to j,g} > 0$ for
+all $j$ in the support, $a_{j,g} = \bar a_{i,g}$ for every supported destination: all buyers
+actually served pay the same shadow price, for every producer and every good,
+simultaneously across the graph.
+\end{corollary}
+
+\subsubsection*{The reinforcement-learning reading, exactly}
+
+The \textbf{policy gradient theorem} \citep{sutton2000}, in its canonical form, is stated
+with $Q$-values and is parameterization-agnostic: for any differentiable policy
+$\pi_\theta(j \mid i)$ in a Markov decision process, the gradient of the expected return $J$
+is
+\begin{equation}
+\nabla_\theta J \;=\; \sum_i d^\pi(i) \sum_j \nabla_\theta\, \pi_\theta(j \mid i)\; Q^\pi(i,j), \tag{1.2}\label{agency:eq:theory-pgt}
+\end{equation}
+where $d^\pi$ is the state-visitation measure and $Q$ the action value---\textbf{no
+advantage in sight}. The advantage form is the theorem plus two observations:
+
+\textbf{(i) Baseline freedom} (a lemma, not part of the theorem): since
+$\sum_j \pi(j \mid i) = 1$, differentiating gives $\sum_j \nabla_\theta \pi(j \mid i) = 0$,
+so any action-independent baseline $b(i)$ may be subtracted from $Q$
+in~\eqref{agency:eq:theory-pgt} without changing the sum. In RL practice one \emph{chooses}
+$b = V$---this changes nothing in expectation but shrinks the variance of Monte Carlo
+estimators of~\eqref{agency:eq:theory-pgt}.
+
+\textbf{(ii) Softmax specialization} (mechanical---no choice involved): substitute the
+\textbf{tabular softmax} parameterization---one free logit per state-action pair,
+$\pi_\theta(j \mid i) = e^{\theta_{ij}} / \sum_k e^{\theta_{ik}}$, i.e.\ $\theta$ is a table
+(a function of $i$ \emph{and} $j$, not a generic weight vector) and the softmax is taken
+row-wise, over the actions of each state separately. This ``tabular'' case---no function
+approximation, parameters = policy degrees of freedom moved to log-coordinates---is exactly
+the routing-logit parameterization above: one $\theta_{ij,g}$ per (source, destination,
+good). Since row $i$ is the only row containing $\theta_{ij}$, the derivative stays within
+one state, and the softmax Jacobian
+$\partial \pi(k \mid i)/\partial \theta_{ij} = \pi(k \mid i)\big(\delta_{kj} - \pi(j \mid i)\big)$
+performs the baseline subtraction \emph{automatically}, with exactly $b = V$:
+\begin{equation}
+\frac{\partial J}{\partial \theta_{ij}} \;=\; d^\pi(i)\; \pi_\theta(j \mid i)\; A^\pi(i,j),
+\qquad A^\pi(i,j) = Q^\pi(i,j) - V^\pi(i), \quad V^\pi(i) = \mathbb{E}_{j \sim \pi}[Q^\pi(i,j)]. \tag{1.3}\label{agency:eq:theory-advantage-pgt}
+\end{equation}
+
+The mechanism: raising one logit necessarily lowers every \emph{other} action's probability,
+and the value lost through the others is precisely the $\pi$-weighted average of their
+$Q$'s---that is where $V$ comes from. So ``theorem with $Q$'' and ``theorem with $A$'' are
+the same statement; the advantage appears the moment the normalization constraint is
+differentiated through.
+
+The market has the same two-layer structure: the share-gradient
+identity~\eqref{agency:eq:theory-share-gradient} is the $Q$-form---ambient partial
+derivatives, gross values, no baseline---while Theorem~\ref{agency:thm:advantage} is the
+softmax form~\eqref{agency:eq:theory-advantage-pgt}. Baseline freedom has an economic name
+too: \textbf{num\'eraire freedom}. Any feasible reallocation satisfies
+$\sum_j \dot s_{ij} = 0$, so
+$\langle a + c \mathbf{1}, \dot s \rangle = \langle a, \dot s \rangle$: adding a constant to
+every destination's price changes no routing decision---only price \emph{differences} act on
+the simplex. RL's baseline invariance and economics' ``only relative prices matter'' are the
+same fact.
+
+\textbf{Theorem~\ref{agency:thm:advantage} is~\eqref{agency:eq:theory-advantage-pgt}}, term
+for term, under the dictionary of Section~\ref{agency:sec:mdp}.
+
+%% TODO(agency): trimmed from THEORY.md §1.2 here: the "How exact is this?" paragraph
+%% (pass-through economies make the MDP reading literal; general production makes the
+%% particle branch, with the backward recursion as a Bellman equation) and the
+%% "Goods diffuse like probability mass; prices are its value function, unpacked"
+%% paragraph — both are covered in substance by Section \ref{agency:sec:mdp}.
+
+\textbf{Where the advantage comes from (it is rivalry).} The raw share
+gradient~\eqref{agency:eq:theory-share-gradient},
+$\partial W/\partial s_{ij,g} = y_{i,g}\, a_{j,g}$, is the $Q$-side: the \emph{gross} value
+of routing to $j$, no baseline subtracted. The advantage appears the moment any update
+respects the simplex: on $\sum_j s_{ij,g} = 1$ you cannot send more to $j$ without sending
+less elsewhere, so only value \emph{relative to the counterfactual destination} can
+matter---and every simplex-respecting geometry subtracts a baseline automatically. Euclidean
+projection onto the tangent space $\{\sum_j v_j = 0\}$ subtracts the uniform average;
+softmax logits and the Fisher--Rao geometry of Section~\ref{agency:sec:theory-replicator}
+subtract the flow-weighted average $\bar a = V$. In all cases the baseline is the Lagrange
+multiplier of the conservation constraint. So: \textbf{advantage = rivalry.} And the answer
+to ``what is the rival resource in RL?'' is: \emph{probability itself.} A policy owns
+exactly one unit of it per state; actions compete for probability mass the way buyers
+compete for goods. (In attention, the same unit budget is each query's attention---see
+Appendix~\ref{agency:sec:attention-scarce}.)
+
+\textbf{Actor--critic = the market protocol.} In this dictionary the price system is a
+\emph{critic}, trained by policy evaluation: the backward sweep is exact evaluation, and the
+relaxed adjoint iteration $\lambda \leftarrow \nabla_x W + J_F^\top \lambda$ (SPEC \S7.2) is
+iterative, bootstrapped evaluation---temporal-difference learning in all but name. The share
+update is the \emph{actor}, moving on advantages. The decentralized protocol of
+Section~\ref{agency:sec:theory-decentralization} is thus a two-timescale actor--critic:
+quotes (critic) relax fast, routing (actor) moves slowly. The vanilla/natural distinction
+maps too: gradient flow on logits = vanilla softmax policy gradient; replicator flow =
+natural policy gradient \citep{kakade2001}---see the end of
+Section~\ref{agency:sec:theory-replicator}.
+
+\subsection{Replicator dynamics and the fundamental theorem}\label{agency:sec:theory-replicator}
+
+Let $G_{ij,g} = y_{i,g} a_{j,g}$ denote the share
+gradient~\eqref{agency:eq:theory-share-gradient} and
+$\bar G_{i,g} = \sum_k s_{ik,g} G_{ik,g} = y_{i,g} \bar a_{i,g}$. Consider the
+\textbf{replicator flow}, run simultaneously on every simplex $(i, g)$:
+\begin{equation}
+\dot s_{ij,g} \;=\; s_{ij,g}\left( G_{ij,g} - \bar G_{i,g} \right)
+  \;=\; s_{ij,g}\, y_{i,g} \left( a_{j,g} - \bar a_{i,g} \right). \tag{2.1}\label{agency:eq:theory-replicator}
+\end{equation}
+This is the \textbf{replicator equation} of evolutionary game theory \citep{taylor1978}:
+population = producer $i$'s supply of good $g$; strategies = the destinations $j$;
+\textbf{fitness of a strategy = the revenue rate $y_{i,g} a_{j,g}$ at its shadow price}.
+
+\subsubsection*{Three derivations of one flow}
+
+Fix a producer-good pair and drop indices: shares $s \in \simplex$, payoff vector $g$
+(components $G_{ij,g}$ over destinations), average payoff $\bar g = \langle s, g \rangle$.
+
+\textbf{(a) Small-step limit of multiplicative reweighting.} The discrete market rule
+``multiply each destination's share by its exponentiated revenue, then renormalize'' is
+multiplicative weights,
+$$s_j^+ = \frac{s_j\, e^{\eta g_j}}{Z}, \qquad Z = \sum_k s_k\, e^{\eta g_k},$$
+where $Z$ is simply the normalizer returning the update to the simplex---economically: ``I
+ship all of what I have,'' so only \emph{relative} payoffs can matter, and indeed adding a
+constant to every $g_k$ cancels in $Z$. Expanding in $\eta$:
+$$s_j^+ = s_j\, \frac{1 + \eta g_j + O(\eta^2)}{1 + \eta \bar g + O(\eta^2)} = s_j + \eta\, s_j (g_j - \bar g) + O(\eta^2),$$
+so $(s^+ - s)/\eta \to s_j(g_j - \bar g)$: \textbf{the replicator flow is the
+small-learning-rate limit of the library's \code{mirror\_ascent}} (SPEC \S5.1). This is the
+precise content of ``continuous-time limit of entropic mirror ascent.''
+
+\textbf{(b) Steepest ascent when step size is measured in KL (natural gradient).}
+``Steepest ascent'' is meaningless until one fixes what counts as a small step. On a simplex
+the statistically meaningful metric is Fisher--Rao, $\|v\|_s^2 = \sum_j v_j^2 / s_j$, which
+is nothing but infinitesimal KL divergence:
+$\KL(s + v \,\|\, s) = \tfrac12 \|v\|_s^2 + O(\|v\|^3)$. Maximize $\langle g, v \rangle$
+over tangent vectors ($\sum_j v_j = 0$) of fixed Fisher--Rao length: Lagrange stationarity
+gives $v_j \propto s_j (g_j - \mu)$, and the tangency constraint forces $\mu = \bar g$. The
+steepest-ascent direction under the KL yardstick \textbf{is} $s(g - \bar g)$: replicator =
+Fisher--Rao natural gradient (Shahshahani metric). This is the same Fisher information
+metric as in statistics---the geometric reason replicator and Bayes coincide in
+Section~\ref{agency:sec:theory-inference}.
+
+\textbf{(c) Dual averaging: keep a ledger, allocate by softmax.} Let a producer keep a
+cumulative additive ledger of raw payoffs, $\theta(t) = \theta_0 + \int_0^t g\, d\tau$, and
+always post $s(t) = \softmax(\theta(t))$. Differentiating: $\dot s_j = s_j (g_j - \bar g)$,
+the replicator again. Note carefully \emph{what is deposited}: the raw payoff $g$, not the
+damped logit gradient $\partial W / \partial \theta = s(g - \bar g)$. That one-word
+difference is the entire gap between mirror ascent and logit SGD (see the comparison at the
+end of this subsection).
+
+%% TODO(agency): trimmed from THEORY.md §2.2 ("Feeling mirror ascent"): three expository
+%% "pictures" of the multiplicative update — (1) shares as compounding wealth accounts,
+%% (2) every mirror step as a Bayes update via the variational characterization of Bayes'
+%% rule (covered in substance by Section \ref{agency:sec:hyperstition}), and (3) the
+%% ledger/storefront reading of primal vs. dual space.
+
+\begin{theorem}[fundamental theorem of welfare dynamics; \verifiedmark]\label{agency:thm:ftwd}
+Fix the technologies $f_i$ and utilities $U_i$ and let all shares evolve simultaneously
+by~\eqref{agency:eq:theory-replicator}. Then
+\begin{equation}
+\frac{dW}{dt}
+  \;=\; \sum_{i \in V} \sum_{g \in G} y_{i,g}^2\;
+        \Var_{j \sim s_{i\cdot,g}}\!\left( a_{j,g} \right)
+  \;\ge\; 0. \tag{2.2}\label{agency:eq:theory-ftwd}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+$\dot W = \sum_{i,j,g} \frac{\partial W}{\partial s_{ij,g}} \dot s_{ij,g}$ (the partials are
+total derivatives, so this is exact for the coupled system).
+Substituting~\eqref{agency:eq:theory-share-gradient}
+and~\eqref{agency:eq:theory-replicator}, each $(i,g)$ block contributes
+$y_{i,g}^2 \sum_j s_{ij,g} a_{j,g}(a_{j,g} - \bar a_{i,g}) = y_{i,g}^2 (\mathbb{E}[a^2] - \bar a^2)$.
+\end{proof}
+
+This is \textbf{R.A. Fisher's fundamental theorem of natural selection}
+\citep{fisher1930}---\emph{the rate of increase of mean fitness equals the variance in
+fitness}---transplanted verbatim, with fitness = price:
+
+\begin{quote}
+\textbf{Welfare grows at exactly the flow-weighted variance of prices across destinations.
+Price dispersion---unexploited arbitrage---is the genetic variance that fuels welfare
+growth; equilibrium is the exhaustion of variance, i.e.\ the law of one price.}
+\end{quote}
+
+Under plain logit gradient flow the rate is instead
+$\dot W = \sum_{i,j,g} q_{ij,g}^2 (a_{j,g} - \bar a_{i,g})^2$---a second moment rather than
+a variance, with the same zero set.
+
+\begin{corollary}[convergence]\label{agency:cor:convergence}
+$W$ is nondecreasing and (if bounded above on the compact product of simplices, with $x(s)$
+continuous) converges; every $\omega$-limit point satisfies the law of one price on its
+support, for every producer and good. No claim of convergence to the \emph{global} optimum
+is made without concavity---with nonconvex technologies the flow can terminate at local
+welfare optima, exactly as neural-network training can.
+\end{corollary}
+
+\begin{corollary}[complementary slackness = evolutionary stability]\label{agency:cor:slackness}
+A stationary point with $s_{ij,g} = 0$ for some $j$ is stable against ``invasion'' of that
+edge only if $a_{j,g} \le \bar a_{i,g}$: every unserved buyer offers weakly less than the
+producer's going rate. Stability of boundary equilibria under replicator dynamics is
+precisely KKT complementary slackness; an evolutionarily stable routing is a
+\textbf{no-arbitrage} allocation.
+\end{corollary}
+
+\begin{remark}[multi-layer structure; answer to ``is this just one node?'']\label{agency:rem:multilayer}
+Theorem~\ref{agency:thm:ftwd} is \emph{not} a single-population statement: it holds with
+every producer-good pair $(i,g)$ running its own replicator concurrently, in an arbitrary
+DAG (verified numerically on a 3-layer, 2-good economy). The right frame is
+\textbf{multi-population replicator dynamics with endogenous fitness}: population $(i,g)$'s
+fitness landscape $a_{j,g}$ is not exogenous but is itself recomputed by the pricing
+recursion as all other populations move---prices are the mean-field coupling the
+populations. Because all populations share the single potential $W$, the coupled system is a
+\textbf{potential game}, and~\eqref{agency:eq:theory-ftwd} says the potential increases at
+the total variance summed over populations. Interior deep equilibria satisfy the law of one
+price at \emph{every layer simultaneously}, which is exactly the first-order condition
+$\nabla_\theta W = 0$ of the deep network.
+\end{remark}
+
+\subsubsection*{One equilibrium, three flows (mirror ascent vs.\ logit ascent)}
+
+Three ascent dynamics recur in this chapter and in the library. They share their stationary
+points (law of one price on supports,
+Corollaries~\ref{agency:cor:convergence}--\ref{agency:cor:slackness}) and the Lyapunov
+function $W$, but they are \textbf{different trajectories}:
+
+\begin{center}
+\small
+\begin{tabular}{@{}p{2.9cm}p{2.4cm}p{2.6cm}p{2.6cm}p{3.2cm}@{}}
+\toprule
+ & update & share-space flow & RL name & character \\
+\midrule
+\textbf{D1} mirror ascent / MWU (\code{mirror\_ascent}) & $s \leftarrow s\, e^{\eta G} / Z$ & $\to$ replicator as $\eta \to 0$ & natural policy gradient (discrete) & market-canonical; each step a Bayes update; wealth compounding \\
+\textbf{D2} replicator flow & \eqref{agency:eq:theory-replicator} & $\dot s = s(G - \bar G)$ & natural policy gradient flow & Fisher--Rao steepest ascent; $\dot W$ = variance \eqref{agency:eq:theory-ftwd} \\
+\textbf{D3} logit gradient flow (\code{softmax\_logits}) & $\dot\theta = \partial W / \partial\theta$ & $\dot s_j = s_j(u_j - \langle s, u \rangle)$, $u_k = s_k(G_k - \bar G)$ & vanilla softmax policy gradient & autodiff-native; speed $\propto s^2$ near vertices, so it stalls at near-deterministic routings \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+D1 and D2 are the same object at small $\eta$ (derivation (a)); their ledger integrates the
+\emph{raw} payoff $G$ (derivation (c)). D3's ledger integrates the softmax-damped signal
+$s(G - \bar G)$ instead---one extra factor of the Fisher information---which is exactly the
+gap between vanilla and natural policy gradient \citep{kakade2001};
+\citet{agarwal2021} quantify it: natural PG enjoys dimension-free convergence rates, while
+vanilla softmax PG can take exponentially long to escape a nearly-deterministic corner
+\citep{li2021}.
+
+\textbf{So, to the obvious question---``do the replicator dynamics arise from the natural
+decentralized dynamics, or is that the logit ascent?'':} the dynamics with the clean
+decentralized market reading (Section~\ref{agency:sec:theory-decentralization}:
+multiplicative revenue reweighting) and the dynamics with the replicator/Bayes/variance
+readings are \textbf{the same one, D1/D2}. D3 is a same-equilibria, different-clock cousin:
+informationally just as local (its update uses only $q$ and $a - \bar a$), convenient under
+autodiff/Adam (SPEC \S5.3), but with no compounding-wealth or Bayes interpretation and worse
+behavior near the simplex boundary.
+
+\subsection{Reverse attention: the market layer is the adjoint of an attention layer}\label{agency:sec:theory-attention}
+
+Fix one good and collect the shares into a row-stochastic matrix
+$S \in \mathbb{R}^{n \times m}_{\ge 0}$, $S \mathbf{1} = \mathbf{1}$ (row $i$ = how sender
+$i$ splits over destinations). Compare with a \emph{static} attention layer with
+row-stochastic weights $A$ ($\alpha_{i\cdot} \in \simplex$ = how receiver $i$ mixes over
+sources).
+
+Two linear operators are in play for the same stochastic matrix $P$:
+$$\text{averaging} \quad \mathcal{K}_P : v \mapsto P v,
+  \qquad
+  \text{partition} \quad \mathcal{K}_P^* : y \mapsto P^\top y.$$
+
+\begin{theorem}[reverse attention]\label{agency:thm:reverse-attention}
+Let $P$ be row-stochastic. Then:
+
+\textbf{(a) (Adjoint pair.)} $\langle P^\top y, v \rangle = \langle y, P v \rangle$: the
+routing operator is the adjoint of the attention operator.
+
+\textbf{(b) (Forward/backward swap.)} Since reverse-mode differentiation of a linear map is
+its adjoint:
+\begin{itemize}
+  \item market forward pass $x = S^\top y$ \textbf{is} the attention \emph{backward} pass
+  (gradients-to-values $\bar v = A^\top \bar o$), and
+  \item market backward pass $\bar y_i = \sum_j s_{ij} a_j = (S a)_i = \bar a_i$ \textbf{is}
+  the attention \emph{forward} pass ($o = A v$).
+\end{itemize}
+With $A = S$, each layer's forward pass is the other's backward pass.
+
+\textbf{(c) (Conservation $\leftrightarrow$ copying.)} $P \mathbf{1} = \mathbf{1}$ (the
+averaging side \emph{copies}: constant inputs pass through unchanged, and the same value
+$v_j$ is delivered undiminished to every receiver) holds iff
+$\mathbf{1}^\top P^\top y = \mathbf{1}^\top y$ (the partition side \emph{conserves}: total
+mass is invariant). One condition, two readings.
+
+\textbf{(d) (Markov duality.)} $P$ is a Markov kernel. The partition operator $P^\top$ is
+its \textbf{Perron--Frobenius (pushforward) operator acting on measures}; the averaging
+operator $P$ is its \textbf{Koopman (expectation) operator acting on functions}. Goods are
+measures; prices are functions on states. The backward price relation
+$\bar a_i = \mathbb{E}_{j \sim s_{i\cdot}}[a_j]$ says \textbf{prices are a martingale along
+the goods flow}, and the law of one price (Corollary~\ref{agency:cor:onelaw}) says that at
+equilibrium prices are a.s.\ constant along each producer's routing distribution.
+\end{theorem}
+
+\begin{proof}
+(a) is $\langle P^\top y, v\rangle = y^\top P v$. (b) follows from (a) plus the definition
+of a vector-Jacobian product. (c): both statements are $P\mathbf 1 = \mathbf 1$ read against
+the two pairings. (d) is the standard measure/function duality for Markov kernels.
+\end{proof}
+
+\textbf{The dictionary.}
+
+\begin{center}
+\small
+\begin{tabular}{@{}p{4.2cm}p{4.6cm}p{4.6cm}@{}}
+\toprule
+ & attention & market routing \\
+\midrule
+simplex sits on & incoming edges of each \emph{receiver} & outgoing edges of each \emph{sender} \\
+forward pass & convex combination (Koopman) & conserved partition (Perron--Frobenius) \\
+what flows forward & information---\textbf{non-rival}, copied & goods---\textbf{rival}, conserved \\
+what flows backward & credit/gradient---conserved, partitioned & prices---non-rival, copied \\
+weights come from & current activations ($q^\top k$): \emph{dynamic} & trainable logits $\theta$: \emph{static} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+So ``reverse attention'' is exactly right, in the strong sense that the two layers are
+mutually adjoint: \textbf{a market is attention run through the mirror, with goods in the
+role of gradients and prices in the role of activations. The adjoint swaps rival and
+non-rival.} NNs move copyable information forward and conserved credit backward; markets
+move conserved goods forward and copyable price-information backward. No appeal to any
+nonstandard architecture is needed---the statement is intrinsic linear algebra plus the
+definition of reverse-mode AD.
+
+\emph{(A self-contained exposition of attention itself---the soft-lookup picture, what
+queries/keys/values are, why softmax and $\sqrt{d}$, multi-head---written to be read
+alongside this section, is given in Appendix~\ref{agency:sec:attention}.)}
+
+\begin{remark}[production interleaves]\label{agency:rem:production-interleaves}
+A full market layer is $x \mapsto f(x) \mapsto S^\top f(x)$; its backward pass is
+$a = J_f^\top (S\, a_{\text{next}})$. Production enters only through the Jacobian
+transpose---the ``exchange rate'' of the price martingale---and does not disturb the duality
+of the routing step.
+\end{remark}
+
+\begin{remark}[dynamic attention = price-responsive markets]\label{agency:rem:dynamic-attention}
+Transformer attention computes its weights from the current state. The market analogue is
+routing shares that respond to current bids/prices---which is precisely the decentralized
+simulator's \code{SoftmaxClearing} ($s_{ij} \propto \exp(\beta\,\text{bid}_{ij})$):
+\emph{softmax clearing is a literal attention layer whose queries are bids.} The planner
+(static logits) and the simulator (bid-responsive clearing) sit at the static/dynamic
+attention poles.
+\end{remark}
+
+\subsection{Decentralization: backprop + mirror ascent \emph{is} a market protocol}\label{agency:sec:theory-decentralization}
+
+The planner algorithm (forward solve $\to$ adjoint solve $\to$ mirror step) looks
+centralized. This section states the precise sense in which it is not: every quantity it
+computes is a \textbf{node-local} computation on messages from graph neighbors, and every
+update coincides with a myopically selfish response to posted prices.
+
+\subsubsection*{First-order incentive alignment}
+
+Give each node $i$ the objective (``utility-inclusive profit at posted prices $p$''):
+$$J_i \;=\; \underbrace{\sum_j p_j \cdot (s_{ij} \odot y_i)}_{\text{revenue}}
+      \;-\; \underbrace{\sum_k \pi_i \cdot q_{k \to i}}_{\text{input bill}}
+      \;+\; U_i(x_i, y_i),$$
+where $p_j$ are prices posted by $i$'s buyers and $\pi_i$ is the price vector $i$ posts for
+its inputs. Let node $i$'s \textbf{own controls} be its output shares $s_{i\cdot}$ and any
+internal technology parameters $w_i$ of $f_i$.
+
+\begin{lemma}[alignment]\label{agency:lem:alignment}
+If posted prices equal adjoints, $p_j = a_j$ for all buyers $j$ of $i$, then for every
+control $u \in \{s_{i\cdot}, w_i\}$:
+$$\nabla_u J_i \;=\; \nabla_u W .$$
+\end{lemma}
+
+\begin{proof}
+For shares:
+$\partial J_i / \partial s_{ij,g} = y_{i,g} p_{j,g} = y_{i,g} a_{j,g} = \partial W / \partial s_{ij,g}$
+by~\eqref{agency:eq:theory-share-gradient}; the input bill does not depend on $i$'s controls
+(received quantities are set by upstream shares). For technology:
+$\nabla_{w} J_i = (\partial y_i/\partial w)^\top (\nabla_{y_i} U_i + \sum_j s_{ij} \odot p_j) = (\partial y_i / \partial w)^\top b_i = \nabla_w W$.
+\end{proof}
+
+At shadow prices, \textbf{selfish first-order incentives coincide exactly with the welfare
+gradient}---for routing decisions \emph{and} for technology investment. This is a
+differential form of the first welfare theorem, and it is the economic content of backprop:
+\emph{the price system is what aligns local greed with global credit assignment.}
+
+\subsubsection*{The protocol}
+
+One round, on a DAG (all steps use only own state + neighbor messages):
+\begin{enumerate}
+  \item \textbf{Ship} (forward sweep): each node receives $q_{k\to i}$, produces
+  $y_i = f_i(x_i)$, ships $q_{i\to j} = s_{ij} \odot y_i$.
+  \item \textbf{Quote} (backward sweep): each node, having observed the prices $p_j$ posted
+  by its buyers, posts for its own suppliers the bid
+  \begin{equation}
+  \pi_i \;=\; \nabla_{x_i} U_i \;+\; J_{f_i}(x_i)^\top
+     \Big( \nabla_{y_i} U_i + \sum\nolimits_j s_{ij} \odot p_j \Big)
+     \tag{4.1}\label{agency:eq:theory-quote}
+  \end{equation}
+  ---\emph{``I bid my marginal value: what one more unit of input is worth to me, given what
+  my buyers pay me.''} Pure consumers post $\pi_i = \nabla_{x_i} U_i$.
+  \item \textbf{Reroute}: each producer updates each good's shares by multiplicative weights
+  on its own revenue:
+  $s_{ij,g} \leftarrow s_{ij,g} \exp(\eta\, y_{i,g}\, p_{j,g}) / Z_{i,g}$, where
+  $Z_{i,g} = \sum_k s_{ik,g} \exp(\eta\, y_{i,g}\, p_{k,g})$ is the normalizer returning the
+  shares to the simplex (derivation (a) above)---``I ship all of what I have; only relative
+  track records matter.''
+\end{enumerate}
+
+\begin{theorem}[decentralized equivalence]\label{agency:thm:decentralized}
+On a DAG, the price fixed point of step 2 is exactly the adjoint system: $\pi_i = a_i$ for
+every node, reached in one reverse sweep (depth-many asynchronous rounds if updates are
+unordered). Given these prices, step 3 is identical to the planner's \code{mirror\_ascent}
+update. Hence the trajectory of the protocol equals the trajectory of
+\code{SharesOptimizer(update\_rule="mirror\_ascent")}, and by
+Lemma~\ref{agency:lem:alignment} each agent is at every step ascending its \emph{own}
+objective. On cyclic graphs, repeatedly iterating step 2 is precisely the relaxed adjoint
+iteration of SPEC \S7.2---\emph{asynchronous price negotiation converging to mutually
+consistent quotes.}
+\end{theorem}
+
+\begin{proof}
+\eqref{agency:eq:theory-quote} with $p_j = a_j$ is literally the backward recursion of
+Section~\ref{agency:sec:theory-setup}; uniqueness on a DAG is induction on reverse
+topological order. The update coincidence is definitional (SPEC \S5.1).
+\end{proof}
+
+\textbf{What is derived and what is posited.} The \emph{equations} of the backward pass are
+not an ML import: \eqref{agency:eq:theory-quote} is ``value inputs at marginal revenue
+product,'' the classical competitive pricing condition, and it is computable locally---this
+is the Hayekian decentralization of backprop. What \emph{is} behavioral: (i)
+\textbf{price-taking truthfulness}---nodes bid their true marginal value rather than shading
+bids (strategic bidding, market power, and thin markets are open questions here; note that
+persistent underbidding is punished in the repeated dynamics because suppliers' replicator
+responses divert goods to better payers); (ii) \textbf{myopia}---agents follow instantaneous
+gradients rather than planning ahead; (iii) \textbf{no budgets}---bids
+in~\eqref{agency:eq:theory-quote} are not wealth-constrained, i.e.\ this is the
+Negishi-weighted planner, not a Fisher market. Budgets/wealth are exactly where the
+decentralized simulator departs from the planner and where Eisenberg--Gale/
+proportional-response theory enters \citep{wu2007,birnbaum2011}
+(see Section~\ref{agency:sec:theory-inference}).
+
+\begin{remark}[on ``who controls what'']\label{agency:rem:controls}
+In this protocol a node controls its \emph{output shares} and posts \emph{input bids},
+matching the natural reading of the shares parameterization (``a producer decides where its
+product goes; a buyer signals what inputs are worth''). Bids are per node-good, not per
+edge---marginal value is a property of the good at the node, so a single $\pi_{i,g}$ is
+quoted to all suppliers (edge-specific bids only become meaningful with transport costs or
+price discrimination, both future extensions in SPEC). Note the input bid is \emph{not}
+chosen to maximize $J_i$ myopically (the myopic optimum is to bid zero); it is the truthful
+demand signal whose fixed point supports the welfare optimum. An honest game-theoretic
+treatment of bidding is the main open problem of this section.
+\end{remark}
+
+\begin{remark}[toward perfect competition]\label{agency:rem:perfect-competition}
+The honest resolution of the price-taking postulate is a large-market limit in which
+price-taking becomes a theorem rather than an assumption. The classical benchmarks: core
+convergence under replication \citep{debreu1963} and economies with a continuum of traders
+\citep{aumann1964}, where every individual agent has measure zero and \emph{cannot} move
+prices. The natural program for this library: replace the finite graph by a measure space of
+nodes (a \textbf{graphon economy}); let each producer control an infinitesimal share of
+every market it participates in; then bids aggregate by a law of large numbers, prices
+become deterministic functionals of the mean field, individual bid-shading has vanishing
+effect (the classical $1/N$ Cournot-to-Walras rate), and the coupled replicator system of
+Section~\ref{agency:sec:theory-replicator} becomes a replicator \emph{continuity
+equation}---a mean-field game whose stationary points are Walrasian. Open questions: (i)
+does the $N \to \infty$ limit of the honest \emph{strategic} bidding game converge to the
+protocol above (Cournot--Walras convergence, transplanted onto backprop)? (ii) what is the
+graphon limit of the network itself---do flows and prices converge to continuum fields
+(goods as densities, prices as their dual fields), giving a PDE limit of the economy?
+\end{remark}
+
+%% TODO(agency): THEORY.md §5 ("Chain Markets are MLPs", Theorem 5 [verified]) restates
+%% Theorem \ref{agency:thm:chainmlp} of Section \ref{agency:sec:mlp}; its extra remarks
+%% are folded into Remark \ref{agency:rem:chainmlp} there and it is not repeated here.
+
+\subsection{Markets as inference: replicator = Bayes}\label{agency:sec:theory-inference}
+
+\subsubsection*{Continuous-time Bayes}
+
+Let $p_t$ be a posterior over a finite hypothesis set $H$ under i.i.d.\ evidence with
+log-likelihood rate $\ell_t(h)$. Bayes' rule $p_{t+dt}(h) \propto p_t(h) e^{\ell_t(h)\,dt}$
+gives, in the limit,
+$$\dot p_t(h) \;=\; p_t(h) \left( \ell_t(h) - \mathbb{E}_{p_t}[\ell_t] \right),$$
+which \textbf{is the replicator equation with fitness = log-likelihood}
+\citep{harper2009,shalizi2009}. Equivalently: Bayes = multiplicative weights on
+log-evidence; the posterior is $\softmax(\log p_0 + \int \ell)$.
+
+\subsubsection*{The market as a Bayesian learner}
+
+Compare with the log-space form of the market flow
+(Section~\ref{agency:sec:theory-replicator}):
+$s_{i\cdot,g}(t) = \softmax\!\big(\theta_0 + \int_0^t y_{i,g}\, a_{\cdot,g}\, d\tau\big)$.
+
+\begin{proposition}[markets do Bayesian updating]\label{agency:prop:bayes}
+Under mirror ascent / replicator dynamics, producer $i$'s routing distribution for good $g$
+evolves as the Bayesian posterior over the hypothesis set
+$\{ \text{``} j \text{ is the best use of my good''} \}_j$, with prior $s_{i\cdot,g}(0)$ and
+accumulated log-evidence $\int \eta\, y_{i,g}\, a_{j,g}\, dt$---i.e.\ \textbf{revenue
+streams are log-likelihoods; the price premium $a_j - \bar a_i$ is the instantaneous
+log-likelihood ratio; the law of one price is the statement that at equilibrium no
+destination carries further evidence against another.}
+\end{proposition}
+
+This is a formal identification, not an analogy: the two ODEs coincide under fitness
+$\leftrightarrow$ log-likelihood. Its classical instance is \textbf{Kelly betting}
+\citep{kelly1956} (a horse-race gambler's Kelly-optimal wealth shares track the Bayesian
+posterior; wealth grows at the information rate), and its market-selection form is
+\citet{blume2006}: in repeated markets, wealth flows to agents whose beliefs are closest in
+KL divergence to the truth---the market as a whole implements Bayesian model averaging with
+wealth as probability. Cover's universal portfolio \citep{cover1991} is the same
+mathematics.
+
+\subsubsection*{What the three faces mean}
+
+One dynamic, three readings (see the table in Section~\ref{agency:sec:cbi}). The
+fundamental theorem~\eqref{agency:eq:theory-ftwd} is the same statement in all three:
+\emph{variance of fitness = rate of adaptation; price dispersion = rate of welfare growth;
+expected log-likelihood-ratio (information gain) = rate of learning.} The philosophical
+upshot is that Hayek's ``markets aggregate information'' can be read literally in this
+model: \textbf{prices are the economy's log-likelihoods, the allocation is its posterior,
+and equilibration is inference.} Conversely, since the same dynamic trains neural networks
+(Sections~\ref{agency:sec:theory-advantage}--\ref{agency:sec:theory-replicator}),
+\emph{learning, evolution, arbitrage, and inference are one process expressed in four state
+spaces}---in this library, that sentence is an executable theorem rather than a slogan.
+
+\subsection{Assumption ledger and verified identities}\label{agency:sec:theory-ledger}
+
+How each result can fail:
+
+\begin{center}
+\small
+\begin{tabular}{@{}p{3.6cm}p{4.4cm}p{5.4cm}@{}}
+\toprule
+result & needs & fails when \\
+\midrule
+\eqref{agency:eq:theory-share-gradient}, Thm~\ref{agency:thm:advantage} & DAG or differentiable fixed point & non-differentiable $f$ (Leontief kinks), bifurcating cycles \\
+Thm~\ref{agency:thm:ftwd} & fixed technologies; simultaneous flow & discrete steps too large (use small $\eta$; discrete MWU has its own regret guarantees) \\
+Cor~\ref{agency:cor:convergence} $\to$ global optimum & concavity of $W$ in $s$ & nonconvex production $\to$ local optima (a feature: same failure mode as deep learning) \\
+Thm~\ref{agency:thm:reverse-attention} & linearity of routing; static shares & dynamic (state-dependent) shares add gradient paths through the weights \\
+Thm~\ref{agency:thm:decentralized} & price-taking, truthful bids, myopia, no budgets & strategic bidding, market power, wealth constraints \\
+Thm~\ref{agency:thm:chainmlp}.4 & nonnegative activations & signed activations (need signed goods) \\
+Prop~\ref{agency:prop:bayes} & fitness $\leftrightarrow$ log-likelihood identification & risk preferences distorting ``beliefs'' (non-Kelly behavior) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+All the \verifiedmark{} identities are checked in
+\code{tests/test\_replicator\_identities.py} (finite differences through the library's own
+forward pass; 3-layer 2-good Cobb--Douglas economy unless noted):
+\begin{enumerate}
+  \item Advantage identity~\eqref{agency:eq:theory-advantage}, max abs.\ error
+  $\sim 10^{-9}$.
+  \item Fundamental theorem~\eqref{agency:eq:theory-ftwd} under simultaneous multi-layer
+  replicator flow, relative error $\sim 10^{-10}$; also on the canonical
+  \code{simple\_split}.
+  \item Chain adjoints = MLP backprop gradients (Theorem~\ref{agency:thm:chainmlp}.2), error
+  $\sim 10^{-10}$.
+\end{enumerate}
+
+%% TODO(agency): further references from THEORY.md's reference list not cited inline above
+%% (Hofbauer-Sigmund 1998; Arrow-Hurwicz-Uzawa 1958; Arora-Hazan-Kale 2012;
+%% Mertikopoulos-Sandholm 2016; Tay et al. Synthesizer) are collected in bib/agency.bib.
+
+% ============================================================
+\section{The \texttt{marketgrad} library}\label{agency:sec:library}
+% Source: marketgrad/README.md and marketgrad/SPEC.md (Sections 1 and 21).
+
+\code{marketgrad} is a NumPy-first library for market-like optimization on production
+graphs. It provides graph primitives, differentiable production and utility functions,
+shares-based welfare optimization, cyclic fixed-point and adjoint solvers, simple
+decentralized market dynamics, primal-dual optimization scaffolding, diagnostics,
+visualizations, examples, and tests. \draft{The theory of this chapter is maintained
+alongside the library: identities are checked numerically against the implementation
+(Section~\ref{agency:sec:theory-ledger}).}
+
+The core abstraction is a directed graph of productive, consumptive, and resource nodes.
+Goods flow along edges. Nodes transform input bundles into output bundles via production
+functions. Some nodes receive utility from input and/or output bundles. The library supports
+several algorithmic interpretations of such systems:
+\begin{enumerate}
+  \item \textbf{Shares-based welfare optimization.} A centralized, physically feasible,
+  backpropagation-like optimizer where edge quantities are parameterized by routing shares.
+  \item \textbf{Decentralized market-like dynamics.} A more realistic simulation of agents,
+  bids, prices, wealth, budgets, ownership, sales, and production over time.
+  \item \textbf{Primal-dual constrained optimization.} A general
+  Lagrangian/augmented-Lagrangian/ADMM-style solver that can handle constraints not easily
+  captured by shares, possibly allowing temporary physical infeasibility.
+\end{enumerate}
+
+The central conceptual bridge is:
+\begin{center}
+\code{backprop adjoints $\approx$ shadow prices $\approx$ Lagrange multipliers}
+\end{center}
+and:
+\begin{center}
+\code{gradient ascent over feasible routing decisions $\approx$ reallocating goods toward
+higher marginal value}
+\end{center}
+
+The library supports both acyclic and cyclic production graphs. In acyclic graphs,
+quantities can be computed by a topological forward pass and prices by a reverse backward
+pass. In cyclic graphs, quantities are defined by fixed-point equations and prices by
+implicit adjoint equations, as in deep equilibrium models.
+
+The primary clean algorithm is shares-based optimization:
+\begin{quote}
+forward pass: compute feasible quantities \\
+backward pass: compute adjoint prices \\
+update shares: route goods toward higher marginal value
+\end{quote}
+For acyclic graphs, this is ordinary forward/backward propagation. For cyclic graphs, this
+becomes a fixed-point solve for quantities and an implicit adjoint solve for prices. The
+default share update is entropic mirror ascent,
+\code{s\_new $\propto$ s\_old * exp(learning\_rate * marginal\_value)}; projected gradient
+and softmax-logit optimization are also supported, but as alternative update geometries. The
+decentralized market simulator is the realistic economic dynamics layer (agents bid, trade,
+produce, earn, spend, and update prices locally), and the primal-dual solver is the advanced
+constrained-optimization backend (quantities and multipliers co-evolve, possibly with
+temporary constraint violations).
+
+The library's purpose is to make the analogy between markets and backpropagation precise,
+programmable, visualizable, and experimentally testable. JAX and PyTorch backends are
+optional (\code{marketgrad[jax]}, \code{marketgrad[torch]}); without either extra, the
+default NumPy backend and finite-difference autodiff remain unchanged.
+
+%% TODO(agency): SPEC.md is a full library specification (~2400 lines: data structures,
+%% solver families, market-tick protocol, primal-dual/ADMM backends, visualization and
+%% testing requirements); only its purpose section and summary are lifted here.
+
+% ============================================================
+% Subappendices
+% ============================================================
+\begin{subappendices}
+
+\section{Caveats and questions}\label{agency:sec:caveats}
+% Source: main article, appendix.
+
+\ldots well, with two caveats:
+
+\textbf{I. Our market model still has utility functions at the end of the tunnel.} Sure you
+can probably replace these with probabilities active inference style, but the point is they
+are still under-determined. So markets tell you how a super-agent gives rewards to its
+sub-agents, and maybe that super-agent gets rewards from its super-agent etc.\ but what is
+there ``all the way up''?
+
+E.g.\ factories' rewards are derived from human consumers' utility functions, humans'
+rewards are determined by evolution's fitness functions, evolution's fitness functions are
+themselves hyperstitional but maybe there is a grand cosmic-scale selection process that
+selects good evolutionary priors over bad evolutionary priors, and maybe everything somehow
+boils down to ``the universe wants to maximize its entropy'' or something like that.
+
+Thermodynamics (free entropies) seems relevant to this.
+
+\textbf{II. Markets are just a model, right?} It's not the case that \emph{all} reward is
+computed based on price recursion (in fact nothing does perfectly so); rather we generally
+use heuristics. But maybe this is like how nobody actually follows Bayesian reasoning, but
+Bayes is still the ideal or optimal mechanism in some sense.
+
+This would need a Dutch book type result.
+
+And a third question, not crucial to the ``price recursion rationalizes reward'' philosophy
+but the continuous Bayesian inference dynamic which I still find important.
+%% TODO(agency): the source sentence trails off here ("...which I still find important
+%% because .").
+
+\textbf{III. Wealths and perfect competition.} We kinda just postulated continuous Bayesian
+inference as the dynamics of markets because it feels right. A proper justification of this
+would require a game-theoretic consideration of agents maximizing their local objectives
+(presumably with an Aumann-style agent continuum) and having wealths/budgets.
+
+AI tells me continuous Bayesian inference has a natural interpretation in terms of wealths
+(which kinda makes sense; accumulated evidence is wealth after all right).
+
+Another question I am interested in, that I feel is related but am not sure:
+
+\textbf{IV. ``Dynamic rationality''.}
+
+It seems to me that dynamics is fundamental to understanding ``bounded rationality'': the
+fact that you cannot instantly argmax a utility function or compute a market equilibrium.
+The fact that you can have systems that are ``dynamically complete'' (there is eventually an
+Arrow--Debreu security for every event in the world) and ``dynamically consistent'' (at most
+a finite amount of arbitrage can be extracted from the market in infinite time) but not
+complete and consistent (G\"odel's theorem) also seems suggestive.
+
+Questions:
+\begin{enumerate}
+  \item Continuous Bayes feels like a natural model of dynamics: only an infinitesimal
+  amount of information gets processed in infinitesimal time. How does this relate to all
+  the other things about bounded rationality, like logical non-omniscience and Knightian
+  uncertainty?
+  \item But Continuous Bayes only models \emph{inserting} information, what about
+  \emph{relaxing} constraints/information (e.g.\ Newton's law of cooling)? Is there a model
+  of the latter, and is it important? Feels like it might be relevant to Question I, where I
+  spoke of thermodynamics.
+  \item It seems as though dynamics too may be ``arbitrary'' like reward, and like reward,
+  ``selected by the super-agent''---i.e.\ markets prefer agents who learn, they prefer
+  agents who learn faster, respond faster to shocks, etc.
+\end{enumerate}
+
+\section{What a transformer's router actually does}\label{agency:sec:attention}
+% Source: marketgrad-theory/ATTENTION.md (lifted in full).
+
+\begin{draftblock}
+This appendix reproduces the companion exposition \texttt{ATTENTION.md} to
+Section~\ref{agency:sec:theory-attention}. It is self-contained---no prior comfort with
+transformers assumed. The running translation is the one proved there (attention and market
+routing are adjoint), so every concept is introduced twice: once in network language, once
+in market language.
+\end{draftblock}
+
+\subsection{One sentence}\label{agency:sec:attention-onesentence}
+
+\textbf{Attention is a layer whose connection weights are not parameters but are computed
+from the data at run time---the network draws its own wiring diagram for each input---with
+the wiring chosen by content matching, and kept differentiable by replacing ``retrieve the
+best match'' with ``average, weighted by match quality.''}
+
+Everything else---queries, keys, values, softmax, $\sqrt{d}$, heads---is bookkeeping in
+service of that sentence.
+
+\subsection{The problem: wiring that depends on content}\label{agency:sec:attention-wiring}
+
+An ordinary layer $h' = \sigma(Wh)$ has its communication pattern frozen into $W$: entry
+$W_{uv}$ says how strongly slot $v$ influences slot $u$, the same for every input, forever
+after training. Call this \emph{position-addressed} communication. It is the right tool when
+``who should listen to whom'' is a fixed fact about the architecture.
+
+For a \emph{set} of tokens it is the wrong tool twice over. In ``the cat that the dog chased
+was black,'' the token \emph{was} needs to consult \emph{cat}---not because \emph{cat} sits
+at position 2, but because of what \emph{cat} is; in the next sentence the subject will sit
+somewhere else. So (i) the useful wiring differs per example, and (ii) a set has no
+canonical slots for position-addressed weights to even refer to.
+
+The fix is radical: \textbf{promote the weights from parameters to activations.} Parameters
+are slow memory, written by gradient descent over a lifetime of training; activations are
+fast memory, computed fresh each forward pass. Attention is a layer that \emph{computes} a
+stochastic weight matrix from the current tokens and immediately uses it to move
+information:
+$$\underbrace{W_{\text{fast}} = \softmax(\text{match scores})}_{\text{decide the wiring}},
+\qquad \underbrace{o = W_{\text{fast}} \cdot (\text{messages})}_{\text{use it}}.$$
+
+This divide already exists inside \code{marketgrad}: the planner's routing shares are
+\emph{slow} weights (trained logits, fixed at ``inference''), while the simulator's
+\code{SoftmaxClearing} recomputes shares from current bids at every tick---\emph{fast}
+weights. Static vs.\ dynamic attention is exactly planner vs.\ clearing
+(Remark~\ref{agency:rem:dynamic-attention}).
+
+\subsection{Soft lookup: the differentiable dictionary}\label{agency:sec:attention-lookup}
+
+Start from an actual dictionary lookup, \code{d[query] $\to$ value}. A hard lookup scores
+each stored key against the query, takes the argmax, and returns that entry's value. Two
+problems: argmax is not differentiable, and a wrong-but-close key returns nothing at all.
+
+Soften it: score every key, turn scores into weights with softmax, return the weighted
+average of \emph{all} values:
+$$\alpha_j = \softmax_j\!\big(\langle q, k_j \rangle\big), \qquad o = \sum_j \alpha_j\, v_j.$$
+
+A three-key micro-example: scores $(2.0,\ 0.5,\ -1.0)$ give weights $(0.79,\ 0.18,\ 0.04)$
+---mostly the best match, with a whisper of the runner-up, and a gradient flowing into
+\emph{every} score. Attention is \textbf{content-addressable memory with a soft address}.
+
+There is a deeper way to say this. The formula
+$$o(q) = \frac{\sum_j e^{\langle q, k_j \rangle}\, v_j}{\sum_j e^{\langle q, k_j \rangle}}$$
+is \emph{Nadaraya--Watson kernel regression} \citep{nadaraya1964,watson1964}: the textbook
+nonparametric estimator of a conditional expectation $\mathbb{E}[v \mid q]$, with kernel
+$K(q,k) = e^{\langle q,k \rangle}$. Attention answers the question \emph{``what, on average,
+is said by things that resonate with what I'm looking for?''} A transformer layer is every
+token simultaneously running kernel regression against all the others---with the kernel
+itself learned.
+
+\subsection{Query, key, value: three roles, one token}\label{agency:sec:attention-qkv}
+
+Each token's vector $h$ is linearly projected three ways:
+$$q = W_Q h \ \ (\text{what I seek}), \qquad k = W_K h \ \ (\text{what I advertise}),
+\qquad v = W_V h \ \ (\text{what I deliver}).$$
+
+Why not use $h$ itself for all three? Because the roles have different \emph{types}, and
+conflating them forces bad compromises:
+\begin{itemize}
+  \item The features by which \emph{cat} should be \textbf{findable} (subject-noun-ish,
+  animate) are not the features \emph{cat} should \textbf{deliver} once found (its actual
+  semantics). Key $\ne$ value: the label on the filing cabinet is not the file.
+  \item Relevance is \textbf{directed}: ``\emph{was} should consult \emph{cat}'' does not
+  imply ``\emph{cat} should consult \emph{was}.'' The score
+  $\langle q_i, k_j \rangle = h_i^\top W_Q^\top W_K\, h_j$ is a learned \emph{asymmetric}
+  bilinear form---a relevance metric, usually low-rank ($d_k \ll d$): compatibility is
+  judged in a cheap subspace while the cargo travels in a richer one.
+\end{itemize}
+
+The market reading makes the three roles vivid: the \textbf{query is a bid sheet} (a buyer's
+declaration of what inputs it needs), the \textbf{key is a listing} (a supplier's
+advertisement of what it offers), and the \textbf{value is the shipment} (what actually
+arrives, which is neither the ad nor the want). $QK^\top$ is the compatibility matrix of a
+marketplace; each softmax row is one buyer spreading its unit demand across the suppliers
+whose listings match its bid sheet. An attention layer is one clearing round of a
+procurement market for information.
+
+\subsection{What is scarce: the two conservation laws}\label{agency:sec:attention-scarce}
+
+Here is the question that unlocks the \code{marketgrad} connection: \emph{in a transformer,
+what is conserved?}
+
+Not the values. The same $v_j$ is delivered \textbf{at full strength to every token that
+wants it}---information is non-rival; reading a message does not use it up. So the
+merchandise is free to copy, and the softmax cannot be conserving \emph{it}.
+
+What the softmax conserves is on the receiver's side: each query's weights sum to one.
+\textbf{Every token has exactly one unit of attention to spend per layer.} That is the
+scarce resource---the layer is named after the only thing in it that is rationed. An
+attention layer is a \emph{demand-side} market: buyers with unit budgets, shopping among
+freely replicable suppliers.
+
+Market routing is the mirror image: a \emph{supply-side} market. Each seller has one unit of
+(rival, conserved) goods to split over buyers; the simplex sits on the \emph{outgoing} edges
+instead of the incoming ones. Transpose one and you get the other---that is
+Theorem~\ref{agency:thm:reverse-attention}.
+
+And the transformer's rival, conserved flow does exist---it runs \textbf{backward}. In
+backprop through $o_i = \sum_j \alpha_{ij} v_j$, receiver $i$'s incoming gradient
+$\bar o_i$ is \emph{partitioned} over the sources it attended, in proportion $\alpha_{ij}$,
+with $\sum_j \alpha_{ij} = 1$; summing over receivers, total gradient mass is exactly
+conserved. Credit is rationed the way goods are. So:
+\begin{itemize}
+  \item transformer forward = market for \textbf{information} (non-rival, copied);
+  transformer backward = market for \textbf{credit} (rival, conserved);
+  \item \code{marketgrad} forward = market for \textbf{goods} (rival, conserved);
+  \code{marketgrad} backward = market for \textbf{prices} (non-rival---every supplier reads
+  the same posted price).
+\end{itemize}
+
+Training a transformer clears a credit economy backward through every layer; running an
+economy trains a transformer transposed. Each is the other read through the adjoint.
+
+\subsection{Softmax, temperature, $\sqrt{d}$: keeping the auction competitive}\label{agency:sec:attention-softmax}
+
+\textbf{Why softmax specifically?} It is the unique way to turn scores into weights that (i)
+yields a genuine probability distribution---needed for the ``weighted average / conditional
+expectation'' reading; (ii) is shift-invariant---only score \emph{differences} matter, and
+there is no absolute zero of relevance; and (iii) carries a temperature dial $\beta$
+interpolating between the two things a lookup could mean:
+$$\beta \to 0: \ \text{uniform averaging (attention off)}, \qquad
+\beta \to \infty: \ \text{hard argmax retrieval (winner-take-all)}.$$
+
+Gibbs' characterization makes (iii) principled: $\softmax(\beta x)$ is the maximum-entropy
+distribution with the prescribed expected score---the \emph{least committal} soft choice
+consistent with favoring high scores. And
+$\tfrac{1}{\beta} \log \sum_j e^{\beta x_j} \to \max_j x_j$: softmax is the gradient of the
+smooth max.
+
+\textbf{Why divide by $\sqrt{d_k}$?} Dot products of $d_k$-dimensional vectors with $O(1)$
+coordinates have magnitude $\sim \sqrt{d_k}$. Feed raw scores into softmax at, say,
+$d_k = 64$ (std $\approx 8$) and the distribution is already nearly one-hot \emph{at
+initialization}: the auction opens as a monopoly, gradients through the softmax die, and no
+price discovery ever happens. Dividing by $\sqrt{d_k}$ sets the opening temperature to
+$O(1)$---a competitive auction with live gradients. The same dial exists in
+\code{marketgrad} twice: \code{SoftmaxClearing(beta=...)}, and the planner's entropy
+regularization $\tau$, where $\tau \to 0$ gives sharp law-of-one-price allocations and
+$\tau > 0$ gives smooth gravity-model trade. Choosing $\sqrt{d_k}$ is choosing where on the
+uniform-to-argmax dial training begins.
+
+\subsection{Multi-head attention = multiple goods}\label{agency:sec:attention-heads}
+
+One attention pattern per layer means one scalar currency of relevance. But tokens relate in
+several ways \emph{at once}---syntactic role, coreference, topic, position---and a single
+softmax must smear them together. Multi-head attention runs $H$ independent attention
+markets in parallel low-dimensional subspaces (each with its own $W_Q, W_K, W_V$) and
+concatenates the $H$ retrieved bundles.
+
+In \code{marketgrad} language, \textbf{heads are goods}. Vector goods give each good its own
+routing simplex per seller; multi-head gives each relevance-type its own attention simplex
+per buyer. This makes the correspondence of Section~\ref{agency:sec:theory-attention}
+dimensionally exact---$H$ heads $\leftrightarrow$ $H$ goods, head by head, good by
+good---and it explains the design the same way economics would: you cannot clear steel and
+labor through one price, and you cannot route syntax and topic through one attention
+pattern. \draft{(Attention with directly trained static weights---the network-side twin of
+static routing logits---is the Synthesizer architecture of \citealp{tay2020}.)}
+
+\subsection{The stack: trade, then production}\label{agency:sec:attention-stack}
+
+\emph{Self}-attention just means the set attends to itself: every token is buyer and seller
+in the same round. A transformer block then alternates two moves:
+$$\text{attention: tokens exchange information} \ \longrightarrow\ \text{MLP: each token
+processes what it received, alone}.$$
+
+A \code{marketgrad} economy alternates the same two moves: routing (goods are exchanged)
+$\to$ production functions (each node transforms its inputs, alone). \textbf{The MLP block
+is the production function.} Depth is re-trading: aggregate, transform, trade again. A
+transformer is a deep economy for information run on the demand side; a \code{marketgrad}
+economy is a deep transformer for goods run on the supply side. (Cross-attention---a decoder
+querying an encoder---is import trade between two economies; positional encodings just stamp
+``where'' into content, so that even location must compete for attention as information.)
+
+\subsection{The dictionary}\label{agency:sec:attention-dictionary}
+
+\begin{center}
+\small
+\begin{tabular}{@{}p{6.4cm}p{6.4cm}@{}}
+\toprule
+transformer & \code{marketgrad} \\
+\midrule
+token & node \\
+value vector $v_j$ & output bundle $y_i$ \\
+attention row $\alpha_{i\cdot}$ (simplex over \emph{sources}) & routing shares $s_{i\cdot}$ (simplex over \emph{destinations}) \\
+output $o = Av$ & market backward pass $\bar a = S a$ (price averaging) \\
+gradient-to-values $\bar v = A^\top \bar o$ & market forward pass $x = S^\top y$ (goods partition) \\
+scarce: one unit of attention per query & scarce: one unit of supply per seller-good \\
+non-rival: values (copied to all readers) & non-rival: prices (read by all suppliers) \\
+conserved (backward): credit & conserved (forward): goods \\
+heads & goods \\
+MLP block & production function $f_i$ \\
+$\softmax(qk^\top/\sqrt{d})$---\emph{dynamic} weights & \code{SoftmaxClearing} on bids---\emph{dynamic} shares \\
+Synthesizer-style trained static attention & planner's trained routing logits $\theta$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{The punchline}\label{agency:sec:attention-punchline}
+
+Strip attention to its skeleton and it is: a row-stochastic matrix, applied to a stack of
+vectors. Strip market routing to its skeleton and it is: the \emph{transpose} of a
+row-stochastic matrix, applied to a stack of vectors. Reverse-mode differentiation of a
+linear map is its adjoint---so each layer's forward pass is the other's backward pass, and
+the pair (copying constants, conserving mass) is one condition $P\mathbf{1} = \mathbf{1}$
+read in the two dual pairings. Formal statement and proof:
+Theorem~\ref{agency:thm:reverse-attention}.
+
+\begin{quote}
+\textbf{Attention distributes a budget of belief over freely copyable messages. A market
+distributes a budget of stuff over freely copyable price signals. They are the same
+operator, read from opposite sides of the duality between measures and functions.}
+\end{quote}
+
+\end{subappendices}

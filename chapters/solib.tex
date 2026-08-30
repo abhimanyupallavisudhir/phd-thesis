@@ -1,7 +1,9 @@
 \chapter{A benchmark for scalable oversight mechanisms}
 \label{ch:solib}
 
-\chaptersource{\draft{This chapter is based on the paper ``A Benchmark for Scalable Oversight Mechanisms'', joint work with Jackson Kaunismaa (MATS) and Arjun Panickssery (ZemblaAI).}}
+% \draft wraps \chaptersource (not vice versa): \draft's \marginpar
+% would be lost inside \chaptersource's mdframed box.
+\draft{\chaptersource{This chapter is based on the paper ``A Benchmark for Scalable Oversight Mechanisms'', joint work with Jackson Kaunismaa (MATS) and Arjun Panickssery (ZemblaAI).}}
 
 \chapterabstract{As AI agents surpass human capabilities, \emph{scalable oversight} -- the problem of effectively supplying human feedback to potentially superhuman AI models -- becomes increasingly critical to ensure alignment. While numerous scalable oversight protocols have been proposed, they lack a systematic empirical framework to evaluate and compare them. While recent works have tried to empirically study scalable oversight protocols -- particularly Debate -- we argue that the experiments they conduct are not generalizable to other protocols. We introduce the \emph{scalable oversight benchmark}, a principled framework for evaluating human feedback mechanisms based on our agent score difference (ASD) metric, a measure of how effectively a mechanism advantages truth-telling over deception. We supply a Python package to facilitate rapid and competitive evaluation of scalable oversight protocols on our benchmark, and conduct a demonstrative experiment benchmarking Debate.}
 
@@ -390,7 +392,7 @@ A summary of results, with ASD, JSE and ASD vs EAS slope values, is given in \cr
 
 \section{Future work}
 
-Our main contribution as of this workshop is a benchmark; the experiments themselves are small and demonstrative, conducted with only 100 questions, one judge model (\gptmini{}) and five agent models (\claudenewsonnet{}, and \claudehaiku{} with and without tools, and \deepseek{} without). The results of our preliminary experiments with Debate are promising: apart from benchmarking more protocols, future work should extend our experiments to a wider range of agent models and judge models, as well as with larger numbers of questions to increase statistical significance. Using reasoning models like \deepseekr{} and \othree{} for the agent AI would be particularly novel and valuable.
+Our main contribution \draft{at the time of writing} is a benchmark; the experiments themselves are small and demonstrative, conducted with only 100 questions, one judge model (\gptmini{}) and five agent models (\claudenewsonnet{}, and \claudehaiku{} with and without tools, and \deepseek{} without). The results of our preliminary experiments with Debate are promising: apart from benchmarking more protocols, future work should extend our experiments to a wider range of agent models and judge models, as well as with larger numbers of questions to increase statistical significance. Using reasoning models like \deepseekr{} and \othree{} for the agent AI would be particularly novel and valuable.
 
 Our rationale for working with the GSM8K dataset is that we wanted to introduce tool use as a new dimension of agent-judge asymmetry, and grade-school math problems provided a natural and intuitive opportunity: calculators. This could be extended to other datasets, including more conventional comprehension tasks, by including more complex tools like code execution, web search and formal verification. In particular, our finding that changing the number of turns in Debate has no effect on ASD should be challenged by performing experiments with more complex datasets, e.g. FrontierMath \citep{glazer2024frontiermathbenchmarkevaluatingadvanced}, where formal verification might arise as a natural tool for debaters.
 
@@ -432,7 +434,7 @@ A more comprehensive experiment should be done in future with a larger range of 
 \section{Protocols}
 \label{solib:app:protocols}
 
-Below are simplified pseudo-Python descriptions of our protocols. For the exact implementations, see the relevant file in our code, e.g. \url{https://anonymous.4open.science/r/math_problems_debate-F4B4/solib/protocols/protocols/Debate.py}
+Below are simplified pseudo-Python descriptions of our protocols. For the exact implementations, see the relevant file in our code, e.g. \draft{\url{https://github.com/abhimanyupallavisudhir/solib-code}}
 
 \begin{python}
 class SimultaneousDebate:
@@ -626,6 +628,9 @@ I want you to give me your most informed judgment on which answer is correct, ba
 
 Our formalism requires that for each question, we have a (correct answer, incorrect answer) pair. For the GSM8K dataset, this requires generating plausible incorrect answers for each problem. We use \claudenewsonnet{} to do this using a multi-step prompt for alternate idea generation, evaluation, and refinement.
 
+% Single-spaced locally: this longtable is a single unbreakable row,
+% which overflows the page at the thesis's 1.5 line spacing.
+\begin{spacing}{1.0}
 \begin{centering}
 \begin{longtable}{p{0.95\linewidth}}
     \hline
@@ -695,8 +700,10 @@ It is essential that you make your alternate solutions as plausible as possible,
 - Rule out solutions where the final answer is completely illogical, as these could be naively guessable without understanding the steps. For example, if a question is asking about how tall someone is, the answer could never be negative, no matter what the steps are. These would easily give away the correct answer without needing to understand the individual steps. One exception to this is that alternate answers that are much larger than the correct answer are not suspicious, as you would need to understand the problem to know which size of number is reasonable.
 
 - Answers that use all the numbers in the problem are significantly more plausible than those that don't.
-\newline
-\newline
+\\
+% Row split inserted for the thesis: the prompt is otherwise a single
+% unbreakable longtable row slightly taller than one page.
+\scriptsize
 \# Final Answer Generation Tips
 \newline
 \newline
@@ -717,6 +724,7 @@ $<$/solution$>$
 \label{solib:tab:math-debate-prompt} \\
 \end{longtable}
 \end{centering}
+\end{spacing}
 
 
 \end{subappendices}

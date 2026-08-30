@@ -21,6 +21,29 @@
   \endgroup
 }
 
+% The ToC/LoF/LoT are typeset in the front matter, before any chapter's
+% macros are in scope — but section titles and captions written to
+% main.toc/.lof/.lot may use chapter-local macros. So we typeset them
+% inside a group that pre-loads ALL chapter macro files with tolerant
+% (last-wins) definitions; the few cross-chapter conflicts (e.g. \bools)
+% don't matter for headings/captions.
+\NewDocumentCommand{\withallchaptermacros}{+m}{%
+  \begingroup
+  \let\NewDocumentCommand\DeclareDocumentCommand
+  \let\RenewDocumentCommand\DeclareDocumentCommand
+  \let\newcommand\DeclareRobustCommand
+  \let\newcommandx\providecommandx
+  \let\algnewcommand\DeclareRobustCommand
+  \InputIfFileExists{macros/market-rl.tex}{}{}%
+  \InputIfFileExists{macros/agency.tex}{}{}%
+  \InputIfFileExists{macros/infonomy.tex}{}{}%
+  \InputIfFileExists{macros/solib.tex}{}{}%
+  \InputIfFileExists{macros/nonvf.tex}{}{}%
+  \InputIfFileExists{macros/consistency.tex}{}{}%
+  #1%
+  \endgroup
+}
+
 \begin{document}
 
 % ============================================================
@@ -29,9 +52,11 @@
 \frontmatter
 \input{frontmatter/titlepage.tex}
 
-\tableofcontents
-\listoffigures
-\listoftables
+\withallchaptermacros{%
+  \tableofcontents
+  \listoffigures
+  \listoftables
+}
 
 \input{frontmatter/acknowledgements.tex}
 \input{frontmatter/declarations.tex}

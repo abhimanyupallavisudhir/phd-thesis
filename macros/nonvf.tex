@@ -1,0 +1,118 @@
+% ============================================================
+% macros/nonvf.tex -- chapter-local macros for ch:nonvf.
+% Merged from nonvf-paper/preamble.sty (long version, lines
+% 104-191) and the inline definitions in nonvf-paper-succint/
+% main.tex. Loaded inside a group, so the overrides below vanish
+% after the chapter.
+%
+% Macro decisions:
+%   * \bools is overridden to {0,1} (succinct paper's convention;
+%     the thesis-global is {\top,\bot}).
+%   * \Prob: the succinct paper defines \Prob[opt]{arg} =
+%     \mathbf{Pr}^{opt}[arg]; the long paper's \Prob is a bare
+%     \mathbf{Pr}. The thesis-wide symbol is \mathbf{P}, so the
+%     chapter uses ONE consistent rendering: \Prob[opt]{arg} =
+%     \mathbf{P}^{opt}[arg] (succinct calling convention, thesis
+%     symbol). The long version's bare-\Prob usages lifted into
+%     the chapter have been normalized to \Prob{...}; the bare
+%     symbol is available as \Problem (as in the succinct paper).
+%   * \toc: the long paper's \toc = \to_{\mathsf{c}} (partial
+%     computable function) is kept, since it is used throughout
+%     the program-market construction. The succinct paper's
+%     conflicting inline \toc = \to_{\Compcl} was used once, in
+%     the Discussion; that occurrence is written literally as
+%     \to_{\Compcl} in the chapter.
+%   * \Nats \Rats \Reals \Bools \probs \Props \strings \zero
+%     \finset \supp \Expect and the theorem environments
+%     (incl. lefinition, hproof) are already global -- not
+%     redefined here.
+% ============================================================
+
+% --- overrides of thesis-global macros ---
+\DeclareDocumentCommand{\bools}{}{\{0,1\}}
+\DeclareDocumentCommand{\Problem}{}{\mathbf{P}}
+\DeclareDocumentCommand{\Prob}{O{}m}{%
+  \mathbf{P}%
+  \IfValueT{#1}{^{#1}}%
+  \left[#2\right]%
+}
+
+% --- basic math (long version, preamble.sty) ---
+\NewDocumentCommand{\code}{m}{\left\langle#1\right\rangle}
+\NewDocumentCommand{\concat}{m m}{#1:#2}
+\NewDocumentCommand{\compl}{}{\,\raisebox{0.25ex}{\rotatebox[origin=c]{180}{\ensuremath{\DOTSB\lhook\joinrel\relbar}}}}
+\NewDocumentCommand{\proj}{O{}}{\operatorname{pr}_{#1}}
+\NewDocumentCommand{\too}{}{\to_\circ}
+\NewDocumentCommand{\topt}{}{\to_{\mathsf{p}}}
+\NewDocumentCommand{\toc}{}{\to_{\mathsf{c}}}
+\NewDocumentCommand{\mapstopt}{}{\mapsto_{\mathsf{p}}}
+\NewDocumentCommand{\mapstoc}{}{\mapsto_{\mathsf{c}}}
+\NewDocumentCommand{\toe}{}{\to_{-}}
+\NewDocumentCommand{\mapstoe}{}{\mapsto_{-}}
+\NewDocumentCommand{\tod}{}{\to_{\downarrow}}
+\NewDocumentCommand{\mapstod}{}{\mapsto_{\downarrow}}
+\NewDocumentCommand{\tode}{}{\to_{-\downarrow}}
+\NewDocumentCommand{\mapstode}{}{\mapsto_{-\downarrow}}
+\NewDocumentCommand{\intlen}{m}{\left|#1\right|}
+\NewDocumentCommand{\maybe}{m}{\overline{#1}}
+\NewDocumentCommand{\preimg}{m m}{{#1}^{-1}\left(#2\right)}
+
+% --- logic (long version) ---
+\NewDocumentCommand{\play}{m m}{#1[#2]}
+\NewDocumentCommand{\moves}{}{\maybe{\finset{\Nats}}}
+\NewDocumentCommand{\playfull}{}{\operatorname{Game}}
+\NewDocumentCommand{\halts}{}{\operatorname{Halts}}
+
+% --- agent-notation system (long version, LaTeX3) ---
+\ExplSyntaxOn
+% Guarded so this file can be loaded more than once (it is pre-loaded
+% globally for the ToC/LoF/LoT pass and again inside the chapter group).
+\prop_if_exist:NF \g_based_agents_prop { \prop_new:N \g_based_agents_prop }
+\prop_gset_from_keyval:Nn \g_based_agents_prop
+  {
+    a = \alpha, b = \beta, c = \gamma, m = \mu, p = \pi, pp = \varpi, s = \mathcal{A}
+  }
+
+\NewDocumentCommand{\agent}{O{a}}{
+  \prop_get:NnNTF \g_based_agents_prop {#1} \l_tmpa_tl {
+    \tl_use:N \l_tmpa_tl
+  }{
+    #1
+  }
+}
+\ExplSyntaxOff
+
+\NewDocumentCommand{\trader}{O{a}}{\hat{\agent[#1]}}
+\NewDocumentCommand{\player}{O{a}}{\tilde{\agent[#1]}}
+\NewDocumentCommand{\instaplayer}{O{a}}{\breve{\agent[#1]}}
+\NewDocumentCommand{\labeler}{O{a}}{{\agent[#1]}^{\#}}
+\NewDocumentCommand{\endowment}{O{a}}{{\agent[#1]}^{\operatorname{b}}}
+\NewDocumentCommand{\birthday}{O{a}}{{\agent[#1]}^{\operatorname{t}}}
+\NewDocumentCommand{\inventory}{O{a}}{{\agent[#1]}^{\$}}
+\NewDocumentCommand{\change}{O{} O{a}}{{\delta\agent[#2]}^{\$}_{#1}}
+\NewDocumentCommand{\father}{O{m}}{{\agent[#1]}^{\operatorname{bh}}}
+\NewDocumentCommand{\price}{O{p}}{{\agent[#1]}^{*}}
+\NewDocumentCommand{\longrun}{O{pp}}{{\agent[#1]}^{\infty}}
+\NewDocumentCommand{\tpler}{O{s}}{{\agent[#1]}^{\circ}}
+\NewDocumentCommand{\foo}{}{\texttt{``foo''}}
+
+% special stupid thing because writing \player[s] \instaplayer[s] in theorem name confuses LaTex
+\NewDocumentCommand{\instaplayers}{}{\instaplayer[s]}
+\NewDocumentCommand{\players}{}{\player[s]}
+
+% --- prediction markets (long version) ---
+\NewDocumentCommand{\finprocs}{}{\operatorname{FinProc}}
+\NewDocumentCommand{\portfolios}{}{\operatorname{PF}}
+\NewDocumentCommand{\pricee}{}{\pi}
+\NewDocumentCommand{\inventorye}{}{{\boldsymbol{\alpha}}}
+
+% --- Garrabrant induction appendix (long version) ---
+\NewDocumentCommand{\thms}{}{\Theta}
+\NewDocumentCommand{\world}{}{w}
+\NewDocumentCommand{\PC}{}{\mathsf{PC}}
+\NewDocumentCommand{\indicate}{m}{\mathbf{I}\left[#1\right]}
+
+% --- inline definitions from the succinct version's main.tex ---
+\NewDocumentCommand{\Ack}{}{\mathcal{A}}
+\NewDocumentCommand{\Compcl}{}{\mathcal{C}}
+\newcommand{\noop}[1]{}

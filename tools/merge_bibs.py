@@ -35,17 +35,23 @@ def split_entries(text: str):
             i = at + 1
             continue
         kind = m.group(1).lower()
-        # Skip comments/preambles but keep @string definitions.
+        # Balance only the delimiter the entry actually opens with; a '('-
+        # delimited entry is closed by ')' but '{'-entries ignore parens
+        # entirely (they occur freely inside field values).
+        brace = text.find("{", at)
+        paren = text.find("(", at)
+        if brace != -1 and (paren == -1 or brace < paren):
+            open_c, close_c = "{", "}"
+            j = brace
+        else:
+            open_c, close_c = "(", ")"
+            j = paren
         depth = 0
-        j = at
-        opener = None
         while j < n:
             c = text[j]
-            if c in "{(":
-                if opener is None:
-                    opener = c
+            if c == open_c:
                 depth += 1
-            elif c in ")}":
+            elif c == close_c:
                 depth -= 1
                 if depth == 0:
                     break
