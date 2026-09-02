@@ -31,14 +31,8 @@ sub-agents, and price recursion is the rational theory of reward. The accompanyi
 \texttt{marketgrad} library implements this theory and numerically verifies its
 identities.}}
 
-A bunch of people have vaguely noticed intuitive analogies between economies/markets and
-machine learning algorithms:
-\href{https://www.lesswrong.com/posts/brhWPoNsBN7za3xjs/competitive-markets-as-distributed-backprop}{John Wentworth},
-Aanjaneya Kumar and Anders Sandberg at the
-\href{https://ai.objectives.institute/projects}{AI Objectives institute}, the ancient Neural
-Bucket Brigade
-(\href{https://proceedings.neurips.cc/paper/1988/hash/82aa4b0af34c2313a562076992e50aa3-Abstract.html}{Davis},
-\href{https://www.tandfonline.com/doi/abs/10.1080/09540098908915650}{Schmidhuber}). Several
+
+Several
 papers discuss RL algorithms based on sequentially auctioning a unit ``right to act'' among
 agents---most recently \href{https://arxiv.org/abs/2307.05068v1}{Caspar Oesterheld's BRIA}
 but also Baum's \href{https://link.springer.com/article/10.1023/a:1007593124513}{Hayek
@@ -52,32 +46,6 @@ Hayek with Vickrey auctions
 ``\href{https://arxiv.org/pdf/2503.05828}{Market-based architectures in RL and beyond}''
 I suggested that a better market model for RL might come out of factoring the ``right to
 act'' into ``goods'' axes, just like in real markets.
-
-The analogy is attractive and suggestive:
-\begin{enumerate}
-  \item Economies are intelligent agents built out of sub-agents much less capable than
-  themselves (see e.g.\ ``I, Pencil'') suggesting that markets are an example of
-  intelligence being an ``emergent phenomenon''.
-  \item Bounded rationality is very analogous to the Efficient Market Hypothesis. How can
-  you be rational when computing the rational decision itself has a cost---how do you
-  optimize over that? You are rational/markets are efficient ``conditional on the
-  information (including computational information) present in the system'', whatever that
-  means.
-  \item Markets have analogs of inconsistency (arbitrage) and
-  \href{https://www.lesswrong.com/posts/xqxXrAohXSD3akYCg/meaningful-things-are-those-the-universe-possesses-a}{G\"odel's
-  incompleteness theorem}: a prediction market is limited in its ability to efficiently
-  price the question ``This question will resolve YES if this market gives less than 50\%
-  probability to it''. (More specifically, a market must give zero subsidy to such a
-  question: its subjective ``value for information'' on that question must be zero.)
-  \item Related to 3: ``Market dynamics'' is famously under-studied because again it is
-  fundamentally computational and boundedly-rational rather than ``there exists an
-  equilibrium, DONE''.
-  The dynamical nature of markets feels very similar to backpropagation (as well as e.g.\
-  Bellman recursion): prices are gradients (specifically: gradients on activations, not
-  weights---they do not zero out at equilibrium).
-  %% TODO(agency): the source sentence trails off here ("..., the gradient"); completed
-  %% minimally by closing the parenthetical.
-\end{enumerate}
 
 In this chapter we will formalize this intuition, and explain that in fact, markets are
 equivalent to a lot of things: backprop, RL, and continuous Bayesian inference (aka
