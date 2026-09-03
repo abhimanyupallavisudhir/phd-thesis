@@ -14,6 +14,7 @@ from pathlib import Path
 BIB_DIR = Path(__file__).resolve().parent.parent / "bib"
 # Merge order: earlier files win on key conflicts.
 SOURCES = [
+    "intro.bib",
     "market-rl.bib", "agency.bib", "infonomy.bib", "solib.bib",
     "nonvf.bib", "consistency.bib",
 ]

@@ -37,6 +37,8 @@ See `CONVENTIONS.md`. Key points:
 
 - **All newly composed "glue" text is marked** with `\draft{...}` or `\begin{draftblock}...\end{draftblock}` — it renders dark red with a `[draft]` margin tag. Set `\draftfinaltrue` in `preamble/thesis.tex` to typeset it as normal text for submission.
 - Text lifted from the papers/reports is *not* marked.
+- Research questions and contributions in the introduction use the `researchquestion` / `contribution` environments (preamble/thesis.tex): RQs are numbered RQ1, RQ2, …; a `contribution` box takes the number of the preceding RQ. Label RQs with `\label{rq:...}` and refer with `\cref`.
+- Citations: always `\citep` (parenthetical) or `\citet` (textual); never bare `\cite`. New references that were previously `\href` links live in `bib/intro.bib`.
 - Chapter-local macros live in `macros/<chapter>.tex`, loaded inside a group by `\thesischapter` so chapters can override shared macros (e.g. `\bools`, `\Prob`). They are also pre-loaded (tolerantly, last-wins) for the ToC/LoF/LoT pass — so any macro used in a caption or section heading must live in the macros file, not inline in the chapter, and the macro files must be safe to load twice (guard `\newcounter` etc.).
 
 ## Known TODOs (grep for `%% TODO` and `\draft`)

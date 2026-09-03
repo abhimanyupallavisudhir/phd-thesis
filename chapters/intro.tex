@@ -2,32 +2,26 @@
 
 % ------------------------------------------------------------
 % Opening: why economics for AI alignment.
-% Lifted (adapted) from marketic_agents_project_intro.org and
-% shortform notes; glue composed for the thesis is draft-marked.
+% Glue composed for the thesis is draft-marked; the rest is the
+% author's own text (thesis frame, papers, report, blog posts).
 % ------------------------------------------------------------
 
+AI alignment refers to the problem of ensuring AI agents pursue their principals' goals. It is natural to expect that \emph{economics} provides the natural framework to express and study this problem: the problem of reward specification (``alignment to what?'') is just value elicitation, and the problem of incentive alignment is handled in economics via the market mechanism or in general by the field of mechanism design. Yet, only a handful of papers have directly expressed this view, e.g. \citet{bergemannMechanismDesignAlignment2026} and \citet{conitzerPositionSocialChoice2024}.
 
-% TODO: make citations proper
-AI alignment refers to the problem of ensuring AI agents pursue their principals' goals. It is natural to expect that \emph{economics} provides the natural framework to express and study this problem: the problem of reward specification (``alignment to what?'') is just value elicitation, and the problem of incentive alignment is handled in economics via the market mechanism or in general by the field of mechanism design. Yet, only a handful of papers have directly expressed this view, e.g. [Bergemann (2026)](https://arxiv.org/abs/2609.01595) and [Conitzer (2024)](https://dl.acm.org/doi/abs/10.5555/3692070.3692441). 
-
-More broadly, there are general intuitive arguments to expect a close formal relationship between the fields of machine learning and economics. Philosophers and psychologists have pondered multi-agent models of the mind \citep{minskySocietyMind1988}; moreover, many have long noted intuitive analogies between economies and neural networks with backpropagation and sought a more precise mathematical equivalence: \href{https://www.lesswrong.com/posts/brhWPoNsBN7za3xjs/competitive-markets-as-distributed-backprop}{John Wentworth}, Aanjaneya Kumar and Anders Sandberg at the \href{https://ai.objectives.institute/projects}{AI Objectives institute}, and the ancient Neural Bucket Brigade (\href{https://proceedings.neurips.cc/paper/1988/hash/82aa4b0af34c2313a562076992e50aa3-Abstract.html}{Davis}, \href{https://www.tandfonline.com/doi/abs/10.1080/09540098908915650}{Schmidhuber}). The analogy is attractive and suggestive:
-
+More broadly, there are general intuitive arguments to expect a close formal relationship between the fields of machine learning and economics. Philosophers and psychologists have pondered multi-agent models of the mind \citep{minskySocietyMind1988}; moreover, many have long noted intuitive analogies between economies and neural networks with backpropagation and sought a more precise mathematical equivalence: \citet{wentworthCompetitiveMarketsDistributed2018}, Aanjaneya Kumar and Anders Sandberg at the AI Objectives Institute \citep{aiobjectivesinstituteProjects}, and the ancient Neural Bucket Brigade \citep{davisMappingClassifierSystems1988, schmidhuberLocalLearningAlgorithm1989}. The analogy is attractive and suggestive:
 
 \begin{enumerate}
   \item Economies are intelligent agents built out of sub-agents much less capable than
   themselves\footnote{See e.g. Hayek on the role of markets in aggregating information \citep{hayekEconomicsKnowledge1937} -- or the famous parable ``I, Pencil'' \citep{leonardereadPencilMyFamily1958}: ``... no one person, no matter how smart, could create from scratch a small, everyday pencil [yet the market makes over a billion of them each year] ...''. There is also some empirical work on emergent intelligent behaviour in markets comprised of zero-intelligence traders \citep{godeAllocativeEfficiencyMarkets1993, schwartzHowMuchIrrationality2008, jamalSimpleAgentsIntelligent2015}}; in some sense, they ``aggregate'' the intelligence or capacities of their individual participants.
   \item There is work suggesting that markets are a model for boundedly rational decision-making, e.g. the \emph{Boundedly Rational Inductive Agent} (BRIA) \citep{oesterheldTheoryBoundedInductive2023} and \emph{Algorithmic Bayesian Epistemology} \citep{neymanAlgorithmicBayesianEpistemology2024} (intuitively, the efficient market hypothesis may be imagined as expressing that markets are efficient conditional on the \emph{logical information} available: and an inexploitability condition with respect to the traders present in the market is exactly how we may formalize this intuition). ``Market dynamics'' is famously under-studied because again it is
-  fundamentally computational and boundedly-rational rather than simply caring about the existence of an equilibrium. % TODO: cite stuff. E.g. the Kamal Jain quote. You might find some references in my y0 report (PhD proposal), also mention the results (should also be cited in the proposal IIRC) showing that equilibirum computation is computationally inefficient.
-  \item Markets have analogs of inconsistency (arbitrage) and
-  \href{https://www.lesswrong.com/posts/xqxXrAohXSD3akYCg/meaningful-things-are-those-the-universe-possesses-a}{G\"odel's
-  incompleteness theorem}: a prediction market is limited in its ability to efficiently
+  fundamentally computational and boundedly-rational rather than simply caring about the existence of an equilibrium. \draft{Indeed, computing equilibria is in general intractable: Nash equilibria are \textsf{PPAD}-complete \citep{daskalakisComplexityComputingNash2006, daskalakisComplexityComputingNash2009}, as are Arrow--Debreu equilibria even for additively separable utilities \citep{chenSettlingComplexityArrowDebreu2009} --- so, in Kamal Jain's quip as relayed by \citet{daskalakisComplexityComputingNash2009}, ``if your laptop cannot find it, then neither can the market''. The contrapositive is that a realistic model of markets is a model of bounded rationality \citep{papadimitriouComplexityBoundedRationality1994}: whatever the market does compute, it computes efficiently.}
+  \item Markets have analogs of inconsistency (arbitrage) and G\"odel's incompleteness theorem \citep{pallavisudhirMeaningfulThings2022}: a prediction market is limited in its ability to efficiently
   price the question ``This question will resolve YES if this market gives less than 50\%
   probability to it''. (More specifically, a market must give zero subsidy to such a
   question: its subjective ``value for information'' on that question must be zero.)
-  \item Prices are gradients: specifically: gradients on activations, not
+  \item Prices are gradients: specifically, gradients on activations, not
   weights---they do not zero out at equilibrium. So at the very least, we know that both markets and neural networks involve local constrained optimization algorithms on a directed graph.
 \end{enumerate}
-
 
 % \begin{itemize}
 % \item \textbf{Markets \emph{as} AI,} i.e. AI models and agents that work based on internal market-based algorithms, i.e. with intelligence arising as an ``emergent property'' of several simple or bounded agents interacting economically. This includes market-based RL (see \cref{ch:market-rl}), market architectures for logical uncertainty \citep{garrabrantLogicalInduction2020}, market architectures for bounded rationality \citep{oesterheldTheoryBoundedInductive2023} and mechanism design for reward \citep{conitzerPositionSocialChoice2024, geAxiomsAIAlignment2024a}.
@@ -37,63 +31,91 @@ More broadly, there are general intuitive arguments to expect a close formal rel
 % Lifted from marketic_agents_project_intro.org ("Analogies between markets and agents").
 % Markets and agents do the ``same kinds of things'' (i.e. have the same ``type signature''): they compute \emph{decisions} (in the form of goods allocation) and \emph{beliefs} (via e.g. prediction markets). Both markets and \emph{boundedly rational} agents are only ``rational given the available algorithmic information''. Markets have \emph{self-awareness}: they can contain prediction markets for the market's own properties, and can also self-improve, because the algorithmic functionality of markets is itself provided by goods (e.g. ``the labour supply of arbitrageurs'') whose supply can be adjusted and optimized. Abstraction is like \emph{economies of scale}; \emph{transaction costs} are like \emph{computational costs}. Markets are \emph{general intelligence}: they can be asked (paid) to accomplish \emph{any} task --- and they are intelligent about managing this generality, forming abstractions (factor goods) that will be useful for the distribution of tasks they expect to be asked to accomplish.
 
-We develop this analogy at three levels.
+We develop this analogy at three levels: \draft{as a theory of \emph{agency} itself (\cref{part:agency}); as a theory of the \emph{alignment problem}, i.e. of the market failure that separates a principal from a more capable agent (\cref{part:oversight}); and as a theory of \emph{belief elicitation} on the questions --- subjective, latent, never-resolving --- where alignment actually needs it (\cref{part:subjective}). Each part below is organized around the research questions it set out to answer and the contributions it makes towards them.}
 
-\section{Economics for agent foundations}
+% ============================================================
+\section{Economics for agent foundations}\label{intro:sec:agency}
 
-One promising approach to an "economic theory of agency" lies in the existing corpus of literature on what we will refer to as *Inexploitable Program Markets*. In traditional examples (classifiers, Baum... cite the whole spiel), we solve a Markov Decision Problem by auctioning off the "right to act on the world" at each time step to a computably-enumerable set of traders. This lets relatively simple programmatic traders act on the state sequentially, and each trader is incentivized to perform the action that maximize the reward earned plus the value of the state after its actions (i.e. creating a Bellman iteration). More recently, program markets have been applied as a model of logical uncertainty (Garrabrant) and bounded rationality (Oesterheld). 
+One promising approach to an ``economic theory of agency'' lies in the existing corpus of literature on what we will refer to as \emph{inexploitable program markets}. In traditional examples --- Holland's classifier systems and their ``bucket brigade'' \citep{hollandPropertiesBucketBrigade1985a}, Schmidhuber's extensions \citep{schmidhuberEvolutionaryPrinciplesSelfreferential1987, schmidhuberLocalLearningAlgorithm1989}, Baum's Hayek machine \citep{baumModelIntelligenceEconomy1999} and its successors for POMDPs \citep{kweeMarketBasedReinforcementLearning2001} and with Vickrey auctions \citep{changDecentralizedReinforcementLearning2020} --- we solve a Markov Decision Problem by auctioning off the ``right to act on the world'' at each time step to a computably-enumerable set of traders. This lets relatively simple programmatic traders act on the state sequentially, and each trader is incentivized to perform the action that maximizes the reward earned plus the value of the state after its actions (i.e. creating a Bellman iteration). More recently, program markets have been applied as a model of logical uncertainty \citep{garrabrantLogicalInduction2016} and bounded rationality \citep{oesterheldTheoryBoundedInductive2023}.
 
-Despite these promising models, program markets have not actually ... [lift sentence from paper]. Part of the reason has simply to do with the inherent inefficiency of "enumerating every trader", without any optimization over this search. But also, the program markets in the literature differ from real-world markets in a crucial way: real-world markets do not auction off the "entire world" to an agent at each stage. Instead, real markets have multiple *goods* which are separately auctioned without granting any agent a monopoly over the right to act entirely.
+% "the performance of existing implementations ... unimpressive" is lifted
+% from the market-based architectures paper's (earlier) abstract.
+Despite these promising models, the performance of existing implementations of market-based agents has been unimpressive. Part of the reason has simply to do with the inherent inefficiency of ``enumerating every trader'', without any optimization over this search. But also, the program markets in the literature differ from real-world markets in a crucial way: real-world markets do not auction off the ``entire world'' to an agent at each stage. Instead, real markets have multiple \emph{goods} which are separately auctioned, without granting any agent a monopoly over the right to act entirely.
 
-RQ: Can we construct a program market-based RL agent that better mirrors the nature of goods markets rather than single-unit auctions? [rephrase to use better terminology]
+\begin{researchquestion}\label{rq:goods}
+Can we construct a program-market-based RL agent with \emph{modularity of state} --- many separately traded goods, as in real-world goods markets --- rather than a single-unit auction of the right to act?
+\end{researchquestion}
 
-Contribution: We...
+% Lifted from the market-based architectures paper (abstract + contributions).
+\begin{contribution}
+In \cref{ch:market-rl} we present two general frameworks for market-based RL agents: (1) the ``deep market'' (\cref{mba:def:deep}), where a single good, the \emph{state}, is passed through a sequence of transacting agents, and (2) the ``wide market'' (\cref{mba:def:goods}), in which the state space itself is partitioned into several factors called \emph{goods}. The deep framework is not much of a departure from existing algorithms such as the Hayek machine, and can be applied to any Partially Observed Markov Decision Process; the wide framework is original to us, and is a generalization of the deep framework which better mirrors the success of real-world markets, allowing for greater specialization and parallelism. We further argue that market-based algorithms have the potential to address current challenges in AI such as \emph{search}, \emph{dynamic scaling} and \emph{complete feedback}, and list some novel ways that market algorithms may be applied in conjunction with Large Language Models.
+\end{contribution}
 
-While program markets provide a model of a market-based boundedly-rational agent, it does not capture the intuitive equivalence that people have sought between markets and neural networks (we tried to draw an equivalence in cref... but it is rather artificial and a stretch).
+While program markets provide a model of a market-based boundedly-rational agent, they do not capture the intuitive equivalence that people have sought between markets and neural networks (we draw such an equivalence in \cref{mba:thm:nn}, but it is rather artificial and a stretch).
 
-RQ: Can we construct a natural model of market dynamics for which there is a precise mathematical equivalence to neural networks with backpropagation?
+\begin{researchquestion}\label{rq:backprop}
+Can we construct a natural model of market dynamics for which there is a precise mathematical equivalence to neural networks with backpropagation?
+\end{researchquestion}
 
-Contribution: In cref... we define the graphical production economy, and demonstrate the following equivalences:
-- chain markets are equivalent to MLPs
-- production-less markets are equivalent to MDPs
+\begin{contribution}
+In \cref{ch:agency} we define the \emph{graphical production economy} --- a directed graph of producers and consumers exchanging goods bundles, with routing shares deciding where each producer's output goes --- and demonstrate the following equivalences:
+\begin{itemize}
+  \item chain markets are equivalent to multi-layer perceptrons (\cref{agency:thm:chainmlp}): goods bundles are activation vectors, and the market's shadow prices are exactly the backpropagated gradients;
+  \item production-less (pass-through) markets are equivalent to MDPs (\cref{agency:sec:mdp}): the price recursion is a Bellman recursion with matrix-valued discount factors, and the ``advantage'' of an action is a rivalrous good.
+\end{itemize}
+\end{contribution}
 
-However, we would like a result that is stronger than a mere analogy. We would like to be able to say that markets enjoy a \emph{privileged} position amongst multi-agent models of agency, i.e. justify the following philosophical claim: \emph{An idealized market is a model of a ``perfectly rational'' multi-agent system in the same way Bayesian updating is a model of a perfectly rational predictive agent.} 
+However, we would like a result that is stronger than a mere analogy. We would like to be able to say that markets enjoy a \emph{privileged} position amongst multi-agent models of agency, i.e. justify the following philosophical claim: \emph{An idealized market is a model of a ``perfectly rational'' multi-agent system in the same way Bayesian updating is a model of a perfectly rational predictive agent.}
 
-RQ: Can we \dots
+\begin{researchquestion}\label{rq:reward}
+\draft{Can the dynamics of a market be derived from a normative principle of rationality --- so that the market stands to \emph{reward} as Bayesian updating stands to \emph{evidence}, i.e. so that there is a \emph{rational theory of reward}?}
+\end{researchquestion}
 
-Contribution: ...
+\begin{contribution}
+\draft{In \cref{ch:agency} we first show (\cref{agency:sec:hyperstition}) that entropic mirror ascent --- the natural optimization dynamic on the probability simplex --- is continuous-time Bayesian inference, so that a reward signal is exactly (hyperstitional) Bayesian evidence. We then show (\cref{agency:sec:cbi}) that on the graphical production economy this same dynamic on routing shares is replicator dynamics with revenue as the evidence rate, while the shadow-price recursion is simultaneously backpropagation and Bellman recursion. Reward for a sub-agent is thus not arbitrary: it is the price generated by the economy as ``super-agent'', and \emph{price recursion is the rational theory of reward}, complementing Bayes (\cref{agency:sec:rationalize}). The accompanying \texttt{marketgrad} library (\cref{agency:sec:library}) implements this theory and numerically verifies its identities.}
+\end{contribution}
 
-\section{Information asymmetry and scalable oversight}
+% ============================================================
+\section{Information asymmetry and scalable oversight}\label{intro:sec:oversight}
 
-\section{Eliciting beliefs on subjective questions}
+\begin{draftblock}
+Markets may be thought of as measuring devices for people's values and beliefs: to learn how much someone values something, put it on the market and see what it sells for. The natural economic proposal for giving human feedback to AIs is therefore ``AIs as producers, humans as consumers''. But this proposal inherits the market's own best-known failure mode. Reinforcement learning from human feedback relies on a human's ability to judge the outputs of a potentially superhuman AI, so the AI is trained on the human's immediate, superficial volition rather than her \emph{extrapolated} volition --- which is precisely the ``market for lemons'' \citep{lemons}: the seller knows things about the product that the buyer cannot verify, so the buyer's price cannot reward them. In the AI alignment literature this is the problem of \emph{outer alignment}, or \emph{scalable oversight} \citep{bowmanMeasuringProgressScalable2022}.
+\end{draftblock}
 
-% \begin{enumerate}
-% \item \textbf{Economics for agent foundations} (\cref{part:agency}). At the deepest level, we treat the market as not merely a metaphor for intelligence, but as a \emph{model} for boundedly-rational agency. \Cref{ch:market-rl} investigates an established line of research where a ``program market'' learns to solve MDPs or price logical sentences, and proposes a unifying framework for such architectures. \Cref{ch:agency} provides a different model of a market with a fixed graphical structure: this lets us prove long-sought equivalences between (chain) economies with backpropagation, and between (pass-through/production-less) economies and MDPs. Backpropagation on this economy realizes a generalized Bellman recursion, which we call a ``rational theory of reward'' (complementing Bayes, which gives a rational theory for how to update in response to reward/evidence).
-% \item \textbf{Information asymmetry and scalable oversight}. We cast ``Outer Alignment'' as the economic problem of ``Information Asymmetry'', and use this to motivate a scalable oversight protocol we call ``Recursive Information Markets''. In our study of scalable oversight, we found flaws in the existing empirical research on Debate, and introduce a principled approach to empirically evaluating scalable oversight mechanisms based on the \emph{Agent Score Difference} metric: we use this to establish the \emph{Scalable Oversight Mechanism benchmark}.
-% \item \textbf{Eliciting latent knowledge}. Aligning and monitoring superhuman agents may often involve eliciting agent beliefs on tasks and sentences where we lack ``ground truth'': either because this is specifically the domain where scoring is non-trivial, or because it is relevant for interpretability. We study two approaches: first, we introduce a scoring mechanism for sentences that are \emph{neither verifiable nor falsifiable} i.e. first-order logic sentences that are higher than Level-1 on the arithmetical hierarchy. Second, we develop a consistency-based evaluation pipeline and principled, arbitrage-based inconsistency metrics for language model forecasters (which we then study empirically).
-% \end{enumerate}
+\begin{researchquestion}\label{rq:rlmf}
+Can we develop an ``AIs as producers, humans as consumers'' framework for giving human feedback to AIs --- i.e. replacing naive RLHF --- that is robust to the information asymmetry between the human and the AI?
+\end{researchquestion}
 
+% User's framing (thesis abstract), with chapter pointers.
+\begin{contribution}
+We cast ``outer alignment'' as the economic problem of ``information asymmetry'', and use this to motivate a scalable oversight protocol we call \emph{Recursive Information Markets} (\cref{ch:infonomy}): a Bayesian framework for valuing information under recursive inspection by LLM buyers, in which the \emph{Recursive Inspection Protocol} is shown to be ex-ante superior to any admissible purchase protocol, together with a marginal-value reward mechanism for scalable oversight and a working server implementation.
+\end{contribution}
 
+\begin{researchquestion}\label{rq:benchmark}
+Recursive information markets are one of many proposed scalable oversight protocols. How can we evaluate and compare scalable oversight protocols themselves?
+\end{researchquestion}
 
-% \begin{draftblock}
+\begin{contribution}
+In our study of scalable oversight, we found flaws in the existing empirical research on Debate --- in particular, that ``judge accuracy'' is the wrong metric from an alignment perspective --- and introduce a principled approach to empirically evaluating scalable oversight mechanisms based on the \emph{Agent Score Difference} metric, which measures how much a protocol advantages truth over falsehood. We use this to establish the \emph{Scalable Oversight Mechanism benchmark} and accompanying library, and run demonstrative experiments on Debate, Consultancy and Propaganda protocols (\cref{ch:solib}).
+\end{contribution}
 
-% \begin{enumerate}
-% \item \textbf{An economic theory of agency} (\cref{part:agency}). At the deepest level, we take the market not merely as a metaphor for intelligence but as a candidate \emph{theory} of it. \Cref{ch:market-rl} studies market-based architectures in reinforcement learning and beyond: agents whose internal credit assignment is a market, with the state factored into ``goods'' and subtasks priced by internal auction. \Cref{ch:agency} develops the accompanying theory --- that \emph{price recursion is the rational theory of reward}, with reward understood as hyperstitional information propagated backwards through an economy of computations --- together with the \texttt{marketgrad} library implementing it.
-% \item \textbf{Information asymmetry and scalable oversight} (\cref{part:oversight}). At the level of the alignment problem proper, we identify the outer alignment/scalable oversight problem with the economist's problem of information asymmetry between principal and agent. \Cref{ch:infonomy} proposes and analyzes \emph{recursive information markets} as a mechanism for extrapolating the volition of a human rater; \cref{ch:solib} constructs a general benchmark for evaluating scalable oversight protocols.
-% \item \textbf{Eliciting beliefs on subjective questions} (\cref{part:subjective}). Any of the above requires eliciting honest beliefs --- and the questions that matter for alignment are often ones on which no ground truth ever arrives. \Cref{ch:nonvf} constructs scoring mechanisms for claims that are neither verifiable nor falsifiable; \cref{ch:consistency} develops consistency checks --- in particular arbitrage-based metrics --- for evaluating and improving language-model forecasters even before resolution.
-% \end{enumerate}
-% \end{draftblock}
+% ============================================================
+\section{Eliciting beliefs on subjective questions}\label{intro:sec:subjective}
 
-% Adapted from the year-2 PhD report: the fundamental research questions.
-Over the course of this research, the following fundamental questions kept recurring, and organize the chapters that follow:
+Aligning and monitoring superhuman agents may often involve eliciting agent beliefs on tasks and sentences where we lack ``ground truth'': either because this is specifically the domain where scoring is non-trivial, or because it is relevant for interpretability. \draft{The economist's belief-elicitation devices --- proper scoring rules and prediction markets --- presuppose that ground truth eventually arrives to settle the bet; the questions that matter for alignment often do not.}
 
-\begin{enumerate}
-\item \emph{Can we design a reinforcement learning agent based on an internal market-based algorithm?} Would doing so have any advantages?
-\item Some works have noted a suggestive market analogy in neural networks \citep{davisMappingClassifierSystems1988, schmidhuberLocalLearningAlgorithm1989} and in backpropagation \citep{wentworthCompetitiveMarketsDistributed2018}. \emph{Can we make this more precise, and use it to construct a market-based algorithm for supervised learning applications?}
-\item Markets may be thought of as measuring devices for people's values and beliefs -- \emph{can we develop some ``AIs as producers, humans as consumers'' framework for giving human feedback to AIs, i.e. replacing naive RLHF?}
-\item Prediction markets can easily give probabilities for verifiable or falsifiable (VF) events. But many questions we are interested in are not VF -- they exist only in the ``latent space''. \emph{Can we design scoring rules to incentivize usefully reporting probabilities on latent space variables?} The resulting economy may be seen as an AI that has learned some internal beliefs, and may be valuable for interpretability research \citep{christianoElicitingLatentKnowledge2021}.
-\end{enumerate}
+\begin{researchquestion}\label{rq:nonvf}
+Prediction markets can easily give probabilities for verifiable or falsifiable (VF) events. But many questions we are interested in are not VF -- they exist only in the ``latent space''. Can we design scoring rules to incentivize usefully reporting probabilities on latent-space variables?
+\end{researchquestion}
 
-% \begin{draftblock}
-% Questions 1 and 2 are the subject of \cref{part:agency}; question 3 of \cref{part:oversight}; question 4 of \cref{part:subjective}.
-% \end{draftblock}
+\begin{contribution}
+We introduce a scoring mechanism for sentences that are \emph{neither verifiable nor falsifiable}, i.e. first-order logic sentences that are higher than Level 1 on the arithmetical hierarchy: after proving that no scoring rule or asset can do this directly, we construct \emph{ranged verification-falsification games} in which agents are scored through subgames on the VF instances a sentence quantifies over, and a program market that learns constructive truth-values in the limit (\cref{ch:nonvf}). The resulting economy may be seen as an AI that has learned some internal beliefs, and may be valuable for interpretability research \citep{christianoElicitingLatentKnowledge2021}.
+\end{contribution}
+
+\begin{researchquestion}\label{rq:consistency}
+\draft{Even where ground truth exists, it may be too slow: an AI forecaster's predictions about the coming years cannot be scored today. Can forecasters be evaluated --- and improved --- \emph{before} resolution, using only the logical relationships between their forecasts?}
+\end{researchquestion}
+
+\begin{contribution}
+We develop a consistency-based evaluation pipeline and principled, arbitrage-based inconsistency metrics for language model forecasters, which we then study empirically (\cref{ch:consistency}): inconsistency across logically related questions is measured as the profit an arbitrageur could extract from the forecaster, and a market-based ``\texttt{ArbitrageForecaster}'' corrects inconsistency in the way Platt scaling corrects miscalibration.
+\end{contribution}
