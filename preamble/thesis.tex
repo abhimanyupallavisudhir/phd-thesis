@@ -66,6 +66,7 @@
 
 % --- boxes (promptbox etc., shared by several chapters) ---
 \usepackage{tcolorbox}
+\tcbuselibrary{breakable,skins}
 
 % --- citations ---
 \usepackage{natbib}
@@ -206,6 +207,43 @@
 }
 
 \newtcolorbox{questionbox}[2][]{colback=gray!10!white, colframe=gray!40!black, title=#2, #1}
+
+
+% ============================================================
+% Research questions and contributions (introduction).
+%
+%   \begin{researchquestion}\label{rq:foo} ... \end{researchquestion}
+%   \begin{contribution} ... \end{contribution}
+%
+% Research questions are numbered RQ1, RQ2, ...; a contribution box
+% takes the number of the most recent research question, so that
+% "Contribution 2" visibly answers "Research Question 2".
+% ============================================================
+% Inside boxed environments \marginpar is illegal ("Float(s) lost"), so
+% the draft markers fall back to colour only.
+\NewDocumentCommand{\draftnomarginmode}{}{%
+  \RenewDocumentCommand{\draft}{+m}{\ifdraftfinal##1\else{\color{draftcolor}##1}\fi}%
+  \RenewDocumentEnvironment{draftblock}{}{\ifdraftfinal\else\color{draftcolor}\fi}{}}
+\newcounter{rq}
+\crefname{rq}{research question}{research questions}
+\Crefname{rq}{Research question}{Research questions}
+\colorlet{rqcolor}{MidnightBlue}
+\colorlet{contribcolor}{OliveGreen}
+\NewDocumentEnvironment{researchquestion}{}
+  {\refstepcounter{rq}\draftnomarginmode
+   \begin{tcolorbox}[enhanced, breakable, sharp corners,
+     colback=rqcolor!4, colframe=rqcolor, boxrule=0pt, leftrule=2.5pt,
+     left=6pt, right=6pt, top=5pt, bottom=5pt,
+     before skip=10pt, after skip=8pt]
+   \noindent{\small\bfseries\color{rqcolor}Research Question \therq.}\quad\itshape}
+  {\end{tcolorbox}}
+\NewDocumentEnvironment{contribution}{}
+  {\draftnomarginmode\begin{tcolorbox}[enhanced, breakable, sharp corners,
+     colback=contribcolor!4, colframe=contribcolor, boxrule=0pt, leftrule=2.5pt,
+     left=6pt, right=6pt, top=5pt, bottom=5pt,
+     before skip=4pt, after skip=12pt]
+   \noindent{\small\bfseries\color{contribcolor}Contribution \therq.}\quad}
+  {\end{tcolorbox}}
 
 % misc text helpers
 \newcommand{\nicett}[1]{{\texttt{#1}}}

@@ -10,8 +10,8 @@
 \chapter{Price recursion as the rational theory of reward}\label{ch:agency}
 
 \chaptersource{This chapter is based on the informal articles
-``\href{https://www.lesswrong.com/posts/z7DBBn9RaDyKJRidg/reward-is-hyperstitional-information}{Reward
-is hyperstitional information}'' and ``Price recursion is the rational theory of reward''
+``Reward
+is hyperstitional information'' \citep{pallavisudhirRewardHyperstitional2026} and ``Price recursion is the rational theory of reward'' \citep{pallavisudhirPriceRecursion2026}
 (originally titled ``Markets are equivalent to stuff''), written as part of the author's work
 at MATS~10.0 in Richard Ngo's stream, together with the accompanying \texttt{marketgrad}
 library (Section~\ref{agency:sec:library}) developed there.}
@@ -34,16 +34,13 @@ identities.}}
 
 Several
 papers discuss RL algorithms based on sequentially auctioning a unit ``right to act'' among
-agents---most recently \href{https://arxiv.org/abs/2307.05068v1}{Caspar Oesterheld's BRIA}
-but also Baum's \href{https://link.springer.com/article/10.1023/a:1007593124513}{Hayek
-Machine}, its predecessors the classifier systems (Holland 1985,
-\href{https://mediatum.ub.tum.de/813180}{Schmidhuber 1987},
-\href{https://www.tandfonline.com/doi/abs/10.1080/09540098908915650}{Schmidhuber 1989}) and
-its successors Hayek-for-POMDPs
-(\href{https://link.springer.com/chapter/10.1007/3-540-44668-0_120}{Kwee et al 2001}) and
-Hayek with Vickrey auctions
-(\href{https://proceedings.mlr.press/v119/chang20b.html}{Chang et al 2020}). In
-``\href{https://arxiv.org/pdf/2503.05828}{Market-based architectures in RL and beyond}''
+agents---most recently Caspar Oesterheld's BRIA \citep{oesterheldTheoryBoundedInductive2023}
+but also Baum's Hayek
+Machine \citep{baumModelIntelligenceEconomy1999}, its predecessors the classifier systems
+\citep{hollandPropertiesBucketBrigade1985a, schmidhuberEvolutionaryPrinciplesSelfreferential1987, schmidhuberLocalLearningAlgorithm1989} and
+its successors Hayek-for-POMDPs \citep{kweeMarketBasedReinforcementLearning2001} and
+Hayek with Vickrey auctions \citep{changDecentralizedReinforcementLearning2020}. In
+``Market-based architectures in RL and beyond'' \citep{pallavisudhirMarketbasedArchitectures2025}
 I suggested that a better market model for RL might come out of factoring the ``right to
 act'' into ``goods'' axes, just like in real markets.
 
@@ -70,9 +67,8 @@ Appendix~\ref{agency:sec:caveats} collects the main article's caveats and open q
 % Source: marketgrad-theory/Bregman divergences, mirror ascent and reward as
 % hyperstitious information.md (the precedent article, lifted in full).
 
-The logarithmic scoring rule $b\log q(x)$
-\href{https://www.lesswrong.com/posts/fCGXK7oyhM4ei77gt/lmsr-subsidy-parameter-is-the-price-of-information}{exactly
-puts a price on information by the usual measure}: the expected score an agent with some
+The logarithmic scoring rule $b\log q(x)$ exactly
+puts a price on information by the usual measure \citep{pallavisudhirLMSRSubsidy2024}: the expected score an agent with some
 belief distribution $q$ gets is exactly $-bH(p,q)$ where $p$ is the true distribution (or,
 more accurately: the score we expect that agent to get is $-bH(p,q)$, from our
 perspective/belief $p$).
@@ -229,9 +225,7 @@ also do importance sampling (i.e.\ use $f(p)/p_i$ where $i$ is the taken action 
 $f(p)$) because you only have access to the reward for one performed action. PPO methods
 used in modern RL also are approximately entropic mirror ascent (TRPO is exactly it; other
 stuff is kinda). You may also recall that evolution (replicator dynamics) is Bayesian
-inference (\href{https://arxiv.org/abs/0911.1763}{Harper 2009}, explained by
-\href{https://johncarlosbaez.wordpress.com/2012/06/01/information-geometry-part-9/}{John
-Baez here}). Indeed, it is exactly equivalent to this dynamic, with the fitness function as
+inference \citep[explained by][]{harperReplicatorEquationInference2009, baezInformationGeometryPart92012}. Indeed, it is exactly equivalent to this dynamic, with the fitness function as
 an exponentiated reward.
 
 \subsection{Continuous-time mirror ascent and information geometry}\label{agency:sec:infogeom}
@@ -312,8 +306,7 @@ Finally, the thing I am actually confused about:
 
 You know, a big problem in life is that people like expressing everything in terms of
 equilibrium (in economics, game theory,
-\href{https://yuxi.ml/essays/equilibrium-thermoeconomics}{entropostatics aka
-thermodynamics}) with little regard for the \emph{dynamics} that leads to the equilibrium.
+entropostatics aka thermodynamics \citep{liuEquilibriumThermoeconomics}) with little regard for the \emph{dynamics} that leads to the equilibrium.
 
 (This is closely related to how we just model agents as rational (i.e.\ imagine that the
 utility function can just be arg-maxed) instead of modeling bounded rationality which has
@@ -482,7 +475,7 @@ would rather represent that unrolled, as an infinite graph with nodes stretching
 the future.)
 
 (In the ``wide market RL'' I introduced in my paper
-\href{https://arxiv.org/abs/2503.05828}{Market-based RL}, I don't think of the MDP itself as
+``Market-based architectures in RL and beyond'' \citep{pallavisudhirMarketbasedArchitectures2025}, I don't think of the MDP itself as
 a market, but the transition probabilities are determined by an additional Garrabrant-like
 program market of traders and the network is more ``fundamentally dynamic'' rather than
 graph-like. Something in-between---dynamic like program markets but efficient like
@@ -561,8 +554,7 @@ transformers, the receiver-side attention budget is scarce).
 % Source: main article, Section 4.
 
 In Section~\ref{agency:sec:hyperstition}
-(\href{https://www.lesswrong.com/posts/z7DBBn9RaDyKJRidg/reward-is-hyperstitional-information}{Reward
-as hyperstitional information}), I conveyed that entropic mirror ascent (aka continuous-time
+(``Reward as hyperstitional information'', \citealt{pallavisudhirRewardHyperstitional2026}), I conveyed that entropic mirror ascent (aka continuous-time
 Bayesian inference) is the natural dynamics for probabilities. Rewards and such are just an
 ``evidence rate''.
 
@@ -672,8 +664,7 @@ The picture I expect right now is vaguely something like:
 \end{itemize}
 This intuition is largely based on Point 2, and also the suggestive connection between
 evolutionary fitness functions and Bayesian evidence
-(\href{https://arxiv.org/abs/0911.1763}{Harper 2009, The Replicator Equation as an Inference
-Dynamic}), which supports the idea that evolutionary selection is somehow the universe
+\citep[``The Replicator Equation as an Inference Dynamic'',][]{harperReplicatorEquationInference2009}, which supports the idea that evolutionary selection is somehow the universe
 ``inserting its information'' into an agent.
 \end{quote}
 
@@ -707,8 +698,7 @@ price recursion is the ``rational theory of reward''.
 \end{thesisclaim}
 
 In Section~\ref{agency:sec:hyperstition}
-(\href{https://www.lesswrong.com/posts/z7DBBn9RaDyKJRidg/reward-is-hyperstitional-information}{Reward
-as hyperstitional information}), reward was entirely an underdetermined hyperstition.
+(``Reward as hyperstitional information'', \citealt{pallavisudhirRewardHyperstitional2026}), reward was entirely an underdetermined hyperstition.
 Markets (equations \eqref{agency:eq:vbar}--\eqref{agency:eq:bellman}) tell you how to
 determine it.
 
