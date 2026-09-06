@@ -88,29 +88,52 @@ However, we would like a result that is stronger than a mere analogy. We would l
 % ============================================================
 \section{Information asymmetry and scalable oversight}\label{intro:sec:oversight}
 
-\begin{draftblock}
-Markets may be thought of as measuring devices for people's values and beliefs: to learn how much someone values something, put it on the market and see what it sells for. The natural economic proposal for giving human feedback to AIs is therefore ``AIs as producers, humans as consumers''. But this proposal inherits the market's own best-known failure mode. Reinforcement learning from human feedback relies on a human's ability to judge the outputs of a potentially superhuman AI, so the AI is trained on the human's immediate, superficial volition rather than her \emph{extrapolated} volition --- which is precisely the ``market for lemons'' \citep{lemons}: the seller knows things about the product that the buyer cannot verify, so the buyer's price cannot reward them. In the AI alignment literature this is the problem of \emph{outer alignment}, or \emph{scalable oversight} \citep{bowmanMeasuringProgressScalable2022}.
-\end{draftblock}
+\begin{quote}
+What is weighed is seldom what is truly valued. The skin of the orange hides its pulp.
+
+---Yoram Barzel.
+\end{quote}
+
+Markets may be thought of as measuring devices for people's values and beliefs: to learn how much humans value something, put it on the market and see what it sells for. This leads us to naturally anticipate that economics/mechanism design solves alignment, with the natural economic proposal for human feedback to AI being ``AIs as producers, humans as consumers'' (with the goods being the information the AI provides or the task it completes for the user).
+
+In fact, this framing helps us conceptualize the central problem of AI alignment\footnote{specifically \emph{outer} alignment, i.e. the problem of supplying the correct reward function that captures human preferences} in terms of the best-known failure mode of markets: \emph{information asymmetry}. When the buyer lacks information about some attributes of a good, those attributes do not affect his willingness to buy it---and thus the seller is not incentivized to optimize on these characteristics, leading to the ``market for lemons'' \citep{lemons}. Likewise in Reinforcement Learning from Human Feedback (RLHF), when a human rater is not fully able to evaluate an AI agent's outputs (e.g. a response, or a task it completes for the user), the AI will only be trained on the human's immediate, superficial volition (to ``fool'' the buyer) rather than her \emph{extrapolated} volition\footnote{What the human buyer's preferences \emph{would} be if she had all the relevant information. TODO: cite yudkowsky CEV paper here}.
+
+The reason information asymmetry cannot be solved simply by ``purchasing information'' is that such an information market would, recursively, also suffer from information asymmetry. In fact information markets suffer from several fundamental flaws:
+
+\begin{enumerate}
+    \item \textbf{Buyer's inspection paradox.} Unlike with buying other goods, someone buying information definitionally does not \emph{know} what the information she is about to buy is\footnote{The seller could of course reveal part of the information, e.g. ``metadata'' to advertise the information---which creates a trade-off between information asymmetry and having positive externalities}. If you let the buyer bridge this asymmetry by inspecting the information before buying it, all incentives for trade break down because the buyer cannot ``return''/forget the information he has seen \citep{arrow1972economic,vanAlstyne1999AproposalValuingInformationInstrumentalGoods}.
+    \item \textbf{Information asymmetry.} Even if the buyer did have some mechanism to inspect information before purchasing it (as is the case in RLHF, where the human rater sees the AI's outputs and still rates it correctly for exogenous reasons or the goodness of his heart), he might still be subject to information asymmetry just as in any market: just because you get to see a piece of information does not mean you can verify it.
+    \item \textbf{Low cost of duplication.} Once you sell some information to someone, it is hard to prevent them from redistributing it. Ideally, the low marginal cost of production means information should have differential pricing, but the fact that others can also duplicate it makes this hard.
+    \item \textbf{Transaction costs of tenders.} Often buying information involves ``tenders and proposals'': the buyer requests information, a bunch of sellers produce it, and the buyer selects the best one to buy. If you have the sellers just produce ``proposals'' then pick one to contract, then the seller will just swindle you (ignoring heuristic things like reputation). If you have the sellers produce everything upfront, then that will require a lot of sellers to go through the laborious process for no reward (and the buyer can now swindle the sellers). In practice this is why the white-collar labor economy doesn't run on freelancing but instead has things like employment and career progression.
+    \item \textbf{Learning is a transaction cost.} Augmenting your intelligence is a form of information. However, the greatest cost in doing so is often not the price of the information itself, but the transaction cost of learning it.
+\end{enumerate}
 
 \begin{researchquestion}\label{rq:rlmf}
-Can we develop an ``AIs as producers, humans as consumers'' framework for giving human feedback to AIs --- i.e. replacing naive RLHF --- that is robust to the information asymmetry between the human and the AI?
+Can we design a mechanism for ``purchasing information from superhuman AIs'' that is robust to at least information asymmetry and the buyer's inspection paradox?
 \end{researchquestion}
 
 % User's framing (thesis abstract), with chapter pointers.
 \begin{contribution}
-We cast ``outer alignment'' as the economic problem of ``information asymmetry'', and use this to motivate a scalable oversight protocol we call \emph{Recursive Information Markets} (\cref{ch:infonomy}): a Bayesian framework for valuing information under recursive inspection by LLM buyers, in which the \emph{Recursive Inspection Protocol} is shown to be ex-ante superior to any admissible purchase protocol, together with a marginal-value reward mechanism for scalable oversight and a working server implementation.
+Building on the work of \citet{weissRedesigningInformationMarkets2024}, we develop the \emph{Recursive Information Markets} (\cref{ch:infonomy}): a Bayesian framework for valuing information under recursive inspection by LLM buyers, in which the \emph{Recursive Inspection Protocol} is shown to be ex-ante superior to any admissible purchase protocol, together with a marginal-value reward mechanism for scalable oversight.
 \end{contribution}
 
+% TODO: lift from the scalable oversight paper
+In the AI alignment literature, this problem is closely related to \emph{scalable oversight} \citep{bowmanMeasuringProgressScalable2022}, i.e. designing mechanisms to effectively supply human feedback to superhuman AIs. My work on information markets led me to study the scalable oversight literature in some detail, including mechanisms like Debate \citep{irvingAISafetyDebate2018} and Market-making \citep{evanhubingerAISafetyMarket2020}---and I noticed an important gap in the \emph{empirical} scalable oversight literature. 
+
+...
+
 \begin{researchquestion}\label{rq:benchmark}
-Recursive information markets are one of many proposed scalable oversight protocols. How can we evaluate and compare scalable oversight protocols themselves?
+How can we empirically evaluate and compare scalable oversight protocols themselves?
 \end{researchquestion}
 
 \begin{contribution}
-In our study of scalable oversight, we found flaws in the existing empirical research on Debate --- in particular, that ``judge accuracy'' is the wrong metric from an alignment perspective --- and introduce a principled approach to empirically evaluating scalable oversight mechanisms based on the \emph{Agent Score Difference} metric, which measures how much a protocol advantages truth over falsehood. We use this to establish the \emph{Scalable Oversight Mechanism benchmark} and accompanying library, and run demonstrative experiments on Debate, Consultancy and Propaganda protocols (\cref{ch:solib}).
+In our study of scalable oversight, we found flaws in the existing empirical research on Debate---in particular, that ``judge accuracy'' is the wrong metric from an alignment perspective---and introduce a principled approach to empirically evaluating scalable oversight mechanisms based on the \emph{Agent Score Difference} metric, which measures how much a protocol advantages truth over falsehood. We use this to establish the \emph{Scalable Oversight Mechanism benchmark} and accompanying library, and run demonstrative experiments on Debate, Consultancy and Propaganda protocols (\cref{ch:solib}).
 \end{contribution}
 
 % ============================================================
 \section{Eliciting beliefs on subjective questions}\label{intro:sec:subjective}
+
+
 
 Aligning and monitoring superhuman agents may often involve eliciting agent beliefs on tasks and sentences where we lack ``ground truth'': either because this is specifically the domain where scoring is non-trivial, or because it is relevant for interpretability. \draft{The economist's belief-elicitation devices --- proper scoring rules and prediction markets --- presuppose that ground truth eventually arrives to settle the bet; the questions that matter for alignment often do not.}
 
