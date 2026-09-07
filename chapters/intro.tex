@@ -142,6 +142,23 @@ Noting that ``judge accuracy'' is the wrong metric from an alignment perspective
 \section{Eliciting beliefs on subjective questions}\label{intro:sec:subjective}
 
 
+\draft{
+want to rephrase as follows.
+
+Scoring methods in many domains (whether in prediction markets or in machine learning) rely on knowing ground truth
+
+scoring (whether in prediction markets or in machine learning) typically depends on knowing ground truth
+this doesn't help us get AI (or markets of traders) to answer "subjective" or "latent" questions. Thus the problem with conceptual reasoning, taste etc.
+Why is this important for alignment? Interpretability, eliciting latent knowledge, human values are functions of latent variables, conceptual reasoning, etc.
+
+Fundamentally it would seem that the generation of latent beliefs (and the choice of how much to logarithmically subsidize the latent variable markets) would be determined by some price recursion. Yet there does not seem to be any obvious market-based way to elicit latent beliefs/market-based way to generate prediction markets for latents recursively, while humans and AIs actually do form latent beliefs.
+
+There is work on "betting on bayesnets" (the Sun/Hanson/Laskey papers); however, I think this does not really solve our problem (fixed network structure I think?). I saw one proposal: latent variable prediction markets by tailcalled on lesswrong. But I think it's not good? it seems that it gives us complete gauge-like freedom on the choice of latent, so traders can basically bet however they want on the latents. (Make sure this is actually a correct criticism).
+
+A principled answer to "how do we elicit beliefs about latent/subjective questions in general" will also be a philosophical answer to what such questions *mean*, and why/how humans/AIs form latent beliefs. I suspect the answer may have to do with information bottlenecks, minimal sufficient statistics, efficient compression, some notion of what it means for one factoring of a joint probability distribution to be better than another or something like that.
+
+While I have not solved the problem of "mechanisms to elicit latent knowledge from AI in general" in a principled and general way, I studied two partial and temporary approaches. consistency and FOL.
+}
 
 Aligning and monitoring superhuman agents may often involve eliciting agent beliefs on tasks and sentences where we lack ``ground truth'': either because this is specifically the domain where scoring is non-trivial, or because it is relevant for interpretability. \draft{The economist's belief-elicitation devices --- proper scoring rules and prediction markets --- presuppose that ground truth eventually arrives to settle the bet; the questions that matter for alignment often do not.}
 
