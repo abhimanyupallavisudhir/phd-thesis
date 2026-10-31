@@ -32,3 +32,13 @@
 \algnewcommand{\EndConstructor}{\EndFunction}
 \algnewcommand{\Let}{\State}
 \algnewcommand{\Abstract}{\State \textbf{Abstract}}
+
+% --- collective references to previous debate experiments ---
+% (moved verbatim from the chapter introduction; also used by the moved
+% related-work text in litrev/solib.tex)
+\NewDocumentCommand{\allpreviousworks}{}{\citet{radhakrishnanAnthropicFall20232023,michael2023debateSuperviseUnreliableExperts,khanDebatingMorePersuasive2024,kentonScalableOversightWeak2024,arnesenTrainingLanguageModels2024}}
+\NewDocumentCommand{\previouswork}{}{previous debate experiments}
+\NewDocumentCommand{\Previouswork}{}{Previous debate experiments}
+\NewDocumentCommand{\previousworkalt}{}{previous work}
+% remember to put a {} after these commands, e.g. \previouswork{} to avoid spacing issues
+\NewDocumentCommand{\solib}{}{\textbf{\texttt{SOlib}}}

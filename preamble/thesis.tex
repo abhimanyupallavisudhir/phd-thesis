@@ -115,6 +115,23 @@
   \small #1
   \end{mdframed}\medskip}
 
+% Per-chapter notation table, placed at the end of the chapter's
+% introduction:
+%   \begin{notation}
+%     \notn{$\mathcal{S}$}{state space}
+%     \notn{ASD}{agent score difference}
+%   \end{notation}
+% The first column is typeset as given (write math in $...$).
+\NewDocumentEnvironment{notation}{O{Notation}}
+  {\subsection*{#1}%
+   \begingroup\small\renewcommand{\arraystretch}{1.2}%
+   \begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.26\textwidth}
+                        >{\raggedright\arraybackslash}p{0.68\textwidth}@{}}
+   \toprule\textbf{Symbol} & \textbf{Meaning}\\\midrule\endhead
+   \bottomrule\endlastfoot}
+  {\end{longtable}\endgroup}
+\NewDocumentCommand{\notn}{mm}{#1 & #2\\}
+
 % ============================================================
 % Theorem environments (shared by all chapters; numbered within
 % chapter so that e.g. Theorem 5.3 is the third result of Ch. 5).

@@ -1,0 +1,21 @@
+% ============================================================
+% Related work from chapters/solib.tex (ch:solib), "A Benchmark for
+% Scalable Oversight Mechanisms" -- moved verbatim (originally
+% \subsection{Related work} in the chapter Introduction).
+%
+% Chapter-local macro needed: \allpreviousworks (defined in
+% macros/solib.tex, which is NOT in scope in the litrev chapter).
+% If needed, add to the litrev chapter's own scope (e.g. a
+% macros/litrev-oversight.tex), e.g.:
+% \providecommand{\allpreviousworks}{\citet{radhakrishnanAnthropicFall20232023,michael2023debateSuperviseUnreliableExperts,khanDebatingMorePersuasive2024,kentonScalableOversightWeak2024,arnesenTrainingLanguageModels2024}}
+% ============================================================
+
+\subsection{Related work}
+\label{solib:sec:related}
+
+\paragraph{Scalable Oversight.} Apart from Debate, proposed protocols for scalable oversight include: \emph{Iterated Amplification} \citep{christiano2018IDA}, \emph{market-making} \citep{evanhubingerAISafetyMarket2020}, \emph{self-critique} \citep{saunders2022selfcritique}, \emph{reward-modelling} \citep{leike2018RewardModeling} and proposed improvements to Debate such as \emph{doubly-efficient debate} \citep{brown-cohenScalableAISafety2023}. A slightly dated review and discussion of these can be found in \citet{bowmanMeasuringProgressScalable2022}. 
+
+\paragraph{Weak-to-strong generalization and human feedback.} Scalable oversight can be seen as an approach to \emph{weak-to-strong generalization} \citep{sangWeak2Strong, langWeak2Strong} that explicitly relies on the weak model (or human) providing reward to a strong model (as opposed to e.g. fine-tuning or transfer learning). The relationship between scalable oversight and human feedback is made explicit by e.g. \citet{cheng2024RLHFDebate}, who consider \emph{reinforcement learning from debate feedback}.
+
+\paragraph{Previous Debate Experiments.} The following works: \allpreviousworks, all apply an empirical lens to the scalable oversight problem (specifically Debate), similar to our work. While there are important differences in the experiments they conduct, their methodology can broadly be described as measuring the effect of Debate on \emph{judge accuracy}, relative to a baseline of ``Consultancy'' (a protocol where the agent AI is randomly assigned an answer to argue for, and does not have an adversary). % and subtleties 
+

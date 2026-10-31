@@ -5,32 +5,35 @@
 % would be lost inside \chaptersource's mdframed box.
 \draft{\chaptersource{This chapter is based on the paper ``A Benchmark for Scalable Oversight Mechanisms'', joint work with Jackson Kaunismaa (MATS) and Arjun Panickssery (ZemblaAI), accepted to the Bidirectional Human-AI Alignment workshop at ICLR 2025.}}
 
-\chapterabstract{As AI agents surpass human capabilities, \emph{scalable oversight} -- the problem of effectively supplying human feedback to potentially superhuman AI models -- becomes increasingly critical to ensure alignment. While numerous scalable oversight protocols have been proposed, they lack a systematic empirical framework to evaluate and compare them. While recent works have tried to empirically study scalable oversight protocols -- particularly Debate -- we argue that the experiments they conduct are not generalizable to other protocols. We introduce the \emph{scalable oversight benchmark}, a principled framework for evaluating human feedback mechanisms based on our agent score difference (ASD) metric, a measure of how effectively a mechanism advantages truth-telling over deception. We supply a Python package to facilitate rapid and competitive evaluation of scalable oversight protocols on our benchmark, and conduct a demonstrative experiment benchmarking Debate.}
+% [paper abstract, kept for reference]
+% \chapterabstract{As AI agents surpass human capabilities, \emph{scalable oversight} -- the problem of effectively supplying human feedback to potentially superhuman AI models -- becomes increasingly critical to ensure alignment. While numerous scalable oversight protocols have been proposed, they lack a systematic empirical framework to evaluate and compare them. While recent works have tried to empirically study scalable oversight protocols -- particularly Debate -- we argue that the experiments they conduct are not generalizable to other protocols. We introduce the \emph{scalable oversight benchmark}, a principled framework for evaluating human feedback mechanisms based on our agent score difference (ASD) metric, a measure of how effectively a mechanism advantages truth-telling over deception. We supply a Python package to facilitate rapid and competitive evaluation of scalable oversight protocols on our benchmark, and conduct a demonstrative experiment benchmarking Debate.}
 
-\section{Introduction}
+\section{Introduction}\label{solib:sec:intro}
+\begin{draftblock}
+How can a relatively weak judge oversee a stronger agent? Several proposals have been made: the recursive information market of the previous chapter, iterated amplification, debate, consultancy, and market making. Each comes with a rationale for why it could work, but these rationales usually assume idealized agents, and they rarely say how the different protocols compare to each other. Deciding which protocols to trust therefore requires experiments.
+
+The problem is that experiments need a success criterion, and so far the natural one has been the accuracy of the judge's final answer. But for alignment what we ultimately care about is whether the protocol provides good incentives: will the more intelligent agent get a higher reward from arguing the truth or from arguing falsehoods? This is an economist's question. A judge could get highly accurate answers simply by trusting a single agent who happens to be honest, but that would not be giving good incentives. So this chapter builds the benchmark around a new success criterion, the Agent Score Difference (how much does a protocol reward an agent for arguing the truth compared to arguing falsehoods?). We formalize a general class of protocol experiments, implement it as a Python library, and use both to compare Debate, Consultancy and a simple model of RLHF. As with all empirical work on oversight so far, the benchmark relies on questions with known answers, a limitation that points towards the questions taken up in \cref{part:subjective}.
+\end{draftblock}
 
 
-One way to frame the limitations of currently widely-used alignment techniques such as reinforcement learning from human feedback \citep{christianoDeepReinforcementLearning2017}, is that they fundamentally rely on a human's ability to judge the correctness or value of a (potentially superhuman) AI's outputs \citep{burnsWeaktoStrongGeneralizationEliciting2024}. In other words, the AI model is trained on the human supervisor's \emph{immediate, superficial} volition, rather than on her \emph{extrapolated volition} \citep{yudkowskyCoherentExtrapolatedVolition2004}.
 
-The problem of developing a human feedback mechanism that scales to superhuman intelligences is known as \emph{scalable oversight} \citep{bowmanMeasuringProgressScalable2022}. Broadly speaking, there are two ways to think about the scalable oversight problem:
 
-\begin{enumerate}
+% [dup of thesis/part intro] One way to frame the limitations of currently widely-used alignment techniques such as reinforcement learning from human feedback \citep{christianoDeepReinforcementLearning2017}, is that they fundamentally rely on a human's ability to judge the correctness or value of a (potentially superhuman) AI's outputs \citep{burnsWeaktoStrongGeneralizationEliciting2024}. In other words, the AI model is trained on the human supervisor's \emph{immediate, superficial} volition, rather than on her \emph{extrapolated volition} \citep{yudkowskyCoherentExtrapolatedVolition2004}.
+
+% [dup of thesis/part intro] The problem of developing a human feedback mechanism that scales to superhuman intelligences is known as \emph{scalable oversight} \citep{bowmanMeasuringProgressScalable2022}. Broadly speaking, there are two ways to think about the scalable oversight problem:
+
+% [dup of thesis/part intro] \begin{enumerate}
 	
-	\item   The problem of developing a \textbf{training method} that makes   honesty (or more generally ``alignment'') the best policy for the model;   i.e. something to replace or extend RLHF to the superhuman realm.
+% [dup of thesis/part intro] 	\item   The problem of developing a \textbf{training method} that makes   honesty (or more generally ``alignment'') the best policy for the model;   i.e. something to replace or extend RLHF to the superhuman realm.
 	
-	\item   An \textbf{inference-time oversight mechanism} to catch a model when it says something false or does something bad; i.e. a mechanism design problem to get AIs to be truthful or useful.
+% [dup of thesis/part intro] 	\item   An \textbf{inference-time oversight mechanism} to catch a model when it says something false or does something bad; i.e. a mechanism design problem to get AIs to be truthful or useful.
 
-\end{enumerate}
+% [dup of thesis/part intro] \end{enumerate}
 
-For example, in \emph{Debate}, the most widely-known scalable oversight protocol introduced in \citet{irvingAISafetyDebate2018}, the model is incentivized to tell the truth if it knows that a lie can be caught and convincingly refuted by its opponent. A list of other competing proposals is given in \cref{solib:sec:related}.
+% [dup of thesis/part intro] For example, in \emph{Debate}, the most widely-known scalable oversight protocol introduced in \citet{irvingAISafetyDebate2018}, the model is incentivized to tell the truth if it knows that a lie can be caught and convincingly refuted by its opponent. A list of other competing proposals is given in \cref{ch:litrev-oversight}.
 
-While there is mathematical and intuitive elegance underlying each of these protocols, their diversity and theoretical claims to superiority beg the question: \textbf{\emph{how can we evaluate and compare scalable oversight protocols themselves?}}
-
-\NewDocumentCommand{\allpreviousworks}{}{\citet{radhakrishnanAnthropicFall20232023,michael2023debateSuperviseUnreliableExperts,khanDebatingMorePersuasive2024,kentonScalableOversightWeak2024,arnesenTrainingLanguageModels2024}}
-\NewDocumentCommand{\previouswork}{}{previous debate experiments}
-\NewDocumentCommand{\Previouswork}{}{Previous debate experiments}
-\NewDocumentCommand{\previousworkalt}{}{previous work}
-% remember to put a {} after these commands, e.g. \previouswork{} to avoid spacing issues
+% [dup of thesis/part intro] While there is mathematical and intuitive elegance underlying each of these protocols, their diversity and theoretical claims to superiority beg the question: \textbf{\emph{how can we evaluate and compare scalable oversight protocols themselves?}}
+% (\allpreviousworks, \previouswork, \Previouswork, \previousworkalt and \solib are defined in macros/solib.tex)
 
 
 One approach, taken by recent works such as \allpreviousworks\footnote{we will collectively refer to these papers as ``\previouswork{}'' or ``\previousworkalt{}'' when making comments that apply to all of them}, is to evaluate these protocols (specifically Debate) \emph{empirically}, by measuring their effect on the accuracy of the ``judge'' (the human or weak model providing feedback).\todo{not sure what to put here vs in related work} %However, these works suffer from two critical limitations: first, they use the ``judge accuracy'' metric to evaluate protocols: as we argue in \cref{solib:sec:asd}, this is not the correct metric from an alignment or safety point-of-view; second, while scalable oversight is designed for settings with a significant \emph{capabilities gap} between the agent (e.g. debater) and the judge, their experiments mainly simulate this capabilities gap with an \emph{information gap}, i.e. where the agent is exposed to information hidden from the judge.%%% leave this commented; it is bad to say they don't look at real capabilities gaps at all, because Kenton's paper is explicitly titled "judging strong LLMs with weak LLMs"
@@ -39,7 +42,6 @@ Building and improving on their work, we introduce a \textbf{\emph{scalable over
 
 \paragraph{1) Principled metrics for evaluating scalable oversight protocols.} In \previouswork{}, protocols were evaluated based on ``judge accuracy'' -- i.e. they looked at how much Debate improved a (human or weak model) judge's accuracy at answering questions relative to a baseline ``Consultancy'' protocol. In Section~\ref{solib:sec:asd}, we argue that this is the wrong metric to evaluate scalable oversight protocols on from an alignment perspective. Instead, we introduce the \emph{\textbf{agent score difference}} (ASD) metric, which measures how much the protocol ``advantages truth over falsehood'', by taking the difference in the score earned by an agent arguing for the true answer vs. for the false answer. For example, if under some scalable oversight protocol, a judge believes a truthful agent with probability \(0.8\) and a lying agent with probability \(0.6\), the ASD is \(\log(0.8)-\log(0.6)\approx 0.29\). This measure is equivalent to judge accuracy for \emph{Simultaneous Debate}; however it is not equivalent for Consultancy, hence the baseline comparison in \previouswork{} is incorrect.
 
-\NewDocumentCommand{\solib}{}{\textbf{\texttt{SOlib}}}
 
 \paragraph{2) A library for conducting systematic evaluations on scalable oversight protocols.} In \cref{solib:sec:formal}, we characterize the class of experiments conducted in \previouswork{} and generalize it to ``any scalable oversight protocol'' (a term we formalize) -- and further provide a Python library \solib{}\footnote{\url{https://github.com/ArjunPanickssery/math_problems_debate}} to enable performing \emph{principled} and \emph{systematic} experiments evaluating scalable oversight protocols on our metric and meaningfully comparing between them. One may use our package by simply subclassing our \Protocol{} class and running its \Protocolexp{} method on any choice of agent and judge models and a labelled dataset of questions.%\footnote{the datasets directly supported in the package are GSM-8K \citep{cobbe2021gsm8k}, GPQA \citep{rein2024gpqa} and MMLU \citep{hendryckstest2021}}
 
@@ -66,14 +68,30 @@ Our vision is that our work will enable alignment researchers to rapidly prototy
 and develop better protocols. 
 
 
-\subsection{Related work}
-\label{solib:sec:related}
+% Related work moved to the Part II literature review (\cref{ch:litrev-oversight}).
 
-\paragraph{Scalable Oversight.} Apart from Debate, proposed protocols for scalable oversight include: \emph{Iterated Amplification} \citep{christiano2018IDA}, \emph{market-making} \citep{evanhubingerAISafetyMarket2020}, \emph{self-critique} \citep{saunders2022selfcritique}, \emph{reward-modelling} \citep{leike2018RewardModeling} and proposed improvements to Debate such as \emph{doubly-efficient debate} \citep{brown-cohenScalableAISafety2023}. A slightly dated review and discussion of these can be found in \citet{bowmanMeasuringProgressScalable2022}. 
-
-\paragraph{Weak-to-strong generalization and human feedback.} Scalable oversight can be seen as an approach to \emph{weak-to-strong generalization} \citep{sangWeak2Strong, langWeak2Strong} that explicitly relies on the weak model (or human) providing reward to a strong model (as opposed to e.g. fine-tuning or transfer learning). The relationship between scalable oversight and human feedback is made explicit by e.g. \citet{cheng2024RLHFDebate}, who consider \emph{reinforcement learning from debate feedback}.
-
-\paragraph{Previous Debate Experiments.} The following works: \allpreviousworks, all apply an empirical lens to the scalable oversight problem (specifically Debate), similar to our work. While there are important differences in the experiments they conduct, their methodology can broadly be described as measuring the effect of Debate on \emph{judge accuracy}, relative to a baseline of ``Consultancy'' (a protocol where the agent AI is randomly assigned an answer to argue for, and does not have an adversary). % and subtleties 
+\begin{notation}
+  \notn{judge}{the human or weak model providing feedback; reports probabilities for the answers}
+  \notn{\texttt{Debate}}{judge hears agents (debaters) arguing for opposing answers; simultaneous (\texttt{\_t1}) or sequential (\texttt{\_t0}), with \texttt{\_n2}/\texttt{\_n4} turns}
+  \notn{\texttt{Consultancy}}{like \texttt{Propaganda}, but the judge can interact with the single agent (consultant); consultant (\texttt{\_t1}) or judge (\texttt{\_t0}) initiates, with \texttt{\_n2}/\texttt{\_n4} turns}
+  \notn{\texttt{Propaganda}}{judge reports a probability after a single argument from an agent for one side; models RLHF}
+  \notn{judge score / judge accuracy}{evaluation metric of \previouswork{}, e.g.\ $\log(p_\top)$, or $\mathbb{I}[p_\top>0.5]$ for judge accuracy}
+  \notn{ASD}{agent score difference, $\log p_\top-\log p_\bot$ (negative Brier scores in practice): how much the protocol advantages truth over falsehood}
+  \notn{\solib}{Python library implementing the benchmark}
+  \notn{\Protocol, \Protocolexp}{\solib{} class implementing a protocol, and its method running an experiment}
+  \notn{\texttt{NaiveJudge}}{judge reports its probability without feedback from the agent, which is scored by agreement with it; models supervised learning}
+  \notn{EAS}{expected agent score, $(\log p_\top,\log p_\bot)\cdot\mathbf{q}$: a pure measure of the agent's capabilities}
+  \notn{$Q$}{a binary question}
+  \notn{$A\in\{0,1\}$}{possible answers (``NO'' and ``YES'')}
+  \notn{$p_0$, $p_1$}{judge's probabilities for the answers}
+  \notn{$\top$, $\bot$}{the true (correct) and false answer}
+  \notn{$p_\top$, $p_\bot$}{judge probabilities for the true and false answer after an agent argues for that answer under the protocol; in general $p_\top\neq1-p_\bot$}
+  \notn{Random Consultancy}{Consultancy where the consultant has a 50\% chance of arguing for the right or wrong answer}
+  \notn{$\mathbf{q}$}{propensity of the agent to argue for each answer, $\big(\frac{e^{ASD/\beta}}{1+e^{ASD/\beta}},\frac{1}{1+e^{ASD/\beta}}\big)$; $(1/2,1/2)$ recovers random assignment}
+  \notn{$\beta$}{softmax temperature in $\mathbf{q}$}
+  \notn{EJS}{expected judge score, $(JS_\top,JS_\bot)\cdot\mathbf{q}$: a combined capabilities and alignment measure}
+  \notn{\Agent, \texttt{answer\_case}}{class simulating what an agent arguing for a given answer would say; the answer argued for (a stand-in for the agent's alignment)}
+\end{notation}
 
 \section{The Agent Score Difference metric}
 \label{solib:sec:asd}

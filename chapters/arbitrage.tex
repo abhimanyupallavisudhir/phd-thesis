@@ -1,0 +1,392 @@
+\chapter[Markets as arbitrageurs, and latent beliefs]{Markets as arbitrageurs, and the meaning of latent beliefs}\label{ch:arbitrage}
+% This chapter is new to the thesis; all of it is composed text and is
+% therefore draft-marked. Sources: the author's research notes
+% "Markets are arbitrageurs" (marketgrad-theory repository; numerical
+% checks in verify/markets_are_arbitrageurs.py) and "What gives a latent
+% belief meaning?" (lvpm repository; numerical checks in experiments/*.py,
+% outputs in notes/*.txt). Every number quoted below is reproduced there.
+
+\chaptersource{This chapter has not been published. It draws on the author's research notes ``Markets are arbitrageurs'' and ``What gives a latent belief meaning?''. Every numerical claim below is reproduced by the scripts accompanying those notes.}
+
+\begin{draftblock}
+
+\section{Introduction}\label{arb:sec:intro}
+
+The last two chapters took two different routes around the same obstacle. \Cref{ch:nonvf} scored sentences that never resolve by making them the stakes of a game whose moves eventually do. \Cref{ch:consistency} gave up on resolution altogether and asked only whether a forecaster's beliefs fit together, measuring the misfit as the profit an arbitrageur could lock in. Both are partial answers to the question raised in \cref{intro:sec:subjective}: how should we reward beliefs about things that are never observed?
+
+This chapter brings that question back to the economics of \cref{part:agency}. There, the market was, in essence, a machine for computing values. Using price recursion, it carried the value of final consumption back through the economy, so that the price of any intermediate good was a measure of its ultimate contribution to final consumption. The arbitrage metric of \cref{ch:consistency} seems to belong to a different category of objects (being, essentially, a static measure of incoherence). In fact, as we will see in the first half of this chapter, it is not different at all. The arbitrage metric is exactly the welfare that a market of consumers gains by trading, and the arbitraged forecasts are the market's equilibrium prices. Finally, the price recursion of \cref{ch:agency} decomposes a single global arbitrageur into a collection of local arbitrageurs. Along the way, beliefs turn out to be aggregated in exactly the same way as preferences: the ``utilitarian welfare'' assumed in \cref{ch:agency} is the arbitrage-free combination of utilities interpreted as beliefs.
+
+The second half of the chapter turns to latent variables. In a market over dependent questions, a latent variable is simply an \emph{intermediate good}. Nobody consumes it and it never resolves, but it is priced by everything downstream of it, and the market's price adjustment procedure turns out to be the EM algorithm. So price recursion does put a value on beliefs about latent variables. What it does not settle is \emph{which} latent structure the market should hold, because many latent models predict the observables equally well. We therefore ask what gives a belief over a latent variable its meaning, given that only the observables can be scored. We argue that the meaning of a belief over latent variables is exactly captured by its predictions for the observables, and that what is left over can be divided into two parts: an arbitrary (but harmless) part that amounts to a choice of coordinates for the latent variables, and a substantive part, which can be eliminated by requiring that latent variables explain the observables parsimoniously. This gives a scoring rule, the \emph{tempered log score}, whose expected value is maximized by the most economical latent explanation. We close by using these results to assess existing proposals for prediction markets with latent variables.
+
+\begin{notation}
+  \notn{$x_1,\dots,x_n$}{forecasting questions}
+  \notn{$p_i$}{forecast (probability distribution) reported for question $x_i$}
+  \notn{$\Omega$}{set of worlds: resolution tuples consistent with the logical relation between the questions}
+  \notn{$\phi_i(\omega)$}{resolution of question $x_i$ in world $\omega$; $\none$ if the question is voided}
+  \notn{$b_i$, $B$, $w_i$}{liquidity (market-maker subsidy) of question $x_i$; $B=\sum_i b_i$; $w_i=b_i/B$}
+  \notn{$A$}{arbitrage metric: the guaranteed profit of the best arbitrageur}
+  \notn{$\mu$, $\mu_i$}{distribution over worlds; its marginal on question $x_i$ given that $x_i$ is not voided}
+  \notn{$M_i(\mu)$}{probability under $\mu$ that question $x_i$ is not voided}
+  \notn{$q^*$, $q^*_i$}{arbitraged (consistent) forecasts}
+  \notn{$\KL(\cdot\|\cdot)$}{Kullback--Leibler divergence}
+  \notn{$F$, $D_F$}{convex generator of a proper scoring rule; its Bregman divergence}
+  \notn{$U_i$}{utility (equivalently, logit) with $p_i\propto e^{U_i}$}
+  \notn{$\Phi(U)$}{log-partition function $\log\sum_x e^{U(x)}$}
+  \notn{$\Ubar$}{liquidity-weighted average utility $\sum_i w_iU_i$}
+  \notn{$V_i$}{certainty equivalent of consumer $i$}
+  \notn{$z_i$}{holdings of Arrow securities of consumer $i$}
+  \notn{$s$, $a$}{routing shares; prices (marginal values) of goods}
+  \notn{$C_i$}{cost function of a market maker}
+  \notn{$Z$; $H$}{a single latent variable; the set of hidden nodes of a latent DAG}
+  \notn{$Y=(Y_1,\dots,Y_n)$}{observable indicators}
+  \notn{$\mathcal G$, $\pa_v$}{a DAG over $H\cup Y$; the parents of node $v$}
+  \notn{$\theta$, $m_\theta$}{latent model (one conditional table per node); its implied distribution of $Y$}
+  \notn{$\rho(z)$}{profile of latent state $z$: the indicator distributions in that state}
+  \notn{$\nu$}{mixing measure: the distribution of profiles implied by a latent model}
+  \notn{$D_{\mathcal G}$}{unexplained dependence: distance to the best model with structure $\mathcal G$}
+  \notn{$\TC(Y\mid Z)$}{conditional total correlation of the indicators given the latent}
+  \notn{$I(\cdot\,;\cdot)$, $H(\cdot)$}{mutual information; entropy}
+  \notn{$q(h\mid y)$}{encoder: a coupling of hidden nodes to observables}
+  \notn{$\tau$}{compression weight in $[0,1]$}
+  \notn{$\mathcal L_\tau$}{latent bottleneck objective}
+  \notn{$S_\tau$}{tempered log score}
+\end{notation}
+
+% ============================================================
+\section{The arbitrage metric as an information projection}\label{arb:sec:dual}
+
+For later use we rewrite the arbitrage metric of \cref{cfc:def:arbitrage} in the following form. There are questions $x_1,\dots,x_n$, and the forecaster reports a distribution $p_i$ over the possible answers to each. A \emph{world} $\omega$ maps every question to some answer, and $\Omega$ is the set of all worlds consistent with the logical relation between the questions. In world $\omega$ question $x_i$ resolves to $\phi_i(\omega)$, or is voided ($\phi_i(\omega)=\none$) if it is a conditional question whose condition fails. Each question is traded against a logarithmic market maker with liquidity $b_i$; \cref{ch:consistency} used $b_i=1$ throughout.
+
+An arbitrageur moves the price of question $x_i$ from $p_i$ to $q_i$, and in world $\omega$ earns $b_i\left[\log q_i(\phi_i\omega)-\log p_i(\phi_i\omega)\right]$ from that market, or nothing if the question is voided. The arbitrage metric is the maximum guaranteed profit
+\begin{equation}\label{arb:eq:arbitrage}
+A=\max_{q}\ \min_{\omega\in\Omega}\ \sum_{i=1}^n b_i\left[\log q_i(\phi_i\omega)-\log p_i(\phi_i\omega)\right].
+\end{equation}
+
+The max--min form is natural for an arbitrageur but awkward to compute with. Its dual is much easier to interpret.
+
+\begin{proposition}[the arbitrage metric is an information projection]\label{arb:prop:dual}
+For a distribution $\mu$ over $\Omega$, let $M_i(\mu)$ be the probability that question $x_i$ is not voided and let $\mu_i$ be the distribution of its answer given that it is not voided. Then
+\begin{equation}\label{arb:eq:dual}
+A=\min_{\mu\in\simplex(\Omega)}\ \sum_{i=1}^n b_i\,M_i(\mu)\,\KL\!\left(\mu_i\,\|\,p_i\right),
+\end{equation}
+and the arbitraged forecasts are the marginals of the minimizer: $q^*_i=\mu^*_i$.
+\end{proposition}
+
+\begin{proof}
+For fixed $q$, the objective in \eqref{arb:eq:arbitrage} is linear in the world, so minimizing over worlds is the same as minimizing over distributions $\mu$ on worlds. Since the resulting function is concave in $q$ and linear in $\mu$, and since $\simplex(\Omega)$ is compact and convex, we can interchange the order of the max and min operations by Sion's minimax theorem \citep{sionGeneralMinimaxTheorems1958}. For a fixed $\mu$, the arbitrageur's best choice for question $x_i$ maximizes $\sum_v \mu(\phi_i=v)\log q_i(v)$, which by Gibbs' inequality is $q_i=\mu_i$. Substituting gives $b_iM_i(\mu)\KL(\mu_i\|p_i)$ for each question.
+\end{proof}
+
+Read this way, the arbitrageur's worst-case distribution over worlds is itself a coherent belief, and the arbitrage metric is how far, in total KL divergence, the forecaster's beliefs are from the nearest coherent one. In information-geometric terms it is an I-projection (a ``reverse KL'' projection) of the forecasts onto the set of consistent beliefs. The proposition also explains \cref{ch:consistency}'s convention of giving a voided question zero score: the convention weights a conditional question by the probability of the conditioning event.
+
+Nothing here depends on the logarithm. For any proper scoring rule whose expected score is concave in the report, with convex generator $F$ and Bregman divergence $D_F$, the same argument gives $A_F=\min_\mu\sum_ib_iD_F(\mu\|p_i)$ (ignoring voided questions for simplicity). When all the $p_i$ are forecasts of the \emph{same} variable, the minimizer satisfies
+\begin{equation}\label{arb:eq:mirror-average}
+\nabla F(q^*)=\sum_i w_i\,\nabla F(p_i)+c\mathbf 1,\qquad w_i=b_i/B,\ B=\textstyle\sum_ib_i,
+\end{equation}
+for a constant $c$. That is, the arbitraged forecast is the weighted average of the forecasts \emph{in mirror coordinates} (\cref{agency:sec:mirror}). In the case of the log score, the mirror coordinate is the log-probability, so the arbitraged forecast is the geometric pool $q^*\propto\prod_ip_i^{w_i}$. For the Brier score it is the probability itself, and the arbitraged forecast is the linear pool $\sum_iw_ip_i$.
+
+\begin{example}\label{arb:ex:election}
+Suppose a forecaster assigned a 60\% chance of winning to each of the Democratic and Republican candidates (exactly one of whom, of course, will win). Write both forecasts as distributions over the two worlds: $p_1=(0.6,0.4)$ and $p_2=(0.4,0.6)$, with $b_1=b_2=1$. The geometric pool is $q^*=(\tfrac12,\tfrac12)$, and the arbitrage metric is
+\[
+A=\KL(q^*\|p_1)+\KL(q^*\|p_2)=-2\log\!\big(2\sqrt{0.24}\big)\approx0.041\ \text{nats},
+\]
+which agrees with the closed form for the negation check given in \cref{cfc:sec:arbitrage}.
+\end{example}
+
+% ============================================================
+\section{The arbitraged utility is the welfare}\label{arb:sec:welfare}
+
+\Cref{ch:agency} took the objective of an economy to be utilitarian welfare $W=\sum_iU_i$, ``without loss of generality with weights 1''. We now show where that sum comes from.
+
+Consider $n$ forecasts of a common variable, and write each in softmax form as $p_i(x)=e^{U_i(x)}/Z_i$. Here $U_i$ can be read either as a log-probability (a logit) or as a utility, and we will read it both ways. Let $\Phi(U)=\log\sum_xe^{U(x)}$ be the log-partition function, which is convex.
+
+\begin{proposition}[arbitraged utility]\label{arb:prop:welfare}
+The arbitraged forecast is $q^*\propto e^{\Ubar}$ with $\Ubar=\sum_iw_iU_i$, and
+\begin{equation}\label{arb:eq:jensen}
+A=\sum_ib_i\,\KL(q^*\|p_i)=B\Big[\sum_iw_i\,\Phi(U_i)-\Phi(\Ubar)\Big].
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+The first claim is \eqref{arb:eq:mirror-average} for the log score. For the second, $\log q^*=\Ubar-\Phi(\Ubar)$ and $\log p_i=U_i-\Phi(U_i)$, so
+$\sum_ib_i\KL(q^*\|p_i)=\sum_x q^*(x)\sum_ib_i\big[\Ubar(x)-U_i(x)\big]+\sum_ib_i\big[\Phi(U_i)-\Phi(\Ubar)\big]$.
+The first sum vanishes because $\sum_ib_iU_i=B\,\Ubar$.
+\end{proof}
+
+So the arbitraged \emph{utility} is $\Ubar=\sum_iw_iU_i$: the utilitarian welfare of \cref{ch:agency}, with welfare weights equal to the liquidities. In other words, averaging beliefs in mirror space and summing utilities are the same operation. This gives the weighted sum of utilities a justification that does not rest on interpersonal comparisons of utility in the usual sense: if we interpret the preferences of each agent as a belief (a bet on ``what we will do''), then maximizing the weighted sum of utilities is the unique arbitrage-free way to combine them. (And the weights in the sum are the amounts that the agents are willing to put on the line.)
+
+The right-hand side of~\eqref{arb:eq:jensen} is the gap in Jensen's inequality for the convex function $\Phi$, a quantity known as the \emph{Bregman information} \citep{banerjeeClusteringBregmanDivergences2005}. The Hessian of $\Phi$ is the covariance matrix of the softmax distribution, so for small disagreements
+\[
+A\approx\frac B2\sum_iw_i\Var_{q^*}\!\big(U_i-\Ubar\big),\qquad\text{and for a binary question}\quad A\approx\frac B2\,q^*(1-q^*)\Var_w\big(\text{log-odds}_i\big).
+\]
+The arbitrage metric therefore measures the disagreement in log-odds between forecasters: to second order it is a variance of their log-odds, and exactly it is the natural generalization of variance to this geometry.
+
+% ============================================================
+\section{A market that computes the arbitrage}\label{arb:sec:cara}
+
+Which market actually computes $q^*$ and $A$? Consider the simplest economy of \cref{ch:agency}, which consists of a single source holding $K$ units of each Arrow security (which pays $1$ if state $x$ occurs) and $n$ consumers competing for them. The source routes security $x$ to consumer $i$ with share $s_i(x)$, so consumer $i$ ends up holding $z_i(x)=Ks_i(x)$. Consumer $i$ believes $p_i\propto e^{U_i}$ and has exponential (CARA) utility with risk tolerance $b_i$, so its certainty equivalent for holdings $z$ is
+\[
+V_i(z)=-b_i\log\mathbb E_{x\sim p_i}\,e^{-z(x)/b_i}.
+\]
+The price that consumer $i$ is willing to pay for a marginal unit of security $x$ is
+\[
+a_i(x)=\frac{\partial V_i}{\partial z(x)}=\operatorname{softmax}\!\big(U_i-z_i/b_i\big)(x),
+\]
+its current risk-neutral probability of $x$. The share dynamics of \cref{agency:eq:mwu}, $s_i(x)\propto s_i(x)\exp\!\big(\eta Ka_i(x)\big)$, then send each security towards whoever currently values it most.
+
+\begin{theorem}[CARA markets compute the arbitrage]\label{arb:thm:cara}
+At the welfare-maximizing allocation:
+\begin{enumerate}
+\item every consumer's price vector equals the arbitraged forecast $q^*$, so the law of one price (that every consumer's price vector is the same) is precisely the consistency of the market's beliefs;
+\item the welfare gain from trade, $\sum_iV_i(z_i)$ minus its value without trade, equals the arbitrage metric $A$;
+\item holdings are $z_i=b_i(U_i-\Ubar)+c_i$ for constants $c_i$, so every consumer's post-trade effective utility $U_i-z_i/b_i$ equals $\Ubar$ up to a constant.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Absent trade each consumer has a riskless bundle, and by $V_i(z+c\mathbf1)=V_i(z)+c$ the sum of the values of the $K$ units in any riskless allocation is $K$. It is then enough to compute the value of the allocation in (3) and prove its optimality. With $\sum_ic_i=0$ we have $\sum_iz_i=\sum_ib_iU_i-B\Ubar=0$, so (3) is feasible as a trade. Under (3), $U_i-z_i/b_i=\Ubar-c_i/b_i$, hence all consumers' marginal values are equal to $\operatorname{softmax}(\Ubar)=q^*$. Since each $V_i$ is concave, these equal marginal values certify that the allocation maximizes the sum. Finally,
+$V_i(z_i)=c_i-b_i\log\sum_xe^{U_i(x)-\Phi(U_i)-U_i(x)+\Ubar(x)}=c_i+b_i\big[\Phi(U_i)-\Phi(\Ubar)\big]$, and summing over $i$ gives $A$ by \cref{arb:prop:welfare}.
+\end{proof}
+
+The market does not change anyone's desires. It hands each consumer a portfolio, which plays the role of a reward, equal to that consumer's disagreement with the collective, and after trading everyone acts on the arbitraged utility at the margin. This is a concrete instance of the claim in \cref{agency:sec:rationalize} that an economy, acting as a super-agent, generates the rewards of its sub-agents.
+
+The reason behind the theorem is more general. Call a consumer \emph{quasi-linear} if $V_i(z+c\mathbf1)=V_i(z)+c$ and $V_i(0)=0$. Then $C_i(\theta):=-V_i(-\theta)$ is the cost function of a market maker, with prices $p_i=\nabla C_i(0)$ and scoring rule given by the convex conjugate $C_i^*$ \citep{chenUtilityFrameworkBoundedloss2007}. The planner's problem is an infimal convolution, and the conjugate of an infimal convolution is the sum of the conjugates, so
+\[
+\sup_{\sum_iz_i=0}\ \sum_iV_i(z_i)=\inf_\mu\ \sum_iC_i^*(\mu)=\inf_\mu\ \sum_iD_{F_i}(\mu\|p_i)=A_F .
+\]
+Every quasi-linear consumer is a market maker for some proper scoring rule, and the planner's problem for a single-layer market is the arbitrage problem for these rules. For CARA consumers $C_i$ is the logarithmic market scoring rule and we recover \cref{arb:thm:cara}. The fact that CARA traders price at the geometric pool is old: it goes back to \citet{wilsonTheorySyndicates1968} on syndicates, and in prediction-market form to \citet{abernethyInformationAggregationExponential2014}. What is new here is the identification with the arbitrage metric and with the welfare and mirror-ascent picture of \cref{ch:agency}.
+
+There is one important qualification. Consumers with logarithmic (``Kelly'') utility, $\mathbb E_{p_i}\log z_i$, are \emph{not} quasi-linear, and for them the same market instead prices at the wealth-weighted \emph{linear} pool, which minimizes $\sum_iw_i\KL(p_i\|\pi)$. This is the opposite projection (an M-projection), and it is not the arbitrage defined in \cref{ch:consistency}; in our numerical test the difference was $0.08$. So while it is true that ``the market arbitrages beliefs'', the geometry of that arbitrage is determined by consumers' attitudes to risk.
+
+\Cref{arb:tab:dictionary} summarizes the correspondence. The arbitrage metric only describes the endpoint; the market adds a dynamics that reaches it.
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{@{}p{0.43\textwidth}p{0.5\textwidth}@{}}
+\toprule
+market & arbitrage \\
+\midrule
+price recursion (\cref{agency:sec:price-recursion}) & the arbitrageur's profit in each world, and its expectation given a partial scenario \\
+entropic mirror ascent on shares (\cref{agency:eq:mwu}) & small arbitrage trades that move each price towards the worlds where it is too low \\
+fixed point: equal marginal value on every active edge & no arbitrage left: the same profit in every supported world \\
+rate of welfare growth $\propto$ variance of prices (\cref{agency:eq:ftwd}) & arbitrage is extracted at a rate set by the dispersion of prices for the same good \\
+\bottomrule
+\end{tabular}
+\caption{Market dynamics and arbitrage.}\label{arb:tab:dictionary}
+\end{table}
+
+% ============================================================
+\section{Deep markets: arbitrage across dependent questions}\label{arb:sec:deep}
+
+So far, we have focused on forecasts of a single variable. In \cref{ch:consistency}, however, we considered logically related questions, which call for a market with depth. It is convenient to swap the roles of goods and prices: the good is now \emph{probability mass}, and prices are payoffs.
+
+\paragraph{Construction.} Let the questions be built from atomic events $X_1,\dots,X_k$.
+\begin{itemize}
+\item A source node holds one unit of probability mass. Each internal node corresponds to a partial assignment of the atoms, and the routing shares at a node correspond to the conditional probabilities $P(X_d\mid X_{<d})$. Passing mass forward then corresponds exactly to marginalization.
+\item Logical constraints are \emph{missing edges}: a world that violates the relation between the questions has no path leading to it.
+\item Each leaf (a complete world $\omega$) sends one copy of its mass to the cell $(i,\phi_i(\omega))$ of every question that is not voided in $\omega$, like a refinery producing several outputs from one input. Cell $(i,v)$ thus receives $\mu(\phi_i=v)$.
+\item Consumer $i$ owns the cells of question $x_i$ and has utility $u_i(m)=-b_i\sum_vm_v\log\frac{m_v}{M_ip_i(v)}$, where $m_v$ is the mass in cell $(i,v)$ and $M_i=\sum_vm_v$.
+\end{itemize}
+Total welfare is then $W(\mu)=-\sum_ib_iM_i(\mu)\KL(\mu_i\|p_i)$, so by \cref{arb:prop:dual} its maximum is $-A$. The prices can be interpreted as follows.
+
+\begin{theorem}[world prices are arbitrage profits]\label{arb:thm:deep}
+In this market:
+\begin{enumerate}
+\item the price of leaf $\omega$ is $a_\omega=\sum_ib_i\log\frac{p_i(\phi_i\omega)}{\mu_i(\phi_i\omega)}$ (voided questions contribute nothing), which is minus the profit an arbitrageur makes in world $\omega$ by moving every price to $\mu$'s marginals;
+\item the price of an internal node is the share-weighted average of its children's prices, i.e.\ minus the arbitrageur's expected profit given that partial scenario;
+\item at the welfare maximum, the question marginals are the arbitraged forecasts, and the arbitrageur's profit equals $A$ in every world that receives mass and is at least $A$ in every other world.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+(1) Differentiating $u_i$ with respect to $m_v$ gives $-b_i\log\frac{m_v}{M_ip_i(v)}=b_i\log\frac{p_i(v)}{\mu_i(v)}$. The price of a leaf is the sum of the prices of the cells for which it is the supplier. (2) For an internal node, price recursion (\cref{agency:eq:adjoint-b}) implies that its price is given by the share-weighted average of its children's prices, since it passes mass on without transformation. (3) Since $u_i$ is homogeneous of degree one in the masses, $W=\sum_\omega\mu(\omega)a_\omega$ is minus the expected profit. The optimality conditions for maximizing $W$ over $\simplex(\Omega)$ say that $a_\omega$ is the same on the support of $\mu$ and no larger elsewhere; since $\max W=-A$, that common value is $-A$.
+\end{proof}
+
+In \cref{cfc:def:arbitrage}, the global arbitrageur solves a single max--min problem over all worlds at once. The deep market splits this problem among \emph{local} arbitrageurs: each node sees only its children's prices, and price recursion makes the local arbitrage add up to the global one. One small consequence is worth recording. A complete set of conditional forecasts is a joint forecast, by the chain rule for KL divergence, so the conditional-probability check of \cref{ch:consistency} reduces to a paraphrase check between the implied product $F(P)F(Q\mid P)$ and the direct forecast $F(P\wedge Q)$. This explains why that check has a closed form.
+
+Markets over dependent questions are not new. Combinatorial prediction markets \citep{hansonCombinatorialInformationMarket2003} and the Bayesian-network market maker that was deployed as SciCast \citep{laskeyGraphicalModelMarket2018} maintain a joint distribution over related events, and trader dynamics in such markets have been analysed by \citet{frongilloConvergenceAnalysisPrediction2015} as coordinate descent on an infimal convolution. What the economic view adds is the identification of welfare with minus the arbitrage metric and of world prices with arbitrage profits, together with a decomposition in which nodes owned by different entities optimize based on local prices only.
+
+% ============================================================
+\section{Latent variables are intermediate goods}\label{arb:sec:latent-goods}
+
+A different construction is obtained if we let the terminal consumers be nature's resolutions instead of forecasters. In the latent-class market proposed by \citet{tailcalledLatentVariablesPrediction2023}, traders make moves to the parameters of a latent-class model and are paid by the change in log-likelihood of the indicators once they resolve. We can build this as a deep market:
+\begin{itemize}
+\item the source routes mass to the latent classes $Z=j$, according to the shares $P(Z=j)$;
+\item each class copies its mass to one router per indicator (copying mass is exactly conditional independence);
+\item router $(j,i)$ splits its mass according to $P(Y_i\mid Z=j)$;
+\item for each observed data point $y^d$, the pieces are recombined, and merging over the classes delivers to consumer $d$ the mass $P(y^d)$, which it values at $\log P(y^d)$.
+\end{itemize}
+
+Two things follow (both checked numerically to $10^{-12}$). First, the price of latent class $j$ is calculated as a likelihood ratio,
+\[
+a_{Z=j}=\sum_d\frac{P(y^d\mid Z=j)}{P(y^d)},
+\]
+and the revenue on each edge, mass times price, is the posterior probability of that edge; the price recursion is here the backward pass of the forward--backward algorithm. Second, the simplest adaptive rule a router could follow, ``next period, route in proportion to the revenue each buyer paid you'' (proportional response dynamics, \citealt{birnbaum2011}), is \emph{exactly} the EM algorithm \citep{dempsterMaximumLikelihoodIncomplete1977}, step by step. As an example, the shares of the source update to $P(Z=j)\,a_{Z=j}/N=\frac1N\sum_dP(Z=j\mid y^d)$, which is the EM update of the class weights. The exponential rule~\eqref{agency:eq:mwu} is mirror ascent on the same log-likelihood.
+
+\Cref{arb:tab:terminal} collects what a deep market computes for different terminal consumers.
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{@{}p{0.34\textwidth}p{0.36\textwidth}p{0.22\textwidth}@{}}
+\toprule
+terminal consumers & what the market computes & projection \\
+\midrule
+forecasters as market makers, or CARA traders & the arbitrage of \cref{ch:consistency} & I-projection; geometric pool \\
+utilities $U_i$ (with an entropy term) & soft utilitarian welfare $e^{\sum_iw_iU_i}$ & the same, read as preferences \\
+Kelly traders & the linear pool & M-projection \\
+nature's resolutions, $\log\mu(y^d)$ & maximum likelihood (EM) for the latent model & M-projection onto the model class \\
+\bottomrule
+\end{tabular}
+\caption{What a deep market computes, by type of terminal consumer.}\label{arb:tab:terminal}
+\end{table}
+
+The lesson is that \textbf{latent variables are intermediate goods}. They never resolve and have no consumer of their own, yet they have a price, derived entirely from the downstream consumers, just as a factory input is priced by the goods it helps make. Depth in a prediction market means intermediate goods, and the architecture of the market (here a latent-class model rather than a full tree) plays the role of the economy's technology.
+
+This answers one half of the question raised in \cref{intro:sec:subjective}. Price recursion does value latent beliefs, and a market of local, self-interested routers can learn them. The other half remains: many different latent models fit the same observables, and the market's prices for latent states only mean something if the latent structure itself is pinned down. The rest of the chapter takes up that problem.
+
+% ============================================================
+\section{What gives a latent belief its meaning}\label{arb:sec:meaning}
+
+Probabilities of observables have a natural interpretation in terms of a proper scoring rule applied to the outcome, while beliefs about latent variables have no such direct confrontation with an outcome. How, then, can one latent structure for observables $Y_1,\dots,Y_n$ be said to be better than another, and in what sense can latent beliefs be elicited at all?
+
+\subsection{Scoring sees only the implied distribution}\label{arb:sec:gauge}
+
+A latent structure is a DAG $\mathcal G$ over hidden nodes $H$ and observed nodes $Y$, and a latent model $\theta$ specifies one conditional table $p_\theta(v\mid\pa_v)$ per node. Two common examples are a single latent $Z$ with the indicators as its children (latent class analysis, or item response theory when $Z$ is continuous), and hierarchical models $Z\to Z_j\to Y_i$. The model predicts $m_\theta(y)=\sum_hp_\theta(h,y)$, and under any proper scoring rule its expected score depends on $\theta$ only through $m_\theta$. Beliefs about latents thus have meaning only through the predictions they imply about observables; no scoring rule can reward anything else. If two latent models share the same $m_\theta$, then no score can tell them apart, but there are two rather different ways this might be so.
+
+To see them, describe a latent model by its \emph{mixing measure}. For each latent state $z$, write down its \emph{profile}, the list of what each indicator would do in that state:
+\[
+\rho(z)=\big(P(Y_1\mid Z=z),\dots,P(Y_n\mid Z=z)\big).
+\]
+If only binary indicators are used, each profile is a point in the cube $[0,1]^n$. The mixing measure $\nu$ puts mass $P(Z=z)$ on the point $\rho(z)$, and the model's prediction is the $\nu$-weighted average of the corresponding independent distributions, $P(Y)=\int\rho_1\otimes\cdots\otimes\rho_n\,d\nu(\rho)$. A two-state latent class model corresponds to two weighted points in the cube. A one-factor IRT model corresponds to a curve in the cube (traced out as the factor varies), with a Gaussian spreading out mass along that curve. The \emph{name} of a latent state never appears in $\nu$, only its profile does.
+
+\paragraph{Gauge freedom: the same $\nu$ in different coordinates.} Relabelling the states of a discrete latent, flipping the sign of a continuous factor, or rotating several factors into one another changes which name goes with which point, but leaves the cloud $\nu$ unchanged. (Numerically, rotating a two-factor IRT model by 0.7 radians changes no pattern probability by more than $2\times10^{-8}$, the quadrature error.) This kind of freedom is harmless. Suppose that a statement survives it. Then it is a statement about $\nu$, and such statements are \emph{relational}, e.g. ``with probability 0.3 the world is in a state in which indicator 1 has probability above 0.8''. A coordinate statement such as ``$Z>1$'' acquires meaning only once the coordinates have been fixed by convention.
+
+\paragraph{Genuine underdetermination: a different $\nu$ with the same average.} Two different clouds can average to the same $P(Y)$. They make different claims about the world; they are not relabellings. Consider a single binary indicator with $P(Y_1=1)=0.5$. In world (a) the outcome of the indicator is a genuine coin flip. That is, its probability is $0.5$ no matter what state of nature obtains. In world (b) it is $0.9$ half of the time and $0.1$ otherwise: the world is in a decisive state, and we simply do not know which. Both predict the same $P(Y_1)$, but the correct answer to the question ``how often is the world in a state in which $Y_1$ is likely?'' is $0$ in (a) and $\tfrac12$ in (b). For a continuous example, consider two Gaussian indicators of correlation $0.5$ and one factor. The three different loadings $(0.6,0.833)$, $(0.707,0.707)$ and $(0.9,0.556)$ all reproduce $P(Y)$ exactly and score identically. However, the three latent variables contain $0.97$, $0.79$ and $1.26$ bits of information about $Y$, respectively.
+
+The amount of genuine freedom remaining depends on the structure, and more indicators are always useful. For binary indicators, $P(Y)$ determines exactly the averages $\mathbb E_\nu\big[\prod_{i\in S}\rho_i\big]$ over sets $S$ of \emph{distinct} indicators. With $n$ exchangeable indicators sharing one profile $\rho$ this means the first $n$ moments of $\rho$ are observed, and as $n\to\infty$ they determine $\nu$, which is de Finetti's theorem \citep{definettiPrevisionSesLois1937} seen as a moment problem. \Cref{arb:tab:freedom} summarizes the known cases.
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{@{}p{0.55\textwidth}p{0.38\textwidth}@{}}
+\toprule
+structure & what scoring leaves free \\
+\midrule
+one latent with at least three indicators and the fewest states; one-factor IRT or factor analysis with at least three indicators; latent trees in which every hidden node has at least three neighbours & gauge only \citep{kruskalThreewayArraysRank1977,allmanIdentifiabilityParametersLatent2009} \\
+two indicators & a continuum (the free loading above) \\
+latents with more states than necessary & genuinely different alternatives \\
+free-form latent distribution & an infinite-dimensional set, shrinking as indicators are added \\
+\bottomrule
+\end{tabular}
+\caption{How much of a latent model the observable distribution pins down.}\label{arb:tab:freedom}
+\end{table}
+
+\subsection{Unexplained dependence and information cost}
+
+How do we choose among latent models that fit? We need a criterion beyond fit. Couple a latent to the observables through an \emph{encoder} $q(h\mid y)$, giving the joint $p(h,y)=p(y)\,q(h\mid y)$. Two quantities matter.
+
+The \emph{unexplained dependence} is the distance to the best model with structure $\mathcal G$,
+\[
+D_{\mathcal G}=\KL\Big(p(h,y)\,\Big\|\,\textstyle\prod_vp(v\mid\pa_v)\Big)\ \ge0,
+\]
+with the conditional distributions on the right-hand side as in $p(h,y)$. For one latent $Z$ with the indicators as children this is the conditional total correlation $\TC(Y\mid Z)=\sum_iH(Y_i\mid Z)-H(Y\mid Z)$, which is zero exactly when the indicators are independent given the latent. It is the scoring rule's half of the story: it is the log-score regret, on complete data, of the best model with structure $\mathcal G$.
+
+Unexplained dependence alone is not enough: this criterion is satisfied by a trivial latent variable. Take $Z=(Y_1,\dots,Y_n)$: every indicator is a function of it, so it explains all dependence perfectly. What rules this out is the \emph{information cost} $I(H;Y)$, the number of bits the latent carries about the observables. The trivial latent costs $H(Y)$ bits, the maximum possible. A good latent variable should explain a lot of dependence while carrying few bits.
+
+\subsection{The latent bottleneck}
+
+Trading the two off with a weight $\tau\in[0,1)$ gives, for a single latent, the objective
+\begin{equation}\label{arb:eq:bottleneck}
+\mathcal L_\tau(Z)=I(Z;Y)-\tau\sum_iI(Z;Y_i),
+\end{equation}
+which up to a constant and a positive factor equals $I(Z;Y)+\beta\,\TC(Y\mid Z)$ with $\beta=\tau/(1-\tau)$. Put another way, compress the observables jointly, while remaining informative about the observables separately. We call it the \emph{latent bottleneck}. It contains several familiar objects as special or limiting cases. As $\tau\to1$ it asks for an exact fit with the fewest bits, which is Wyner's common information \citep{wynerCommonInformationTwo1975,gastparRelaxedWynersCommon2019}. At $\tau=1$ with the number of latent states fixed, it is maximum likelihood, as computed by EM, and it is related to correlation explanation \citep{versteegDiscoveringStructureHighdimensional2014}.
+
+It also contains the \emph{information bottleneck} \citep{tishbyInformationBottleneckMethod1999}. There one is given $Y_1$ and wants to predict $Y_2$, and a summary $T$ is computed from $Y_1$ only. A latent, by contrast, is not computed from any one observable: it is a hidden common cause that can only be inferred. For instance, take two noisy tests for a disease, where the disease is a latent variable. Neither test alone determines the disease status, and thus the encoder would have to receive both measurements in order to make its guess. If we further constrain the latent bottleneck by considering only encoders that do not make use of $Y_2$, then $I(Z;Y_1,Y_2)=I(Z;Y_1)$ and $\TC(Y\mid Z)=I(Y_1;Y_2)-I(Z;Y_2)$, and the objective becomes $I(Y_1;Z)-\beta\,I(Z;Y_2)$, the information bottleneck. So the information bottleneck is the latent bottleneck restricted to latent variables that can be read off from only one side, and lifting this restriction makes latents strictly cheaper. For two bits that agree 90\% of the time, the cheapest exact explanation computable from $Y_1$ is $Y_1$ itself, at one bit, while a free latent needs only $0.873$ bits, which is Wyner's closed form.
+
+\subsection{The tempered log score}
+
+The latent bottleneck is a property of the whole distribution of $Y$, and it involves an encoder, a mechanism that nobody observes. Remarkably, it can nevertheless be elicited by paying a scoring rule on a single realized outcome. Let $\theta$ be a latent model and $y$ an observation. The \emph{tempered log score} is defined as
+\begin{equation}\label{arb:eq:stau}
+S_\tau(\theta;y)=\log\sum_h\ \prod_{v\in H}p_\theta(v\mid\pa_v)\prod_{v\in Y}p_\theta(v\mid\pa_v)^{\tau}.
+\end{equation}
+At $\tau=1$ the sum is $m_\theta(y)$, and $S_1$ is the ordinary log score. For $\tau<1$ each indicator's evidence is counted only to the power $\tau$.
+
+\begin{theorem}[the tempered log score elicits the latent bottleneck]\label{arb:thm:stau}
+For a single latent,
+\[
+\min_q\ \mathcal L_\tau(q)=-\max_\theta\ \mathbb E_{y\sim p}\,S_\tau(\theta;y)-\tau\sum_iH(Y_i),
+\]
+where the minimum is over encoders $q(z\mid y)$. The maximizing $\theta$ is the bottleneck-optimal latent model, and its \emph{tempered posterior} $q(z\mid y)\propto p_\theta(z)\prod_ip_\theta(y_i\mid z)^\tau$ is the optimal encoder. The same holds for a general DAG, with the objective $I(H;Y)+(D_H+\tau D_Y)/(1-\tau)$, where $D_{\mathcal G}=D_H+D_Y$ splits the unexplained dependence into the part among hidden nodes and the rest.
+\end{theorem}
+
+\begin{proof}[Proof (single latent)]
+All entropies are taken with respect to the coupling $p(y)\,q(z\mid y)$.
+\emph{Step 1.} Using $I(Z;Y)=H(Z)-H(Z\mid Y)$ and $I(Z;Y_i)=H(Y_i)-H(Y_i\mid Z)$,
+\[
+\mathcal L_\tau(q)+\tau\textstyle\sum_iH(Y_i)=H(Z)+\tau\sum_iH(Y_i\mid Z)-H(Z\mid Y).
+\]
+\emph{Step 2.} Each entropy is the best achievable expected log loss: $H(Z)=\min_r\mathbb E[-\log r(Z)]$ and $H(Y_i\mid Z)=\min_{c_i}\mathbb E[-\log c_i(Y_i\mid Z)]$, by Gibbs' inequality. A prior $r$ together with indicator conditionals $c_i$ is exactly a latent model $\theta$, so
+\[
+\mathcal L_\tau(q)+\tau\textstyle\sum_iH(Y_i)=\min_\theta\ \mathbb E\Big[\log q(z\mid y)-\log r(z)-\tau\sum_i\log c_i(y_i\mid z)\Big].
+\]
+\emph{Step 3.} Also perform the minimization over $q$ and interchange the minimizations. For fixed $\theta$ the bracket separates over $y$ into $\sum_zq(z\mid y)\big[\log q(z\mid y)-\log a_\theta(z,y)\big]$ with $a_\theta(z,y)=r(z)\prod_ic_i(y_i\mid z)^\tau$. This is minimized by $q\propto a_\theta$, with value $-\log\sum_za_\theta(z,y)=-S_\tau(\theta;y)$.
+\end{proof}
+
+So $S_\tau$ is the latent bottleneck after optimizing out the encoder, written observation by observation. At $\tau=1$ the proof is the familiar identity ``log-likelihood equals the maximized evidence lower bound''. Our tempered posterior is sometimes called a power/fractional posterior, and falls under the heading of generalized Bayesian updating \citep{grunwaldSafeBayesianLearning2012,bissiriGeneralFrameworkUpdating2016}. There the exponent is typically used as a means of gaining robustness to model misspecification. Here it plays a different role: it is a knob for compression.
+
+\begin{corollary}[elicitation]\label{arb:cor:elicit}
+Pay an agent who reports a latent model $\theta$ the amount $S_\tau(\theta;y)$ once the observables $y$ are realized. If the agent believes $Y\sim p$, its expected payment is maximized exactly by the latent-bottleneck optimum for $p$. The payment needs a single realization and no knowledge of $p$, it is invariant to gauge transformations, and with discrete indicators $S_\tau\le0$, so a market maker's loss is bounded just as for the logarithmic market scoring rule.
+\end{corollary}
+
+\Cref{arb:tab:incentives} shows the incentives in a small case: three binary indicators whose true latent has two states, but which a three-state latent explains with fewer bits.
+
+\begin{table}[ht]
+\centering\small
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+report & $I(Z;Y)$ & $S_1$ & $S_{0.999}$ & $S_{0.99}$ & $S_{0.9}$ \\
+\midrule
+true two-state latent & 0.385 & \textbf{0} & $-0.00016$ & $-0.0017$ & $-0.023$ \\
+optimum at $\tau=0.999$ & 0.229 & \textbf{0} & \textbf{0} & $-0.00018$ & $-0.007$ \\
+optimum at $\tau=0.99$ & 0.202 & $-0.00007$ & $-0.00005$ & \textbf{0} & $-0.005$ \\
+optimum at $\tau=0.9$ & 0.086 & $-0.0058$ & $-0.0056$ & $-0.0046$ & \textbf{0} \\
+\bottomrule
+\end{tabular}
+\caption{Expected tempered scores (bits) of four reports, relative to the best report under each rule. The ordinary log score $S_1$ cannot distinguish the true latent from a cheaper three-state one; any $\tau<1$ breaks the tie towards fewer bits.}\label{arb:tab:incentives}
+\end{table}
+
+The trade-offs are real. For $\tau<1$ the reported model is a slightly lossy forecast of $Y$ (0.0058 bits of regret at $\tau=0.9$), so its implied indicator probabilities are no longer the agent's best forecasts; taking $\tau$ just below one makes it a tie-breaker only. There is no observable which would allow us to determine $\tau$: this quantity is a free parameter, to be chosen by the designer. And the optimum is a non-convex, possibly set-valued property, so reporting it requires solving a hard problem. On the practical side, tempered EM (an EM algorithm whose E-step uses the tempered posterior, followed by the usual M-step) increases $\mathbb E\,S_\tau$ at every step and can be used to fit any latent DAG. The same score and algorithm apply to continuous latents (IRT, factor analysis, mixed indicator types, several factors), with integrals computed by quadrature.
+
+\subsection{When latent beliefs need no convention}
+
+Scoring pins down a latent model exactly to the extent that $m_\theta$ determines $\theta$. For one latent with three or more conditionally independent indicators, the decomposition with the fewest latent states is generically unique up to relabelling \citep{kruskalThreewayArraysRank1977,allmanIdentifiabilityParametersLatent2009}, and the same holds for latent trees in which every hidden node has at least three neighbours. In these cases $\tau=1$ already elicits the true latent, and EM recovers it. Even here, however, parsimony is a convention: uniqueness holds among models with the fewest \emph{states}, and the latent with the fewest \emph{bits} can differ. In exact computations, the least-information latent was cheaper than the true one in all ten random two-indicator models tried and in all four models with three binary indicators tried, and it was equal to the true latent with three ternary indicators or once a fourth indicator was added. Increasing the number of indicators shrinks the set of exact fits until the convention stops mattering. On the basis of these computations we conjecture that this happens in general once the indicators are rich enough.
+
+When the latent distribution is left free, $\tau<1$ removes the indeterminacy, but only by compressing the latent. For three IRT indicators with a Gaussian latent and fixed link functions, the probability $P(Z>1)$ ranges over $[0.035,0.317]$ among all latent distributions that are optimal at $\tau=1$, over $[0,0.024]$ at $\tau=0.95$ and over $[0,0.002]$ at $\tau=0.8$. The price is that the profiles of the compressed latent shrink towards uninformative ones and its forecasts of the indicators deteriorate (by 0.07 in total variation at $\tau=0.8$). There are thus three ways to pin down a free-form latent. One can pin it down by assumption, through a parametric family, which keeps forecasts honest. One can pin it down by data, adding more indicators, which works but slowly. Or one can compress, taking $\tau<1$ and accepting some cost in forecast accuracy. A score can only distinguish what the observables, or an explicitly stated convention, distinguish.
+
+% ============================================================
+\section{Latent-variable prediction markets revisited}\label{arb:sec:lvpm}
+
+We can now assess the two existing proposals for trading on latent variables.
+
+\paragraph{Latent-variable prediction markets.} \citet{tailcalledLatentVariablesPrediction2023} propose a market whose state is a latent model: if a trader causes the market state to move from $\phi$ to $\theta$, they get paid $\log P(y\mid\theta)-\log P(y\mid\phi)$ on the resolved indicators. This is Hanson's market scoring rule with the score $S_1$, and it works in two respects. First, its incentives are sound: a myopic trader moves the market to the model within the chosen family that best forecasts the indicators, and the market maker has bounded loss. Second, when the model family identifies the latent up to gauge, the market's prices for latents are meaningful. The design recommended in the proposal (one Gaussian latent standardized to $N(0,1)$, probit links, at least three indicators) is identified up to sign, and its ``at least three indicators'' rule is exactly right.
+
+Three of the design options it discusses are more problematic.
+\begin{enumerate}
+\item \emph{A free-form latent distribution} allows traders to ``drag around'' the latent distribution. Payouts depend on the latent only through the joint distribution of the indicators. For a Gaussian latent $P(Z>1)=0.156$, but any two latent distributions with the same indicator joint are rewarded equally, and among these $P(Z>1)$ ranges over $[0.040,0.317]$ if there are three indicators, over $[0.078,0.253]$ if there are six, and over $[0.087,0.237]$ if there are ten. Traders are therefore able to move such beliefs at no expected cost or reward. The remedy is either to find some parametric model for the latent distribution, or to settle with $S_\tau$ and accept the compression.
+\item \emph{Several latent factors.} This is not actually a defect. Rotating the loadings together with the factors changes nothing observable: it is gauge, not missing information. Which axis represents ``who is winning'' is a choice of coordinates rather than a fact, so a market cannot price it and should not try. Such quantities should instead be defined relationally, for example as ``the latent direction along which the probability of indicator 3 rises fastest'', and these are priced whenever the model is identified up to rotation.
+\item \emph{User-proposed latent classes.} The log score never penalizes an extra class, since a model with $k+1$ classes contains every model with $k$. In this case the redundant class ends up tied with the true model (the $S_1$ column of \cref{arb:tab:incentives}), and the latent drifts towards being ``the indicators themselves''. Settling with $S_\tau$ for $\tau$ slightly below one makes every proposed class pay for its bits, which answers the proposal's open question of who should choose the number of classes: a class stays exactly when it raises $S_\tau$.
+\end{enumerate}
+A fourth caveat applies to any such market: if the indicators are not actually caused by a common latent, then what the market finds will not be the ground truth but a projection, namely the best single common cause.
+
+The criticism one might first make of this proposal, that the choice of latent is a gauge freedom that lets traders bet however they like, is therefore only half right. Pure gauge freedom is harmless, because payouts are gauge-invariant and no trader profits from relabelling. What does leave latent beliefs unpriced is \emph{genuine} underdetermination, and this arises in precisely the free-form and user-proposed designs.
+
+\paragraph{Bayesian-network markets.} The combinatorial markets of \citet{sunProbabilityAssetUpdating2012} and \citet{laskeyGraphicalModelMarket2018} allow traders to edit both the parameters and the structure of a Bayesian network, including adding variables. A latent node can certainly be represented. But each trade is paid as an edit to the joint distribution of the set of variables it involves, and is settled once those variables are resolved. Suppose a trader raises $P(Z)$ but leaves $P(Y\mid Z)$ unchanged. In each state, the trader gains $b\log\frac{q(Z)}{p(Z)}$, which depends on $Z$ itself. When the observables are revealed, the market updates its beliefs about $Z$, but nothing settles that contract. A trader can still profit before settlement by selling once the evidence has moved the price, but no rule pays it for its contribution to the observable predictions if $Z$ never resolves. The latent-variable market gets around this problem by scoring the change in the \emph{observable} marginal, with $Z$ integrated out. The deep market of \cref{arb:sec:latent-goods} does the same thing in economic language: the latent node is an intermediate good, and its price is derived from the downstream consumers.
+
+% ============================================================
+\section{Discussion}\label{arb:sec:discussion}
+
+This chapter closes a circle, connecting the last part of the thesis to the first. The arbitrage metric used to evaluate forecasters in \cref{ch:consistency} is the welfare gained by a market of quasi-linear consumers, its arbitraged forecasts are that market's equilibrium prices, and the dynamics of \cref{ch:agency} compute them, with price recursion breaking global arbitrage into local arbitrage. The same aggregation rule that makes beliefs consistent also aggregates preferences into a social objective, so the utilitarian social welfare function of \cref{ch:agency} is not an assumption but a consequence.
+
+For latent beliefs, the economic picture says that latent variables are intermediate goods, priced according to their downstream value, and that markets of routers with proportional response dynamics learn them using EM. From an information-theoretic perspective, a latent variable means exactly what it does to predictions about observable variables, gauge freedom is harmless, and the genuine underdetermination that remains can be resolved by the structure chosen, by more indicator variables, or by parsimony (asking for the cheapest explanation). The cheapest explanation can be elicited from a single outcome using the tempered log score.
+
+Two gaps remain, and they are the natural next steps. First, the compression weight $\tau$, similar to the subsidy of a logarithmic market, is determined by the designer. The conjecture of \cref{intro:sec:subjective} is that both should be set by price recursion, by the downstream value of the information a latent provides relative to the cost of producing it; the results here make the question precise but do not answer it. The second gap is that the hypotheses humans and AIs actually entertain are not latent-class models but natural-language theories and concepts. Treating an essay or a concept as a latent variable, scored through the predictions a fixed reader makes with it on questions its author has not seen, is a direct application of the tempered log score, and initial experiments in this direction look promising. Whether optimizing for such a score leads to improved conceptual reasoning, rather than just improved appearances of reasoning, is the question that connects this chapter back to scalable oversight.
+
+\end{draftblock}
