@@ -317,26 +317,74 @@ def apply():
         print(f"{fn}: {len(reps)} units applied")
 
 
-def pangram():
-    units = json.loads(UNITS.read_text())
-    key = os.environ["PANGRAM_API_KEY"]
-    text = "\n\n".join(re.sub(r"\[\[(.*?)\]\]", " ", protect(u.get("final") or u.get("humanized") or u["original"])[0])
-                       for u in units)
+def plain(text):
+    """Render a LaTeX paragraph as the prose a reader sees, for AI detection.
+    Display maths and environments are dropped (equations are not prose);
+    inline maths, references and citations become short neutral stand-ins."""
+    t = re.sub(r"(?<!\\)%[^\n]*", "", text)
+    t = re.sub(r"\\begin\{(equation|align|gather|multline|table|figure|tabular|tikzpicture)\*?\}.*?\\end\{\1\*?\}", " ", t, flags=re.S)
+    t = re.sub(r"\\\[.*?\\\]|\$\$.*?\$\$", " ", t, flags=re.S)
+    t = re.sub(r"\\begin\{(theorem|proposition|lemma|corollary|definition|proof|example|remark)\}(\[[^\]]*\])?", " ", t)
+    t = re.sub(r"\\end\{[a-z*]+\}|\\label\{[^}]*\}|\\noindent", " ", t)
+    t = re.sub(r"\\Cref\{(ch|part)[^}]*\}", "Chapter 7", t)
+    t = re.sub(r"\\[cC]ref\{[^}]*\}|\\ref\{[^}]*\}", "Section 7.2", t)
+    t = re.sub(r"\\eqref\{[^}]*\}", "(7.3)", t)
+    t = re.sub(r"\\citet\{[^}]*\}", "Smith (2020)", t)
+    t = re.sub(r"\\cite[a-z]*\{[^}]*\}", "(Smith, 2020)", t)
+    def m(mm):
+        x = re.sub(r"\\[A-Za-z]+", " ", mm.group(1))
+        x = re.sub(r"[{}_^\\]", "", x)
+        return re.sub(r"\s+", "", x) or "x"
+    t = re.sub(r"\$([^$]+)\$", m, t)
+    t = re.sub(r"\\(?:emph|textbf|textit|texttt|paragraph|item)\b\s*", "", t)
+    t = re.sub(r"\\[A-Za-z]+\*?", "", t)
+    t = t.replace("``", '"').replace("''", '"').replace("---", " - ").replace("--", "-").replace("~", " ")
+    t = re.sub(r"[{}]", "", t)
+    return re.sub(r"[ \t]+", " ", t).strip()
+
+
+def pangram_call(text):
+    key = os.environ.get("PANGRAM_API_KEY_ABHIMANYU") or os.environ["PANGRAM_API_KEY"]
     req = urllib.request.Request("https://text.external-api.pangram.com/task",
                                  data=json.dumps({"text": text}).encode(),
                                  headers={"x-api-key": key, "Content-Type": "application/json"})
-    tid = json.load(urllib.request.urlopen(req, timeout=120))
-    print(tid)
-    if "task_id" not in tid:
-        return
+    tid = json.load(urllib.request.urlopen(req, timeout=120))["task_id"]
     while True:
-        time.sleep(5)
+        time.sleep(3)
         r = json.load(urllib.request.urlopen(urllib.request.Request(
-            f"https://text.external-api.pangram.com/task/{tid['task_id']}", headers={"x-api-key": key}), timeout=120))
+            f"https://text.external-api.pangram.com/task/{tid}", headers={"x-api-key": key}), timeout=120))
         if r.get("stage") in ("STAGE_SUCCESS", "STAGE_FAILED"):
-            (STATE / "pangram.json").write_text(json.dumps(r, indent=1))
-            print({k: r.get(k) for k in ("stage", "fraction_ai", "fraction_ai_assisted", "fraction_human", "headline")})
-            return
+            return r
+
+
+def pangram(field="final", ids=None):
+    """Score each unit's text with Pangram. Units are sent one file at a time,
+    separated by blank lines, and every Pangram window is mapped back to the
+    units it overlaps; a unit gets the highest AI score of its windows."""
+    units = json.loads(UNITS.read_text())
+    sel = [u for u in units if ids is None or u["id"] in ids]
+    by_file = {}
+    for u in sel:
+        by_file.setdefault(u["file"], []).append(u)
+    for fn, us in by_file.items():
+        doc, spans = "", []
+        for u in us:
+            t = plain(u.get(field) or u["original"])
+            a = len(doc)
+            doc += t + "\n\n"
+            spans.append((u, a, a + len(t)))
+        r = pangram_call(doc)
+        for u, a, b in spans:
+            ws = [w for w in r.get("windows", []) if w["start_index"] < b and w["end_index"] > a]
+            u.setdefault("pangram", {})[field] = {
+                "score": max((w["ai_assistance_score"] for w in ws), default=None),
+                "labels": sorted({w["label"] for w in ws}),
+            }
+        print(f"{fn}: {len(us)} units, fraction_ai {r.get('fraction_ai'):.2f}, "
+              f"assisted {r.get('fraction_ai_assisted'):.2f}, human {r.get('fraction_human'):.2f}")
+        UNITS.write_text(json.dumps(units, indent=1, ensure_ascii=False))
+    flagged = [u["id"] for u in sel if (u["pangram"][field]["score"] or 0) >= 0.5]
+    print(f"{field}: flagged (score >= 0.5): {flagged}")
 
 
 if __name__ == "__main__":
@@ -345,4 +393,9 @@ if __name__ == "__main__":
         model = sys.argv[sys.argv.index("--model") + 1] if "--model" in sys.argv else "super"
         send(model)
     else:
-        {"extract": extract, "review": review, "apply": apply, "pangram": pangram}[cmd]()
+        if cmd == "pangram":
+            field = sys.argv[2] if len(sys.argv) > 2 else "final"
+            ids = [int(i) for i in sys.argv[3].split(",")] if len(sys.argv) > 3 else None
+            pangram(field, ids)
+        else:
+            {"extract": extract, "review": review, "apply": apply}[cmd]()

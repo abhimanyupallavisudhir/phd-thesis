@@ -20,17 +20,3 @@
 % Inline verbatim-ish code identifiers (pdflatex-safe).
 \newcommand{\code}[1]{\texttt{#1}}
 
-% This chapter keeps the source articles' literal equation tags (\tag{1.1},
-% (0.1), ...), which do not step the equation counter; give each equation a
-% unique hyperref anchor so pdfTeX does not emit duplicate-destination
-% warnings.
-\makeatletter
-% Guarded: this file is loaded twice (ToC/LoF pre-load + chapter group),
-% and counters are global.
-\ifcsname c@agencyheq\endcsname\else\newcounter{agencyheq}\fi
-\let\agency@orig@equation\equation
-\renewcommand{\equation}{%
-  \stepcounter{agencyheq}%
-  \renewcommand{\theHequation}{agency.\arabic{agencyheq}}%
-  \agency@orig@equation}
-\makeatother

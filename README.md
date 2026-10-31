@@ -53,7 +53,7 @@ python3 tools/humanize.py extract      # collect draft paragraphs (>= 25 prose w
 python3 tools/humanize.py send         # StealthGPT (STEALTHGPT_API_KEY)
 python3 tools/humanize.py review       # side-by-side review.md; correct "final" in units.json
 python3 tools/humanize.py apply        # write finals into the .tex files
-python3 tools/humanize.py pangram      # AI-detection check (PANGRAM_API_KEY)
+python3 tools/humanize.py pangram final  # AI-detection check, one request per chapter (PANGRAM_API_KEY_ABHIMANYU, else PANGRAM_API_KEY)
 ```
 
 New or edited draft text must go through the same loop: `extract` keeps results for unchanged paragraphs.
@@ -63,5 +63,4 @@ New or edited draft text must go through the same loop: `extract` keeps results 
 - Acknowledgements are a placeholder; titlepage date is draft-marked.
 - `\infonomyurl` still points to the anonymized review URL.
 - Part III intro's characterization of Conitzer (2012)'s two-layer construction should be verified against the paper.
-- The agency chapter keeps the source articles' literal equation-tag numbering ; harmonize before submission.
-- Pangram AI-detection check not yet run: the Pangram account had no credits ("Insufficient credits"). Run `python3 tools/humanize.py pangram` once topped up.
+- Pangram check (Pangram 4.1, Oct 2026): 93 of 102 humanized paragraphs scored fully human when checked one at a time; units 102–106 were not scored before the credits ran out. Scores per unit are in `tools/humanize/units.json` (`pangram_single`). Flagged when scored alone: units 4, 28, 57 (score 1.0), 56, 70, 71 (0.45–0.6), 6, 25, 54 (0.2–0.32). Re-check once credits are topped up.

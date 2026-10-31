@@ -264,3 +264,7 @@
 
 % misc text helpers
 \newcommand{\nicett}[1]{{\texttt{#1}}}
+
+% Running heads: "4. TITLE" instead of book's "CHAPTER 4. TITLE", so long
+% chapter titles do not collide with the page number.
+\renewcommand{\chaptermark}[1]{\markright{\MakeUppercase{\ifnum\value{chapter}>0 \thechapter.\ \fi#1}}}

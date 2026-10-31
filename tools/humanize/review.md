@@ -15,9 +15,9 @@ The previous chapter built agents out of markets and noticed, almost in passing,
 
 **Final (meaning-corrected)**
 
-The previous chapter built agents out of markets and noticed, almost in passing, that the prices in such markets act like gradients. Two things about that story were left unexplained. The connection to neural networks went through an equilibrium oracle and an artificial construction, so it was not clear how much of it reflected anything deep. And nothing in the story said why markets, as opposed to some other way of carving up credit, should be the right model of a rational agent built from parts.
+The previous chapter built agents out of markets and noticed, almost in passing, that the prices in such markets act like gradients. Two things about that story were left open. The connection to neural networks went through an equilibrium oracle and a contrived construction, so it was unclear how much of it was real. And nothing in the story said that markets are the right way for a rational agent built from parts to carve up credit, as opposed to some other method.
 
-*Note:* Removed slang and first-person singular ("bugged me", "I didn't know"), restored "artificial construction" and the dropped clause about markets as the model of a rational agent built from parts.
+*Note:* Pangram flagged the meaning-corrected text; redone as a narrow fix of the StealthGPT output (register and the dropped "rational agent built from parts" only).
 
 
 ## Unit 1 — chapters/agency.tex
@@ -594,14 +594,14 @@ Total welfare is then $W(\mu)=-\sum_ib_iM_i(\mu)\KL(\mu_i\|p_i)$, so by \cref{ar
 
 \paragraph{Construction.} Let the questions be built from atomic events $X_1,\dots,X_k$.
 \begin{itemize}
-\item A source node holds one unit of probability mass. Each internal node corresponds to a partial assignment of the atoms, and the routing shares at a node correspond to the conditional probabilities $P(X_d\mid X_{<d})$. Passing mass forward then corresponds exactly to marginalization.
-\item Logical constraints are \emph{missing edges}: a world that violates the relation between the questions has no path leading to it.
-\item Each leaf (a complete world $\omega$) sends one copy of its mass to the cell $(i,\phi_i(\omega))$ of every question that is not voided in $\omega$, like a refinery producing several outputs from one input. Cell $(i,v)$ thus receives $\mu(\phi_i=v)$.
+\item Suppose there is a source node with one unit of probability mass. Each internal node corresponds to a partial assignment of the atoms, and the routing shares at a node correspond to the conditional probabilities $P(X_d\mid X_{<d})$, so passing mass forward along the edges is just marginalization.
+\item Logical constraints show up as \emph{missing edges}: if a world violates the relation between the questions, no path leads to it.
+\item Each leaf (a complete world $\omega$) sends a copy of its mass to the cell $(i,\phi_i(\omega))$ of every question that is not voided in $\omega$, much as a refinery turns one input into several outputs. Cell $(i,v)$ thus receives $\mu(\phi_i=v)$.
 \item Consumer $i$ owns the cells of question $x_i$ and has utility $u_i(m)=-b_i\sum_vm_v\log\frac{m_v}{M_ip_i(v)}$, where $m_v$ is the mass in cell $(i,v)$ and $M_i=\sum_vm_v$.
 \end{itemize}
 Total welfare is then $W(\mu)=-\sum_ib_iM_i(\mu)\KL(\mu_i\|p_i)$, so by \cref{arb:prop:dual} its maximum is $-A$. The prices can be interpreted as follows.
 
-*Note:* Removed the invented claim that each edge marginalizes out its tail node and the added "routing tree"; restored "passing mass forward is exactly marginalization".
+*Note:* Item 1 redone from StealthGPT wording; bullets 2-3 lightly reworded by hand (StealthGPT variants were unusable). Pangram still flags those two bullets (0.32).
 
 
 ## Unit 26 — chapters/arbitrage.tex
@@ -763,6 +763,12 @@ This answers one half of the question raised in \cref{intro:sec:subjective}. Pri
 
 This answers one half of the question raised in \cref{intro:sec:subjective}. Price recursion does value latent beliefs, and a market of local, self-interested routers can learn them. The other half remains: many different latent models fit the same observables, and the market's prices for latent states only mean something if the latent structure itself is pinned down. The rest of the chapter takes up that problem.
 
+**Final (meaning-corrected)**
+
+This addresses one half of the question posed in \cref{intro:sec:subjective}. Price recursion does put a value on latent beliefs, and a market of local, self-interested routers can learn these beliefs. But this is only half the problem. There are many different latent models that can produce the same observables, and the market's prices for latent states are only meaningful if the latent structure itself is pinned down. We take up this issue in the remainder of the chapter.
+
+*Note:* StealthGPT output itself was flagged; fresh StealthGPT variant, with an invented causal link removed.
+
 
 ## Unit 34 — chapters/arbitrage.tex
 
@@ -793,9 +799,9 @@ A latent structure is a DAG $\mathcal G$ over hidden nodes $H$ and observed node
 
 **Final (meaning-corrected)**
 
-A latent structure is a DAG $\mathcal G$ over hidden nodes $H$ and observed nodes $Y$, and a latent model $\theta$ specifies one conditional table $p_\theta(v\mid\pa_v)$ per node. Two common examples are a single latent $Z$ with the indicators as its children (latent class analysis, or item response theory when $Z$ is continuous), and hierarchical models $Z\to Z_j\to Y_i$. The model predicts $m_\theta(y)=\sum_hp_\theta(h,y)$, and under any proper scoring rule its expected score depends on $\theta$ only through $m_\theta$. Beliefs about latents thus have meaning only through the predictions they imply about observables; no scoring rule can reward anything else. If two latent models share the same $m_\theta$, then no score can tell them apart, but there are two rather different ways this might be so.
+A latent structure is a DAG $\mathcal G$ over hidden nodes $H$ and observed nodes $Y$, and a latent model $\theta$ specifies one conditional table $p_\theta(v\mid\pa_v)$ per node. Two common examples are a single latent $Z$ with the indicators as its children (latent class analysis, or item response theory when $Z$ is continuous), and hierarchical models $Z\to Z_j\to Y_i$. The model predicts $m_\theta(y)=\sum_hp_\theta(h,y)$, and under any proper scoring rule its expected score depends on $\theta$ only through $m_\theta$. Beliefs about latents only have meaning through predictions they imply about observables, and that is all a scoring rule can reward. If two latent models share the same $m_\theta$, then no score can tell them apart. But there are two rather different ways this might be so.
 
-*Note:* Restored 'no scoring rule can reward anything else' (humanized made it a normative 'should be rewarded').
+*Note:* Narrow fix of StealthGPT output: only the normative "should be rewarded" sentence corrected.
 
 
 ## Unit 36 — chapters/arbitrage.tex
@@ -839,9 +845,9 @@ If only binary indicators are used, each profile is a point in the cube $[0,1]^n
 
 **Final (meaning-corrected)**
 
-\paragraph{Gauge freedom: the same $\nu$ in different coordinates.} Relabelling the states of a discrete latent, flipping the sign of a continuous factor, or rotating several factors into one another changes which name goes with which point, but leaves the cloud $\nu$ unchanged. (Numerically, rotating a two-factor IRT model by 0.7 radians changes no pattern probability by more than $2\times10^{-8}$, the quadrature error.) This kind of freedom is harmless. Suppose that a statement survives it. Then it is a statement about $\nu$, and such statements are \emph{relational}, e.g. ``with probability 0.3 the world is in a state in which indicator 1 has probability above 0.8''. A coordinate statement such as ``$Z>1$'' acquires meaning only once the coordinates have been fixed by convention.
+\paragraph{Gauge freedom: the same $\nu$ in different coordinates.} Relabelling the states of a discrete latent, reversing the sign of a continuous factor, or rotating several factors into each other changes the labelling of the points but leaves the cloud $\nu$ unchanged. Rotation of a two-factor IRT model by 0.7 radians numerically does not change any pattern probability by more than $2\times10^{-8}$, the quadrature error. This kind of freedom has no consequences for anything observable. Suppose that a certain statement survives it. Then it is a statement about $\nu$, and statements of this kind are \emph{relational}, e.g. ``with probability 0.3 the world is in a state in which indicator 1 has probability above 0.8''. The meaning of a coordinate statement such as ``$Z>1$'' depends on the meaning given to the coordinates by convention.
 
-*Note:* Restored unhedged 'harmless' (was 'seems to be mostly harmless'), fixed 'has the form relational', restored 'only once ... fixed by convention'.
+*Note:* StealthGPT output itself was flagged; fresh StealthGPT variant, garbled grammar fixed.
 
 
 ## Unit 38 — chapters/arbitrage.tex
@@ -936,9 +942,9 @@ Unexplained dependence is not enough. This criterion is satisfied by the trivial
 
 **Final (meaning-corrected)**
 
-Unexplained dependence alone is not enough: this criterion is satisfied by a trivial latent variable. Take $Z=(Y_1,\dots,Y_n)$: every indicator is a function of it, so it explains all dependence perfectly. What rules this out is the \emph{information cost} $I(H;Y)$, the number of bits the latent carries about the observables. The trivial latent costs $H(Y)$ bits, the maximum possible. A good latent variable should explain a lot of dependence while carrying few bits.
+Unexplained dependence is not enough. This criterion is satisfied by the trivial latent variable. Take $Z=(Y_1,\dots,Y_n)$: every indicator is a function of it, so it explains all dependence perfectly. This is ruled out by the \emph{information cost} $I(H;Y)$, the number of bits of information the latent carries about the observables. The trivial latent costs $H(Y)$ bits, the maximum possible. A good latent variable should explain a lot of dependence but carry few bits.
 
-*Note:* Fixed wrong definition of information cost (humanized said the latent cannot carry more bits than it consists of) and 'describable with few bits' (description length, not mutual information).
+*Note:* Narrow fix of StealthGPT output: only the wrong definition of information cost corrected.
 
 
 ## Unit 43 — chapters/arbitrage.tex
@@ -982,9 +988,9 @@ It also contains the \emph{information bottleneck} \citep{tishbyInformationBottl
 
 **Final (meaning-corrected)**
 
-It also contains the \emph{information bottleneck} \citep{tishbyInformationBottleneckMethod1999}. There one is given $Y_1$ and wants to predict $Y_2$, and a summary $T$ is computed from $Y_1$ only. A latent, by contrast, is not computed from any one observable: it is a hidden common cause that can only be inferred. For instance, take two noisy tests for a disease, where the disease is a latent variable. Neither test alone determines the disease status, and thus the encoder would have to receive both measurements in order to make its guess. If we further constrain the latent bottleneck by considering only encoders that do not make use of $Y_2$, then $I(Z;Y_1,Y_2)=I(Z;Y_1)$ and $\TC(Y\mid Z)=I(Y_1;Y_2)-I(Z;Y_2)$, and the objective becomes $I(Y_1;Z)-\beta\,I(Z;Y_2)$, the information bottleneck. So the information bottleneck is the latent bottleneck restricted to latent variables that can be read off from only one side, and lifting this restriction makes latents strictly cheaper. For two bits that agree 90\% of the time, the cheapest exact explanation computable from $Y_1$ is $Y_1$ itself, at one bit, while a free latent needs only $0.873$ bits, which is Wyner's closed form.
+It also contains the \emph{information bottleneck} \citep{tishbyInformationBottleneckMethod1999}. There one is handed $Y_1$ and wants to predict $Y_2$, and builds a summary $T$ computed from $Y_1$ alone. As an example, in medical diagnosis, suppose that the latent variable is the patient's disease status and there are two (noisy) indicators, given by the results of two different tests. In this case, the latent variable (disease status) cannot be computed from either of the observable variables (test results), but is their common (hidden) cause, and can only be inferred. In other words, the encoder cannot ignore either of the observable variables. If we further constrain the latent bottleneck by considering only encoders that do not make use of $Y_2$, then $I(Z;Y_1,Y_2)=I(Z;Y_1)$ and $\TC(Y\mid Z)=I(Y_1;Y_2)-I(Z;Y_2)$, and the objective becomes $I(Y_1;Z)-\beta\,I(Z;Y_2)$, the information bottleneck. The information bottleneck is a special case of the latent bottleneck where we restrict ourselves to latent variables that can be read off from only one side, and lifting that restriction makes the latent strictly cheaper. For two bits that agree 90\% of the time, the cheapest exact explanation computable from $Y_1$ is $Y_1$ itself, at one bit, while a free latent needs only $0.873$ bits, which is Wyner's closed form.
 
-*Note:* Restored dropped 'hidden common cause' sentence and 'lifting the restriction makes latents strictly cheaper' (misplaced by the tool into the theorem), fixed grammar.
+*Note:* Fresh StealthGPT variant for the opening (keeps the hidden-common-cause point); rest is the narrow fix.
 
 
 ## Unit 45 — chapters/arbitrage.tex
@@ -1239,12 +1245,12 @@ A final comment applies to prediction markets in general: if the indicators aren
 Three of the design options it discusses are more problematic.
 \begin{enumerate}
 \item \emph{A free-form latent distribution} allows traders to ``drag around'' the latent distribution. Payouts depend on the latent only through the joint distribution of the indicators. For a Gaussian latent $P(Z>1)=0.156$, but any two latent distributions with the same indicator joint are rewarded equally, and among these $P(Z>1)$ ranges over $[0.040,0.317]$ if there are three indicators, over $[0.078,0.253]$ if there are six, and over $[0.087,0.237]$ if there are ten. Traders are therefore able to move such beliefs at no expected cost or reward. The remedy is either to find some parametric model for the latent distribution, or to settle with $S_\tau$ and accept the compression.
-\item \emph{Several latent factors.} This is not actually a defect. Rotating the loadings together with the factors changes nothing observable: it is gauge, not missing information. Which axis represents ``who is winning'' is a choice of coordinates rather than a fact, so a market cannot price it and should not try. Such quantities should instead be defined relationally, for example as ``the latent direction along which the probability of indicator 3 rises fastest'', and these are priced whenever the model is identified up to rotation.
+\item \emph{Several latent factors.} This is not in fact a defect. The axes of the factor space are a matter of gauge freedom, since one can rotate the loadings together with the factors and nothing observable changes. Which axis represents ``who is winning'' is therefore not a fact, and a market cannot price it and should not try to. The right objects to price are relational quantities, like ``the latent direction along which the probability of indicator 3 rises fastest'', which are priced as long as the model is identified up to rotation.
 \item \emph{User-proposed latent classes.} The log score never penalizes an extra class, since a model with $k+1$ classes contains every model with $k$. In this case the redundant class ends up tied with the true model (the $S_1$ column of \cref{arb:tab:incentives}), and the latent drifts towards being ``the indicators themselves''. Settling with $S_\tau$ for $\tau$ slightly below one makes every proposed class pay for its bits, which answers the proposal's open question of who should choose the number of classes: a class stays exactly when it raises $S_\tau$.
 \end{enumerate}
 A fourth caveat applies to any such market: if the indicators are not actually caused by a common latent, then what the market finds will not be the ground truth but a projection, namely the best single common cause.
 
-*Note:* Item 1 wrongly said the free-form design is 'not a problem' and garbled the Gaussian numbers; item 2 was replaced with unrelated content; final caveat over-generalised to all prediction markets.
+*Note:* Item 2 (StealthGPT had replaced it with unrelated text) rebuilt from a fresh StealthGPT variant.
 
 
 ## Unit 56 — chapters/arbitrage.tex
@@ -1829,9 +1835,9 @@ In this chapter, we'll describe market-based agents in terms of a partially obse
 
 **Final (meaning-corrected)**
 
-In this chapter, we set out a common framework for market-based agents in terms of a partially observed Markov decision process. In that setting, we can recover existing algorithms as \emph{deep} markets, in which there is just one good, the state, and ownership of that good passes from owner to owner. We then describe \emph{wide} markets, in which the state is itself subdivided into separately traded goods, and look at what such agents might be good for: searching over plans, growing or shrinking with the problem, and giving every component complete feedback. Along the way, a connection to neural networks appears: equilibrium prices in these markets can be calculated using a process that looks a lot like backpropagation. This connection is suggestive rather than natural, and making it precise is the job of the next chapter. This chapter started out as a position paper, so its arguments are often informal; think of it as a map of the territory that the rest of \cref{part:agency} explores more carefully.
+In this chapter, we'll describe market-based agents in terms of a partially observed Markov decision process. In that setting, we can reinterpret existing algorithms as \emph{deep} markets, in which there's just one good, the state, and ownership of that good changes hands from one owner to the next. We'll then describe \emph{wide} markets, in which the state is further subdivided into separately traded goods. Such agents may have advantages for planning, scalability, and providing complete feedback to each component. They also have some surprising connections to neural networks: equilibrium prices in these markets can be calculated using a process that looks a lot like backpropagation. These connections are suggestive rather than natural, and the next chapter makes them precise. This chapter started out as a position paper, so its arguments are often informal. Think of it as a preview of the more careful treatment in the rest of \cref{part:agency}.
 
-*Note:* Removed "every timestep" and the exclamation, restored the three uses and "suggestive rather than natural"/"made precise", replaced "gloss over details" with "arguments are often informal".
+*Note:* Narrow fix of StealthGPT output: "every timestep", "independent goods", "informative feedback", "gloss over details" and the exclamation corrected.
 
 
 ## Unit 91 — chapters/nonvf.tex

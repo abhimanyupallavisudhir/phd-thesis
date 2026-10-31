@@ -6,9 +6,27 @@
   "humanized": "The previous chapter built agents out of markets and noticed, almost in passing, that the prices in such markets act like gradients. Two things bugged me about that story. The connection to neural networks went through an equilibrium oracle and a contrived example, so I didn't know how much of it was real. And nothing in the story said that markets are the right way to carve up credit, as opposed to some other method.",
   "model": "super",
   "detector_score": 84,
-  "final": "The previous chapter built agents out of markets and noticed, almost in passing, that the prices in such markets act like gradients. Two things about that story were left unexplained. The connection to neural networks went through an equilibrium oracle and an artificial construction, so it was not clear how much of it reflected anything deep. And nothing in the story said why markets, as opposed to some other way of carving up credit, should be the right model of a rational agent built from parts.",
+  "final": "The previous chapter built agents out of markets and noticed, almost in passing, that the prices in such markets act like gradients. Two things about that story were left open. The connection to neural networks went through an equilibrium oracle and a contrived construction, so it was unclear how much of it was real. And nothing in the story said that markets are the right way for a rational agent built from parts to carve up credit, as opposed to some other method.",
   "verdict": "fixed",
-  "note": "Removed slang and first-person singular (\"bugged me\", \"I didn't know\"), restored \"artificial construction\" and the dropped clause about markets as the model of a rational agent built from parts."
+  "note": "Pangram flagged the meaning-corrected text; redone as a narrow fix of the StealthGPT output (register and the dropped \"rational agent built from parts\" only).",
+  "pangram": {
+   "final": {
+    "score": 1.0,
+    "labels": [
+     "AI-Generated"
+    ]
+   },
+   "humanized": {
+    "score": 1.1298199990929219e-24,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0,
+   "humanized": 6.649971844357018e-23
+  }
  },
  {
   "id": 1,
@@ -19,7 +37,26 @@
   "detector_score": 84,
   "final": "This chapter changes the question: instead of asking how to build an agent out of a market, it asks what a market computes. The first section starts from probabilities instead of prices. It turns out that the natural way to optimize probabilities, mirror ascent, is continuous-time Bayesian updating, so that a reward signal acts on a learner exactly as a stream of (self-fulfilling) evidence would. The following sections define a production economy on a directed graph and derive the equations for its prices. These \\emph{price recursion} equations reduce to backpropagation for factories in series, to the Bellman equation for an economy that merely passes goods along, and to Bayesian inference when routing shares are updated by mirror ascent. An agent's reward, then, is not an arbitrary input but the price that the surrounding economy puts on the agent's actions. Price recursion is to reward what Bayes' rule is to evidence. The chapter ends with the \\texttt{marketgrad} library, which implements these markets and numerically checks the identities. The two sections are adapted from informal articles, and so retain much of their first-person style.",
   "verdict": "fixed",
-  "note": "Restored the dropped framing (what a market computes), fixed the garbled reward/evidence analogy, restored \"not an arbitrary input\", and removed weakening (\"some of the identities\", \"some first-person elements\", \"first two\")."
+  "note": "Restored the dropped framing (what a market computes), fixed the garbled reward/evidence analogy, restored \"not an arbitrary input\", and removed weakening (\"some of the identities\", \"some first-person elements\", \"first two\").",
+  "pangram": {
+   "final": {
+    "score": 1.0,
+    "labels": [
+     "AI-Generated",
+     "Human Written"
+    ]
+   },
+   "humanized": {
+    "score": 1.1298199990929219e-24,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0,
+   "humanized": 8.751348013800242e-26
+  }
  },
  {
   "id": 2,
@@ -30,7 +67,18 @@
   "detector_score": 84,
   "final": "The ``alignment lemma'' invoked in the source article comes from the research notes\naccompanying the \\texttt{marketgrad} library; we reproduce it here. Give each node $i$ the\nobjective (``utility-inclusive profit at posted prices $p$''):",
   "verdict": "fixed",
-  "note": "Fixed garbled first sentence (misplaced quotes, stray period making a fragment)."
+  "note": "Fixed garbled first sentence (misplaced quotes, stray period making a fragment).",
+  "pangram": {
+   "final": {
+    "score": 1.135196843468472e-21,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 3,
@@ -41,7 +89,18 @@
   "detector_score": 84,
   "final": "where $p_j$ are prices posted by $i$'s buyers and $\\pi_i$ is the price vector $i$\nposts for its inputs; node $i$'s own controls are taken to be its output shares $s_{i\\cdot}$ and any\ninternal technology parameters $w_i$ of $f_i$.",
   "verdict": "fixed",
-  "note": "Fixed ungrammatical clause and missing \"and\" so controls are the output shares and the technology parameters."
+  "note": "Fixed ungrammatical clause and missing \"and\" so controls are the output shares and the technology parameters.",
+  "pangram": {
+   "final": {
+    "score": 1.135196843468472e-21,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 4,
@@ -53,7 +112,18 @@
   "detector_score": 84,
   "final": "The last two chapters took two different routes around the same obstacle. \\Cref{ch:nonvf} scored sentences that never resolve by making them the stakes of a game whose moves eventually do. \\Cref{ch:consistency} gave up on resolution altogether and asked only whether a forecaster's beliefs fit together, measuring the misfit as the profit an arbitrageur could lock in. Both are partial answers to the question raised in \\cref{intro:sec:subjective}: how should we reward beliefs about things that are never observed?",
   "verdict": "ok",
-  "note": ""
+  "note": "",
+  "pangram": {
+   "final": {
+    "score": 6.316037119989725e-15,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 1.0
+  }
  },
  {
   "id": 5,
@@ -65,7 +135,18 @@
   "detector_score": 84,
   "final": "This chapter brings that question back to the economics of \\cref{part:agency}. There, the market was, in essence, a machine for computing values. Using price recursion, it carried the value of final consumption back through the economy, so that the price of any intermediate good was a measure of its ultimate contribution to final consumption. The arbitrage metric of \\cref{ch:consistency} seems to belong to a different category of objects (being, essentially, a static measure of incoherence). In fact, as we will see in the first half of this chapter, it is not different at all. The arbitrage metric is exactly the welfare that a market of consumers gains by trading, and the arbitraged forecasts are the market's equilibrium prices. Finally, the price recursion of \\cref{ch:agency} decomposes a single global arbitrageur into a collection of local arbitrageurs. Along the way, beliefs turn out to be aggregated in exactly the same way as preferences: the ``utilitarian welfare'' assumed in \\cref{ch:agency} is the arbitrage-free combination of utilities interpreted as beliefs.",
   "verdict": "fixed",
-  "note": "Restored \"is exactly the welfare gained by trading\" (humanized weakened it to \"another interpretation\"), \"not different at all\", and the correct final claim (welfare is the arbitrage-free combination, not \"is arbitrage-free if\"); removed contractions."
+  "note": "Restored \"is exactly the welfare gained by trading\" (humanized weakened it to \"another interpretation\"), \"not different at all\", and the correct final claim (welfare is the arbitrage-free combination, not \"is arbitrage-free if\"); removed contractions.",
+  "pangram": {
+   "final": {
+    "score": 1.4124576150952917e-15,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 6,
@@ -77,7 +158,18 @@
   "detector_score": 97,
   "final": "The second half of the chapter turns to latent variables. In a market over dependent questions, a latent variable is simply an \\emph{intermediate good}. Nobody consumes it and it never resolves, but it is priced by everything downstream of it, and the market's price adjustment procedure turns out to be the EM algorithm. So price recursion does put a value on beliefs about latent variables. What it does not settle is \\emph{which} latent structure the market should hold, because many latent models predict the observables equally well. We therefore ask what gives a belief over a latent variable its meaning, given that only the observables can be scored. We argue that the meaning of a belief over latent variables is exactly captured by its predictions for the observables, and that what is left over can be divided into two parts: an arbitrary (but harmless) part that amounts to a choice of coordinates for the latent variables, and a substantive part, which can be eliminated by requiring that latent variables explain the observables parsimoniously. This gives a scoring rule, the \\emph{tempered log score}, whose expected value is maximized by the most economical latent explanation. We close by using these results to assess existing proposals for prediction markets with latent variables.",
   "verdict": "fixed",
-  "note": "Removed the false claim that prices can only be assigned to non-latent variables (original: latents are priced by everything downstream), restored \"never resolves\", \"meaning\" rather than \"correct\", \"what is left over\", and \"chapter\" not \"paper\"; dropped an added definition of latents."
+  "note": "Removed the false claim that prices can only be assigned to non-latent variables (original: latents are priced by everything downstream), restored \"never resolves\", \"meaning\" rather than \"correct\", \"what is left over\", and \"chapter\" not \"paper\"; dropped an added definition of latents.",
+  "pangram": {
+   "final": {
+    "score": 0.0289008766412735,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.2
+  }
  },
  {
   "id": 7,
@@ -89,7 +181,18 @@
   "detector_score": 97,
   "final": "For later use we rewrite the arbitrage metric of \\cref{cfc:def:arbitrage} in the following form. There are questions $x_1,\\dots,x_n$, and the forecaster reports a distribution $p_i$ over the possible answers to each. A \\emph{world} $\\omega$ maps every question to some answer, and $\\Omega$ is the set of all worlds consistent with the logical relation between the questions. In world $\\omega$ question $x_i$ resolves to $\\phi_i(\\omega)$, or is voided ($\\phi_i(\\omega)=\\none$) if it is a conditional question whose condition fails. Each question is traded against a logarithmic market maker with liquidity $b_i$; \\cref{ch:consistency} used $b_i=1$ throughout.",
   "verdict": "fixed",
-  "note": "Fixed sentence fragment, \"An world\", missing punctuation, and the dangling \"this logical relation\"."
+  "note": "Fixed sentence fragment, \"An world\", missing punctuation, and the dangling \"this logical relation\".",
+  "pangram": {
+   "final": {
+    "score": 9.90602663363166e-21,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 8,
@@ -100,7 +203,18 @@
   "detector_score": 86,
   "final": "An arbitrageur moves the price of question $x_i$ from $p_i$ to $q_i$, and in world $\\omega$ earns $b_i\\left[\\log q_i(\\phi_i\\omega)-\\log p_i(\\phi_i\\omega)\\right]$ from that market, or nothing if the question is voided. The arbitrage metric is the maximum guaranteed profit\n\\begin{equation}\\label{arb:eq:arbitrage}\nA=\\max_{q}\\ \\min_{\\omega\\in\\Omega}\\ \\sum_{i=1}^n b_i\\left[\\log q_i(\\phi_i\\omega)-\\log p_i(\\phi_i\\omega)\\right].\n\\end{equation}",
   "verdict": "ok",
-  "note": ""
+  "note": "",
+  "pangram": {
+   "final": {
+    "score": 9.90602663363166e-21,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 9,
@@ -112,7 +226,18 @@
   "detector_score": 97,
   "final": "\\begin{proposition}[the arbitrage metric is an information projection]\\label{arb:prop:dual}\nFor a distribution $\\mu$ over $\\Omega$, let $M_i(\\mu)$ be the probability that question $x_i$ is not voided and let $\\mu_i$ be the distribution of its answer given that it is not voided. Then\n\\begin{equation}\\label{arb:eq:dual}\nA=\\min_{\\mu\\in\\simplex(\\Omega)}\\ \\sum_{i=1}^n b_i\\,M_i(\\mu)\\,\\KL\\!\\left(\\mu_i\\,\\|\\,p_i\\right),\n\\end{equation}\nand the arbitraged forecasts are the marginals of the minimizer: $q^*_i=\\mu^*_i$.\n\\end{proposition}",
   "verdict": "fixed",
-  "note": "Restored the definite identification (the arbitraged forecasts are the marginals), not merely \"are arbitraged forecasts\"."
+  "note": "Restored the definite identification (the arbitraged forecasts are the marginals), not merely \"are arbitraged forecasts\".",
+  "pangram": {
+   "final": {
+    "score": 9.90602663363166e-21,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 10,
@@ -123,7 +248,18 @@
   "detector_score": 86,
   "final": "\\begin{proof}\nFor fixed $q$, the objective in \\eqref{arb:eq:arbitrage} is linear in the world, so minimizing over worlds is the same as minimizing over distributions $\\mu$ on worlds. Since the resulting function is concave in $q$ and linear in $\\mu$, and since $\\simplex(\\Omega)$ is compact and convex, we can interchange the order of the max and min operations by Sion's minimax theorem \\citep{sionGeneralMinimaxTheorems1958}. For a fixed $\\mu$, the arbitrageur's best choice for question $x_i$ maximizes $\\sum_v \\mu(\\phi_i=v)\\log q_i(v)$, which by Gibbs' inequality is $q_i=\\mu_i$. Substituting gives $b_iM_i(\\mu)\\KL(\\mu_i\\|p_i)$ for each question.\n\\end{proof}",
   "verdict": "fixed",
-  "note": "Said the objective (not the equation) is linear, referred to the resulting function after the exchange, and made spelling consistently American."
+  "note": "Said the objective (not the equation) is linear, referred to the resulting function after the exchange, and made spelling consistently American.",
+  "pangram": {
+   "final": {
+    "score": 9.90602663363166e-21,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 11,
@@ -134,7 +270,18 @@
   "detector_score": 86,
   "final": "Read this way, the arbitrageur's worst-case distribution over worlds is itself a coherent belief, and the arbitrage metric is how far, in total KL divergence, the forecaster's beliefs are from the nearest coherent one. In information-geometric terms it is an I-projection (a ``reverse KL'' projection) of the forecasts onto the set of consistent beliefs. The proposition also explains \\cref{ch:consistency}'s convention of giving a voided question zero score: the convention weights a conditional question by the probability of the conditioning event.",
   "verdict": "fixed",
-  "note": "Changed normative \"justifies ... should be weighted\" back to the descriptive \"explains ... weights\"."
+  "note": "Changed normative \"justifies ... should be weighted\" back to the descriptive \"explains ... weights\".",
+  "pangram": {
+   "final": {
+    "score": 9.90602663363166e-21,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 12,
@@ -145,7 +292,18 @@
   "detector_score": 86,
   "final": "Nothing here depends on the logarithm. For any proper scoring rule whose expected score is concave in the report, with convex generator $F$ and Bregman divergence $D_F$, the same argument gives $A_F=\\min_\\mu\\sum_ib_iD_F(\\mu\\|p_i)$ (ignoring voided questions for simplicity). When all the $p_i$ are forecasts of the \\emph{same} variable, the minimizer satisfies\n\\begin{equation}\\label{arb:eq:mirror-average}\n\\nabla F(q^*)=\\sum_i w_i\\,\\nabla F(p_i)+c\\mathbf 1,\\qquad w_i=b_i/B,\\ B=\\textstyle\\sum_ib_i,\n\\end{equation}\nfor a constant $c$. That is, the arbitraged forecast is the weighted average of the forecasts \\emph{in mirror coordinates} (\\cref{agency:sec:mirror}). In the case of the log score, the mirror coordinate is the log-probability, so the arbitraged forecast is the geometric pool $q^*\\propto\\prod_ip_i^{w_i}$. For the Brier score it is the probability itself, and the arbitraged forecast is the linear pool $\\sum_iw_ip_i$.",
   "verdict": "fixed",
-  "note": "Deleted a spurious inserted display equation unrelated to the thesis and restored the sentence introducing the minimizer's condition; restored \"weighted\" average."
+  "note": "Deleted a spurious inserted display equation unrelated to the thesis and restored the sentence introducing the minimizer's condition; restored \"weighted\" average.",
+  "pangram": {
+   "final": {
+    "score": 9.90602663363166e-21,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 13,
@@ -157,7 +315,18 @@
   "detector_score": 90,
   "final": "\\begin{example}\\label{arb:ex:election}\nSuppose a forecaster assigned a 60\\% chance of winning to each of the Democratic and Republican candidates (exactly one of whom, of course, will win). Write both forecasts as distributions over the two worlds: $p_1=(0.6,0.4)$ and $p_2=(0.4,0.6)$, with $b_1=b_2=1$. The geometric pool is $q^*=(\\tfrac12,\\tfrac12)$, and the arbitrage metric is\n\\[\nA=\\KL(q^*\\|p_1)+\\KL(q^*\\|p_2)=-2\\log\\!\\big(2\\sqrt{0.24}\\big)\\approx0.041\\ \\text{nats},\n\\]\nwhich agrees with the closed form for the negation check given in \\cref{cfc:sec:arbitrage}.\n\\end{example}",
   "verdict": "fixed",
-  "note": "Fixed the garbled sentence introducing the geometric pool and the arbitrage metric display."
+  "note": "Fixed the garbled sentence introducing the geometric pool and the arbitrage metric display.",
+  "pangram": {
+   "final": {
+    "score": 9.90602663363166e-21,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 14,
@@ -168,7 +337,18 @@
   "detector_score": 86,
   "final": "\\Cref{ch:agency} took the objective of an economy to be utilitarian welfare $W=\\sum_iU_i$, ``without loss of generality with weights 1''. We now show where that sum comes from.",
   "verdict": "fixed",
-  "note": "Restored \"we now show\" (humanized changed the meaning and used a contraction)."
+  "note": "Restored \"we now show\" (humanized changed the meaning and used a contraction).",
+  "pangram": {
+   "final": {
+    "score": 9.90602663363166e-21,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 15,
@@ -179,7 +359,18 @@
   "detector_score": 86,
   "final": "Consider $n$ forecasts of a common variable, and write each in softmax form as $p_i(x)=e^{U_i(x)}/Z_i$. Here $U_i$ can be read either as a log-probability (a logit) or as a utility, and we will read it both ways. Let $\\Phi(U)=\\log\\sum_xe^{U(x)}$ be the log-partition function, which is convex.",
   "verdict": "fixed",
-  "note": "Kept \"forecasts\" rather than \"models\", removed added math ($x$, index gloss), and fixed the \"Let ..., the ...\" fragment."
+  "note": "Kept \"forecasts\" rather than \"models\", removed added math ($x$, index gloss), and fixed the \"Let ..., the ...\" fragment.",
+  "pangram": {
+   "final": {
+    "score": 9.90602663363166e-21,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 16,
@@ -191,7 +382,18 @@
   "detector_score": 90,
   "final": "So the arbitraged \\emph{utility} is $\\Ubar=\\sum_iw_iU_i$: the utilitarian welfare of \\cref{ch:agency}, with welfare weights equal to the liquidities. In other words, averaging beliefs in mirror space and summing utilities are the same operation. This gives the weighted sum of utilities a justification that does not rest on interpersonal comparisons of utility in the usual sense: if we interpret the preferences of each agent as a belief (a bet on ``what we will do''), then maximizing the weighted sum of utilities is the unique arbitrage-free way to combine them. (And the weights in the sum are the amounts that the agents are willing to put on the line.)",
   "verdict": "fixed",
-  "note": "Fixed the garbled claim (humanized said the sum was not \"a justification for interpersonal comparisons\"; original: the justification does not rest on them), restored the \"same operation\" statement, removed chatty \"you\"."
+  "note": "Fixed the garbled claim (humanized said the sum was not \"a justification for interpersonal comparisons\"; original: the justification does not rest on them), restored the \"same operation\" statement, removed chatty \"you\".",
+  "pangram": {
+   "final": {
+    "score": 9.90602663363166e-21,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 17,
@@ -203,7 +405,18 @@
   "detector_score": 90,
   "final": "The right-hand side of~\\eqref{arb:eq:jensen} is the gap in Jensen's inequality for the convex function $\\Phi$, a quantity known as the \\emph{Bregman information} \\citep{banerjeeClusteringBregmanDivergences2005}. The Hessian of $\\Phi$ is the covariance matrix of the softmax distribution, so for small disagreements\n\\[\nA\\approx\\frac B2\\sum_iw_i\\Var_{q^*}\\!\\big(U_i-\\Ubar\\big),\\qquad\\text{and for a binary question}\\quad A\\approx\\frac B2\\,q^*(1-q^*)\\Var_w\\big(\\text{log-odds}_i\\big).\n\\]\nThe arbitrage metric therefore measures the disagreement in log-odds between forecasters: to second order it is a variance of their log-odds, and exactly it is the natural generalization of variance to this geometry.",
   "verdict": "fixed",
-  "note": "\"For small disagreements\" qualified the Hessian identity (which holds always) instead of the approximation; reattached it to the display and restored \"exactly\" (not \"more exactly\")."
+  "note": "\"For small disagreements\" qualified the Hessian identity (which holds always) instead of the approximation; reattached it to the display and restored \"exactly\" (not \"more exactly\").",
+  "pangram": {
+   "final": {
+    "score": 9.90602663363166e-21,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 18,
@@ -215,7 +428,18 @@
   "detector_score": 90,
   "final": "Which market actually computes $q^*$ and $A$? Consider the simplest economy of \\cref{ch:agency}, which consists of a single source holding $K$ units of each Arrow security (which pays $1$ if state $x$ occurs) and $n$ consumers competing for them. The source routes security $x$ to consumer $i$ with share $s_i(x)$, so consumer $i$ ends up holding $z_i(x)=Ks_i(x)$. Consumer $i$ believes $p_i\\propto e^{U_i}$ and has exponential (CARA) utility with risk tolerance $b_i$, so its certainty equivalent for holdings $z$ is\n\\[\nV_i(z)=-b_i\\log\\mathbb E_{x\\sim p_i}\\,e^{-z(x)/b_i}.\n\\]\nThe price that consumer $i$ is willing to pay for a marginal unit of security $x$ is\n\\[\na_i(x)=\\frac{\\partial V_i}{\\partial z(x)}=\\operatorname{softmax}\\!\\big(U_i-z_i/b_i\\big)(x),\n\\]\nits current risk-neutral probability of $x$. The share dynamics of \\cref{agency:eq:mwu}, $s_i(x)\\propto s_i(x)\\exp\\!\\big(\\eta Ka_i(x)\\big)$, then send each security towards whoever currently values it most.",
   "verdict": "fixed",
-  "note": "Fixed stray colon/fragment, used \"source\" consistently with the next sentence, restored \"competing for them\" and \"its\" (the consumer's) risk-neutral probability."
+  "note": "Fixed stray colon/fragment, used \"source\" consistently with the next sentence, restored \"competing for them\" and \"its\" (the consumer's) risk-neutral probability.",
+  "pangram": {
+   "final": {
+    "score": 9.90602663363166e-21,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 19,
@@ -227,7 +451,18 @@
   "detector_score": 95,
   "final": "\\begin{theorem}[CARA markets compute the arbitrage]\\label{arb:thm:cara}\nAt the welfare-maximizing allocation:\n\\begin{enumerate}\n\\item every consumer's price vector equals the arbitraged forecast $q^*$, so the law of one price (that every consumer's price vector is the same) is precisely the consistency of the market's beliefs;\n\\item the welfare gain from trade, $\\sum_iV_i(z_i)$ minus its value without trade, equals the arbitrage metric $A$;\n\\item holdings are $z_i=b_i(U_i-\\Ubar)+c_i$ for constants $c_i$, so every consumer's post-trade effective utility $U_i-z_i/b_i$ equals $\\Ubar$ up to a constant.\n\\end{enumerate}\n\\end{theorem}",
   "verdict": "fixed",
-  "note": "Removed an invented claim about the dual problem replacing the theorem's hypothesis, and fixed garbled item 1."
+  "note": "Removed an invented claim about the dual problem replacing the theorem's hypothesis, and fixed garbled item 1.",
+  "pangram": {
+   "final": {
+    "score": 9.90602663363166e-21,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 20,
@@ -239,7 +474,18 @@
   "detector_score": 95,
   "final": "\\begin{proof}\nAbsent trade each consumer has a riskless bundle, and by $V_i(z+c\\mathbf1)=V_i(z)+c$ the sum of the values of the $K$ units in any riskless allocation is $K$. It is then enough to compute the value of the allocation in (3) and prove its optimality. With $\\sum_ic_i=0$ we have $\\sum_iz_i=\\sum_ib_iU_i-B\\Ubar=0$, so (3) is feasible as a trade. Under (3), $U_i-z_i/b_i=\\Ubar-c_i/b_i$, hence all consumers' marginal values are equal to $\\operatorname{softmax}(\\Ubar)=q^*$. Since each $V_i$ is concave, these equal marginal values certify that the allocation maximizes the sum. Finally,\n$V_i(z_i)=c_i-b_i\\log\\sum_xe^{U_i(x)-\\Phi(U_i)-U_i(x)+\\Ubar(x)}=c_i+b_i\\big[\\Phi(U_i)-\\Phi(\\Ubar)\\big]$, and summing over $i$ gives $A$ by \\cref{arb:prop:welfare}.\n\\end{proof}",
   "verdict": "fixed",
-  "note": "Fixed \"are all equal $X$\" grammar and restored the certification logic (concavity plus equal marginals implies optimality)."
+  "note": "Fixed \"are all equal $X$\" grammar and restored the certification logic (concavity plus equal marginals implies optimality).",
+  "pangram": {
+   "final": {
+    "score": 9.90602663363166e-21,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 21,
@@ -250,7 +496,18 @@
   "detector_score": 89,
   "final": "The market does not change anyone's desires. It hands each consumer a portfolio, which plays the role of a reward, equal to that consumer's disagreement with the collective, and after trading everyone acts on the arbitraged utility at the margin. This is a concrete instance of the claim in \\cref{agency:sec:rationalize} that an economy, acting as a super-agent, generates the rewards of its sub-agents.",
   "verdict": "fixed",
-  "note": "Removed contraction and chatty \"you\"."
+  "note": "Removed contraction and chatty \"you\".",
+  "pangram": {
+   "final": {
+    "score": 9.90602663363166e-21,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 22,
@@ -262,7 +519,18 @@
   "detector_score": 95,
   "final": "The reason behind the theorem is more general. Call a consumer \\emph{quasi-linear} if $V_i(z+c\\mathbf1)=V_i(z)+c$ and $V_i(0)=0$. Then $C_i(\\theta):=-V_i(-\\theta)$ is the cost function of a market maker, with prices $p_i=\\nabla C_i(0)$ and scoring rule given by the convex conjugate $C_i^*$ \\citep{chenUtilityFrameworkBoundedloss2007}. The planner's problem is an infimal convolution, and the conjugate of an infimal convolution is the sum of the conjugates, so\n\\[\n\\sup_{\\sum_iz_i=0}\\ \\sum_iV_i(z_i)=\\inf_\\mu\\ \\sum_iC_i^*(\\mu)=\\inf_\\mu\\ \\sum_iD_{F_i}(\\mu\\|p_i)=A_F .\n\\]\nEvery quasi-linear consumer is a market maker for some proper scoring rule, and the planner's problem for a single-layer market is the arbitrage problem for these rules. For CARA consumers $C_i$ is the logarithmic market scoring rule and we recover \\cref{arb:thm:cara}. The fact that CARA traders price at the geometric pool is old: it goes back to \\citet{wilsonTheorySyndicates1968} on syndicates, and in prediction-market form to \\citet{abernethyInformationAggregationExponential2014}. What is new here is the identification with the arbitrage metric and with the welfare and mirror-ascent picture of \\cref{ch:agency}.",
   "verdict": "fixed",
-  "note": "Removed invented math ($f_i^*$) and a false claim that terms can be optimized separately, restored the generality framing, removed spurious \"more generally\", and fixed \"this metric with an arbitrage metric\"."
+  "note": "Removed invented math ($f_i^*$) and a false claim that terms can be optimized separately, restored the generality framing, removed spurious \"more generally\", and fixed \"this metric with an arbitrage metric\".",
+  "pangram": {
+   "final": {
+    "score": 3.2813406392051547e-07,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 23,
@@ -273,7 +541,18 @@
   "detector_score": 89,
   "final": "There is one important qualification. Consumers with logarithmic (``Kelly'') utility, $\\mathbb E_{p_i}\\log z_i$, are \\emph{not} quasi-linear, and for them the same market instead prices at the wealth-weighted \\emph{linear} pool, which minimizes $\\sum_iw_i\\KL(p_i\\|\\pi)$. This is the opposite projection (an M-projection), and it is not the arbitrage defined in \\cref{ch:consistency}; in our numerical test the difference was $0.08$. So while it is true that ``the market arbitrages beliefs'', the geometry of that arbitrage is determined by consumers' attitudes to risk.",
   "verdict": "fixed",
-  "note": "Fixed \"the optimal market maker\" (it is the same market), the false \"another possibility to compute a projection\" (the linear pool IS the M-projection), dropped added \"in general\", and restored the quoted phrase."
+  "note": "Fixed \"the optimal market maker\" (it is the same market), the false \"another possibility to compute a projection\" (the linear pool IS the M-projection), dropped added \"in general\", and restored the quoted phrase.",
+  "pangram": {
+   "final": {
+    "score": 3.2813406392051547e-07,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 24,
@@ -284,7 +563,18 @@
   "detector_score": 89,
   "final": "So far, we have focused on forecasts of a single variable. In \\cref{ch:consistency}, however, we considered logically related questions, which call for a market with depth. It is convenient to swap the roles of goods and prices: the good is now \\emph{probability mass}, and prices are payoffs.",
   "verdict": "fixed",
-  "note": "Removed stray fragment \"Markets with depth.\" and said \"single variable\" rather than \"single questions\"."
+  "note": "Removed stray fragment \"Markets with depth.\" and said \"single variable\" rather than \"single questions\".",
+  "pangram": {
+   "final": {
+    "score": 3.946541426991246e-10,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 25,
@@ -294,9 +584,28 @@
   "humanized": "\\paragraph{Construction.} Let the questions be built from atomic events $X_1,\\dots,X_k$.\n\\begin{itemize}\n\\item Suppose there is a source node with one unit of probability mass, and passing mass forward along an edge corresponds to marginalizing out the node at the tail of the edge. Each internal node of a routing tree corresponds to a partial assignment of the atoms in the routing problem, and the routing shares at a node correspond to the conditional probabilities $P(X_d\\mid X_{<d})$.\n\\item Logical constraints are \\emph{missing edges}: a world that violates the relation between the questions has no path leading to it.\n\\item Each leaf (a complete world $\\omega$) sends one copy of its mass to the cell $(i,\\phi_i(\\omega))$ of every question that is not voided in $\\omega$, like a refinery producing several outputs from one input. Cell $(i,v)$ thus receives $\\mu(\\phi_i=v)$.\n\\item Consumer $i$ owns the cells of question $x_i$ and has utility $u_i(m)=-b_i\\sum_vm_v\\log\\frac{m_v}{M_ip_i(v)}$, where $m_v$ is the mass in cell $(i,v)$ and $M_i=\\sum_vm_v$.\n\\end{itemize}\nTotal welfare is then $W(\\mu)=-\\sum_ib_iM_i(\\mu)\\KL(\\mu_i\\|p_i)$, so by \\cref{arb:prop:dual} its maximum is $-A$. The prices can be interpreted as follows.",
   "model": "super",
   "detector_score": 82,
-  "final": "\\paragraph{Construction.} Let the questions be built from atomic events $X_1,\\dots,X_k$.\n\\begin{itemize}\n\\item A source node holds one unit of probability mass. Each internal node corresponds to a partial assignment of the atoms, and the routing shares at a node correspond to the conditional probabilities $P(X_d\\mid X_{<d})$. Passing mass forward then corresponds exactly to marginalization.\n\\item Logical constraints are \\emph{missing edges}: a world that violates the relation between the questions has no path leading to it.\n\\item Each leaf (a complete world $\\omega$) sends one copy of its mass to the cell $(i,\\phi_i(\\omega))$ of every question that is not voided in $\\omega$, like a refinery producing several outputs from one input. Cell $(i,v)$ thus receives $\\mu(\\phi_i=v)$.\n\\item Consumer $i$ owns the cells of question $x_i$ and has utility $u_i(m)=-b_i\\sum_vm_v\\log\\frac{m_v}{M_ip_i(v)}$, where $m_v$ is the mass in cell $(i,v)$ and $M_i=\\sum_vm_v$.\n\\end{itemize}\nTotal welfare is then $W(\\mu)=-\\sum_ib_iM_i(\\mu)\\KL(\\mu_i\\|p_i)$, so by \\cref{arb:prop:dual} its maximum is $-A$. The prices can be interpreted as follows.",
+  "final": "\\paragraph{Construction.} Let the questions be built from atomic events $X_1,\\dots,X_k$.\n\\begin{itemize}\n\\item Suppose there is a source node with one unit of probability mass. Each internal node corresponds to a partial assignment of the atoms, and the routing shares at a node correspond to the conditional probabilities $P(X_d\\mid X_{<d})$, so passing mass forward along the edges is just marginalization.\n\\item Logical constraints show up as \\emph{missing edges}: if a world violates the relation between the questions, no path leads to it.\n\\item Each leaf (a complete world $\\omega$) sends a copy of its mass to the cell $(i,\\phi_i(\\omega))$ of every question that is not voided in $\\omega$, much as a refinery turns one input into several outputs. Cell $(i,v)$ thus receives $\\mu(\\phi_i=v)$.\n\\item Consumer $i$ owns the cells of question $x_i$ and has utility $u_i(m)=-b_i\\sum_vm_v\\log\\frac{m_v}{M_ip_i(v)}$, where $m_v$ is the mass in cell $(i,v)$ and $M_i=\\sum_vm_v$.\n\\end{itemize}\nTotal welfare is then $W(\\mu)=-\\sum_ib_iM_i(\\mu)\\KL(\\mu_i\\|p_i)$, so by \\cref{arb:prop:dual} its maximum is $-A$. The prices can be interpreted as follows.",
   "verdict": "fixed",
-  "note": "Removed the invented claim that each edge marginalizes out its tail node and the added \"routing tree\"; restored \"passing mass forward is exactly marginalization\"."
+  "note": "Item 1 redone from StealthGPT wording; bullets 2-3 lightly reworded by hand (StealthGPT variants were unusable). Pangram still flags those two bullets (0.32).",
+  "pangram": {
+   "final": {
+    "score": 1.0,
+    "labels": [
+     "AI-Generated",
+     "Human Written"
+    ]
+   },
+   "humanized": {
+    "score": 5.752977649819968e-09,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.32,
+   "humanized": 9.938770639816852e-11
+  }
  },
  {
   "id": 26,
@@ -307,7 +616,18 @@
   "detector_score": 89,
   "final": "\\begin{theorem}[world prices are arbitrage profits]\\label{arb:thm:deep}\nIn this market:\n\\begin{enumerate}\n\\item the price of leaf $\\omega$ is $a_\\omega=\\sum_ib_i\\log\\frac{p_i(\\phi_i\\omega)}{\\mu_i(\\phi_i\\omega)}$ (voided questions contribute nothing), which is minus the profit an arbitrageur makes in world $\\omega$ by moving every price to $\\mu$'s marginals;\n\\item the price of an internal node is the share-weighted average of its children's prices, i.e.\\ minus the arbitrageur's expected profit given that partial scenario;\n\\item at the welfare maximum, the question marginals are the arbitraged forecasts, and the arbitrageur's profit equals $A$ in every world that receives mass and is at least $A$ in every other world.\n\\end{enumerate}\n\\end{theorem}",
   "verdict": "ok",
-  "note": ""
+  "note": "",
+  "pangram": {
+   "final": {
+    "score": 1.4716752848964221e-18,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 27,
@@ -319,7 +639,18 @@
   "detector_score": 82,
   "final": "\\begin{proof}[Proof sketch]\n(1) Differentiating $u_i$ with respect to $m_v$ gives $-b_i\\log\\frac{m_v}{M_ip_i(v)}=b_i\\log\\frac{p_i(v)}{\\mu_i(v)}$. The price of a leaf is the sum of the prices of the cells for which it is the supplier. (2) For an internal node, price recursion (\\cref{agency:eq:adjoint-b}) implies that its price is given by the share-weighted average of its children's prices, since it passes mass on without transformation. (3) Since $u_i$ is homogeneous of degree one in the masses, $W=\\sum_\\omega\\mu(\\omega)a_\\omega$ is minus the expected profit. The optimality conditions for maximizing $W$ over $\\simplex(\\Omega)$ say that $a_\\omega$ is the same on the support of $\\mu$ and no larger elsewhere; since $\\max W=-A$, that common value is $-A$.\n\\end{proof}",
   "verdict": "ok",
-  "note": ""
+  "note": "",
+  "pangram": {
+   "final": {
+    "score": 1.4716752848964221e-18,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 28,
@@ -331,7 +662,18 @@
   "detector_score": 82,
   "final": "In \\cref{cfc:def:arbitrage}, the global arbitrageur solves a single max--min problem over all worlds at once. The deep market splits this problem among \\emph{local} arbitrageurs: each node sees only its children's prices, and price recursion makes the local arbitrage add up to the global one. One small consequence is worth recording. A complete set of conditional forecasts is a joint forecast, by the chain rule for KL divergence, so the conditional-probability check of \\cref{ch:consistency} reduces to a paraphrase check between the implied product $F(P)F(Q\\mid P)$ and the direct forecast $F(P\\wedge Q)$. This explains why that check has a closed form.",
   "verdict": "fixed",
-  "note": "Restored \"children's prices\" (not \"subtree\"), the role of price recursion, the \"max--min\" dash, and the referent of \"that check\" (the conditional-probability check, not a \"sanity check above\")."
+  "note": "Restored \"children's prices\" (not \"subtree\"), the role of price recursion, the \"max--min\" dash, and the referent of \"that check\" (the conditional-probability check, not a \"sanity check above\").",
+  "pangram": {
+   "final": {
+    "score": 1.1244920793129776e-11,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 1.0
+  }
  },
  {
   "id": 29,
@@ -343,7 +685,18 @@
   "detector_score": 87,
   "final": "Markets over dependent questions are not new. Combinatorial prediction markets \\citep{hansonCombinatorialInformationMarket2003} and the Bayesian-network market maker that was deployed as SciCast \\citep{laskeyGraphicalModelMarket2018} maintain a joint distribution over related events, and trader dynamics in such markets have been analysed by \\citet{frongilloConvergenceAnalysisPrediction2015} as coordinate descent on an infimal convolution. What the economic view adds is the identification of welfare with minus the arbitrage metric and of world prices with arbitrage profits, together with a decomposition in which nodes owned by different entities optimize based on local prices only.",
   "verdict": "fixed",
-  "note": "Restored 'not new' framing, the joint-distribution clause and 'what the economic view adds'; removed duplicated phrase and added 'in some cases' hedge."
+  "note": "Restored 'not new' framing, the joint-distribution clause and 'what the economic view adds'; removed duplicated phrase and added 'in some cases' hedge.",
+  "pangram": {
+   "final": {
+    "score": 2.5972998166264027e-13,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 30,
@@ -355,7 +708,18 @@
   "detector_score": 87,
   "final": "A different construction is obtained if we let the terminal consumers be nature's resolutions instead of forecasters. In the latent-class market proposed by \\citet{tailcalledLatentVariablesPrediction2023}, traders make moves to the parameters of a latent-class model and are paid by the change in log-likelihood of the indicators once they resolve. We can build this as a deep market:\n\\begin{itemize}\n\\item the source routes mass to the latent classes $Z=j$, according to the shares $P(Z=j)$;\n\\item each class copies its mass to one router per indicator (copying mass is exactly conditional independence);\n\\item router $(j,i)$ splits its mass according to $P(Y_i\\mid Z=j)$;\n\\item for each observed data point $y^d$, the pieces are recombined, and merging over the classes delivers to consumer $d$ the mass $P(y^d)$, which it values at $\\log P(y^d)$.\n\\end{itemize}",
   "verdict": "fixed",
-  "note": "Fixed payment rule (change in log-likelihood, not a fraction paid when moves are 'correct'), restored the deep-market lead-in and the item subjects (source, each class), and restored 'exactly'."
+  "note": "Fixed payment rule (change in log-likelihood, not a fraction paid when moves are 'correct'), restored the deep-market lead-in and the item subjects (source, each class), and restored 'exactly'.",
+  "pangram": {
+   "final": {
+    "score": 5.219764419950337e-26,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 31,
@@ -367,7 +731,25 @@
   "detector_score": 87,
   "final": "Two things follow (both checked numerically to $10^{-12}$). First, the price of latent class $j$ is calculated as a likelihood ratio,\n\\[\na_{Z=j}=\\sum_d\\frac{P(y^d\\mid Z=j)}{P(y^d)},\n\\]\nand the revenue on each edge, mass times price, is the posterior probability of that edge; the price recursion is here the backward pass of the forward--backward algorithm. Second, the simplest adaptive rule a router could follow, ``next period, route in proportion to the revenue each buyer paid you'' (proportional response dynamics, \\citealt{birnbaum2011}), is \\emph{exactly} the EM algorithm \\citep{dempsterMaximumLikelihoodIncomplete1977}, step by step. As an example, the shares of the source update to $P(Z=j)\\,a_{Z=j}/N=\\frac1N\\sum_dP(Z=j\\mid y^d)$, which is the EM update of the class weights. The exponential rule~\\eqref{agency:eq:mwu} is mirror ascent on the same log-likelihood.",
   "verdict": "fixed",
-  "note": "Fixed broken sentence after display and restored 'First'; restored forward--backward dash; 'can be thought of as' restored to 'is'."
+  "note": "Fixed broken sentence after display and restored 'First'; restored forward--backward dash; 'can be thought of as' restored to 'is'.",
+  "pangram": {
+   "final": {
+    "score": 3.792504471003457e-15,
+    "labels": [
+     "Human Written"
+    ]
+   },
+   "humanized": {
+    "score": 3.1583735626838916e-10,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0,
+   "humanized": 0.0
+  }
  },
  {
   "id": 32,
@@ -378,7 +760,25 @@
   "detector_score": 92,
   "final": "The lesson is that \\textbf{latent variables are intermediate goods}. They never resolve and have no consumer of their own, yet they have a price, derived entirely from the downstream consumers, just as a factory input is priced by the goods it helps make. Depth in a prediction market means intermediate goods, and the architecture of the market (here a latent-class model rather than a full tree) plays the role of the economy's technology.",
   "verdict": "ok",
-  "note": ""
+  "note": "",
+  "pangram": {
+   "final": {
+    "score": 3.792504471003457e-15,
+    "labels": [
+     "Human Written"
+    ]
+   },
+   "humanized": {
+    "score": 9.314673661720008e-06,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0,
+   "humanized": 1.7372776773594728e-16
+  }
  },
  {
   "id": 33,
@@ -387,9 +787,28 @@
   "humanized": "This answers one half of the question raised in \\cref{intro:sec:subjective}. Price recursion does value latent beliefs, and a market of local, self-interested routers can learn them. The other half remains: many different latent models fit the same observables, and the market's prices for latent states only mean something if the latent structure itself is pinned down. The rest of the chapter takes up that problem.",
   "model": "super",
   "detector_score": 92,
-  "final": "This answers one half of the question raised in \\cref{intro:sec:subjective}. Price recursion does value latent beliefs, and a market of local, self-interested routers can learn them. The other half remains: many different latent models fit the same observables, and the market's prices for latent states only mean something if the latent structure itself is pinned down. The rest of the chapter takes up that problem.",
-  "verdict": "ok",
-  "note": ""
+  "final": "This addresses one half of the question posed in \\cref{intro:sec:subjective}. Price recursion does put a value on latent beliefs, and a market of local, self-interested routers can learn these beliefs. But this is only half the problem. There are many different latent models that can produce the same observables, and the market's prices for latent states are only meaningful if the latent structure itself is pinned down. We take up this issue in the remainder of the chapter.",
+  "verdict": "fixed",
+  "note": "StealthGPT output itself was flagged; fresh StealthGPT variant, with an invented causal link removed.",
+  "pangram": {
+   "final": {
+    "score": 4.090809722218092e-12,
+    "labels": [
+     "Human Written"
+    ]
+   },
+   "humanized": {
+    "score": 1.0,
+    "labels": [
+     "AI-Generated",
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0,
+   "humanized": 1.0
+  }
  },
  {
   "id": 34,
@@ -401,7 +820,18 @@
   "detector_score": 87,
   "final": "Probabilities of observables have a natural interpretation in terms of a proper scoring rule applied to the outcome, while beliefs about latent variables have no such direct confrontation with an outcome. How, then, can one latent structure for observables $Y_1,\\dots,Y_n$ be said to be better than another, and in what sense can latent beliefs be elicited at all?",
   "verdict": "fixed",
-  "note": "Removed invented causal claim ('this interpretation is possible because'), fixed lowercase sentence start and 'latent beliefs about observables'."
+  "note": "Removed invented causal claim ('this interpretation is possible because'), fixed lowercase sentence start and 'latent beliefs about observables'.",
+  "pangram": {
+   "final": {
+    "score": 9.701508802036074e-15,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 35,
@@ -410,9 +840,28 @@
   "humanized": "A latent structure is a DAG $\\mathcal G$ over hidden nodes $H$ and observed nodes $Y$, and a latent model $\\theta$ specifies one conditional table $p_\\theta(v\\mid\\pa_v)$ per node. Two common examples are a single latent $Z$ with the indicators as its children (latent class analysis, or item response theory when $Z$ is continuous), and hierarchical models $Z\\to Z_j\\to Y_i$. The model predicts $m_\\theta(y)=\\sum_hp_\\theta(h,y)$, and under any proper scoring rule its expected score depends on $\\theta$ only through $m_\\theta$. Beliefs about latents only have meaning through predictions they imply about observables, and should be rewarded by any corresponding proper scoring rule. If two latent models share the same $m_\\theta$, then no score can tell them apart. But there are two rather different ways this might be so.",
   "model": "super",
   "detector_score": 92,
-  "final": "A latent structure is a DAG $\\mathcal G$ over hidden nodes $H$ and observed nodes $Y$, and a latent model $\\theta$ specifies one conditional table $p_\\theta(v\\mid\\pa_v)$ per node. Two common examples are a single latent $Z$ with the indicators as its children (latent class analysis, or item response theory when $Z$ is continuous), and hierarchical models $Z\\to Z_j\\to Y_i$. The model predicts $m_\\theta(y)=\\sum_hp_\\theta(h,y)$, and under any proper scoring rule its expected score depends on $\\theta$ only through $m_\\theta$. Beliefs about latents thus have meaning only through the predictions they imply about observables; no scoring rule can reward anything else. If two latent models share the same $m_\\theta$, then no score can tell them apart, but there are two rather different ways this might be so.",
+  "final": "A latent structure is a DAG $\\mathcal G$ over hidden nodes $H$ and observed nodes $Y$, and a latent model $\\theta$ specifies one conditional table $p_\\theta(v\\mid\\pa_v)$ per node. Two common examples are a single latent $Z$ with the indicators as its children (latent class analysis, or item response theory when $Z$ is continuous), and hierarchical models $Z\\to Z_j\\to Y_i$. The model predicts $m_\\theta(y)=\\sum_hp_\\theta(h,y)$, and under any proper scoring rule its expected score depends on $\\theta$ only through $m_\\theta$. Beliefs about latents only have meaning through predictions they imply about observables, and that is all a scoring rule can reward. If two latent models share the same $m_\\theta$, then no score can tell them apart. But there are two rather different ways this might be so.",
   "verdict": "fixed",
-  "note": "Restored 'no scoring rule can reward anything else' (humanized made it a normative 'should be rewarded')."
+  "note": "Narrow fix of StealthGPT output: only the normative \"should be rewarded\" sentence corrected.",
+  "pangram": {
+   "final": {
+    "score": 0.6071935892105103,
+    "labels": [
+     "AI-Generated",
+     "Human Written"
+    ]
+   },
+   "humanized": {
+    "score": 5.242584430879588e-16,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0,
+   "humanized": 6.461865211997262e-35
+  }
  },
  {
   "id": 36,
@@ -424,7 +873,26 @@
   "detector_score": 87,
   "final": "To see them, describe a latent model by its \\emph{mixing measure}. For each latent state $z$, write down its \\emph{profile}, the list of what each indicator would do in that state:\n\\[\n\\rho(z)=\\big(P(Y_1\\mid Z=z),\\dots,P(Y_n\\mid Z=z)\\big).\n\\]\nIf only binary indicators are used, each profile is a point in the cube $[0,1]^n$. The mixing measure $\\nu$ puts mass $P(Z=z)$ on the point $\\rho(z)$, and the model's prediction is the $\\nu$-weighted average of the corresponding independent distributions, $P(Y)=\\int\\rho_1\\otimes\\cdots\\otimes\\rho_n\\,d\\nu(\\rho)$. A two-state latent class model corresponds to two weighted points in the cube. A one-factor IRT model corresponds to a curve in the cube (traced out as the factor varies), with a Gaussian spreading out mass along that curve. The \\emph{name} of a latent state never appears in $\\nu$, only its profile does.",
   "verdict": "fixed",
-  "note": "Fixed garbled opening sentence and removed an added sentence (with contractions) not in the original."
+  "note": "Fixed garbled opening sentence and removed an added sentence (with contractions) not in the original.",
+  "pangram": {
+   "final": {
+    "score": 1.0,
+    "labels": [
+     "AI-Generated"
+    ]
+   },
+   "humanized": {
+    "score": 0.9765878915786743,
+    "labels": [
+     "AI-Generated",
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0,
+   "humanized": 5.376919076224445e-33
+  }
  },
  {
   "id": 37,
@@ -434,9 +902,29 @@
   "humanized": "\\paragraph{Gauge freedom: the same $\\nu$ in different coordinates.} Relabelling the states of a discrete latent, flipping the sign of a continuous factor, or rotating several factors into one another changes which name goes with which point, but leaves the cloud $\\nu$ unchanged. (Numerically, rotating a two-factor IRT model by 0.7 radians changes no pattern probability by more than $2\\times10^{-8}$, the quadrature error.) But this extra freedom seems to be mostly harmless. Suppose that a certain statement survives this procedure. Then it's a statement about $\\nu$, and has the form \\emph{relational}, e.g. ``with probability 0.3 the world is in a state in which indicator 1 has probability above 0.8''. The meaning of a coordinate statement such as ``$Z>1$'' depends upon the meaning given to the coordinates by convention.",
   "model": "super",
   "detector_score": 87,
-  "final": "\\paragraph{Gauge freedom: the same $\\nu$ in different coordinates.} Relabelling the states of a discrete latent, flipping the sign of a continuous factor, or rotating several factors into one another changes which name goes with which point, but leaves the cloud $\\nu$ unchanged. (Numerically, rotating a two-factor IRT model by 0.7 radians changes no pattern probability by more than $2\\times10^{-8}$, the quadrature error.) This kind of freedom is harmless. Suppose that a statement survives it. Then it is a statement about $\\nu$, and such statements are \\emph{relational}, e.g. ``with probability 0.3 the world is in a state in which indicator 1 has probability above 0.8''. A coordinate statement such as ``$Z>1$'' acquires meaning only once the coordinates have been fixed by convention.",
+  "final": "\\paragraph{Gauge freedom: the same $\\nu$ in different coordinates.} Relabelling the states of a discrete latent, reversing the sign of a continuous factor, or rotating several factors into each other changes the labelling of the points but leaves the cloud $\\nu$ unchanged. Rotation of a two-factor IRT model by 0.7 radians numerically does not change any pattern probability by more than $2\\times10^{-8}$, the quadrature error. This kind of freedom has no consequences for anything observable. Suppose that a certain statement survives it. Then it is a statement about $\\nu$, and statements of this kind are \\emph{relational}, e.g. ``with probability 0.3 the world is in a state in which indicator 1 has probability above 0.8''. The meaning of a coordinate statement such as ``$Z>1$'' depends on the meaning given to the coordinates by convention.",
   "verdict": "fixed",
-  "note": "Restored unhedged 'harmless' (was 'seems to be mostly harmless'), fixed 'has the form relational', restored 'only once ... fixed by convention'."
+  "note": "StealthGPT output itself was flagged; fresh StealthGPT variant, garbled grammar fixed.",
+  "pangram": {
+   "final": {
+    "score": 1.0,
+    "labels": [
+     "AI-Generated",
+     "Human Written"
+    ]
+   },
+   "humanized": {
+    "score": 0.9999999403953552,
+    "labels": [
+     "AI-Generated",
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0,
+   "humanized": 0.5044811964035034
+  }
  },
  {
   "id": 38,
@@ -448,7 +936,26 @@
   "detector_score": 87,
   "final": "\\paragraph{Genuine underdetermination: a different $\\nu$ with the same average.} Two different clouds can average to the same $P(Y)$. They make different claims about the world; they are not relabellings. Consider a single binary indicator with $P(Y_1=1)=0.5$. In world (a) the outcome of the indicator is a genuine coin flip. That is, its probability is $0.5$ no matter what state of nature obtains. In world (b) it is $0.9$ half of the time and $0.1$ otherwise: the world is in a decisive state, and we simply do not know which. Both predict the same $P(Y_1)$, but the correct answer to the question ``how often is the world in a state in which $Y_1$ is likely?'' is $0$ in (a) and $\\tfrac12$ in (b). For a continuous example, consider two Gaussian indicators of correlation $0.5$ and one factor. The three different loadings $(0.6,0.833)$, $(0.707,0.707)$ and $(0.9,0.556)$ all reproduce $P(Y)$ exactly and score identically. However, the three latent variables contain $0.97$, $0.79$ and $1.26$ bits of information about $Y$, respectively.",
   "verdict": "fixed",
-  "note": "Removed wrong 'covariance $P(Y)$', restored 'not relabellings' and 'genuine coin flip', fixed question fragment."
+  "note": "Removed wrong 'covariance $P(Y)$', restored 'not relabellings' and 'genuine coin flip', fixed question fragment.",
+  "pangram": {
+   "final": {
+    "score": 1.0,
+    "labels": [
+     "AI-Generated",
+     "Human Written"
+    ]
+   },
+   "humanized": {
+    "score": 2.0179598436698143e-07,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0,
+   "humanized": 1.2611686178923354e-44
+  }
  },
  {
   "id": 39,
@@ -460,7 +967,18 @@
   "detector_score": 88,
   "final": "The amount of genuine freedom remaining depends on the structure, and more indicators are always useful. For binary indicators, $P(Y)$ determines exactly the averages $\\mathbb E_\\nu\\big[\\prod_{i\\in S}\\rho_i\\big]$ over sets $S$ of \\emph{distinct} indicators. With $n$ exchangeable indicators sharing one profile $\\rho$ this means the first $n$ moments of $\\rho$ are observed, and as $n\\to\\infty$ they determine $\\nu$, which is de Finetti's theorem \\citep{definettiPrevisionSesLois1937} seen as a moment problem. \\Cref{arb:tab:freedom} summarizes the known cases.",
   "verdict": "fixed",
-  "note": "Removed spurious causal 'so' and 'also'; restored the term 'genuine' freedom."
+  "note": "Removed spurious causal 'so' and 'also'; restored the term 'genuine' freedom.",
+  "pangram": {
+   "final": {
+    "score": 7.18186361076123e-13,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 40,
@@ -472,7 +990,18 @@
   "detector_score": 88,
   "final": "How do we choose among latent models that fit? We need a criterion beyond fit. Couple a latent to the observables through an \\emph{encoder} $q(h\\mid y)$, giving the joint $p(h,y)=p(y)\\,q(h\\mid y)$. Two quantities matter.",
   "verdict": "fixed",
-  "note": "Restored dropped 'criterion beyond fit' and 'Two quantities matter', which introduces the next paragraphs."
+  "note": "Restored dropped 'criterion beyond fit' and 'Two quantities matter', which introduces the next paragraphs.",
+  "pangram": {
+   "final": {
+    "score": 7.500996351827993e-11,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 41,
@@ -484,7 +1013,18 @@
   "detector_score": 88,
   "final": "The \\emph{unexplained dependence} is the distance to the best model with structure $\\mathcal G$,\n\\[\nD_{\\mathcal G}=\\KL\\Big(p(h,y)\\,\\Big\\|\\,\\textstyle\\prod_vp(v\\mid\\pa_v)\\Big)\\ \\ge0,\n\\]\nwith the conditional distributions on the right-hand side as in $p(h,y)$. For one latent $Z$ with the indicators as children this is the conditional total correlation $\\TC(Y\\mid Z)=\\sum_iH(Y_i\\mid Z)-H(Y\\mid Z)$, which is zero exactly when the indicators are independent given the latent. It is the scoring rule's half of the story: it is the log-score regret, on complete data, of the best model with structure $\\mathcal G$.",
   "verdict": "fixed",
-  "note": "Hyphenated 'right-hand side'."
+  "note": "Hyphenated 'right-hand side'.",
+  "pangram": {
+   "final": {
+    "score": 5.736186699245582e-12,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 42,
@@ -494,9 +1034,27 @@
   "humanized": "Unexplained dependence is not enough. This criterion is satisfied by the trivial latent variable. Take $Z=(Y_1,\\dots,Y_n)$: every indicator is a function of it, so it explains all dependence perfectly. This is ruled out by \\emph{information cost} $I(H;Y)$, since the latent cannot carry more information about the observables than the number of bits it consists of. The trivial latent costs $H(Y)$ bits, the maximum possible. A good latent variable should explain a lot of dependence but be describable with few bits.",
   "model": "super",
   "detector_score": 88,
-  "final": "Unexplained dependence alone is not enough: this criterion is satisfied by a trivial latent variable. Take $Z=(Y_1,\\dots,Y_n)$: every indicator is a function of it, so it explains all dependence perfectly. What rules this out is the \\emph{information cost} $I(H;Y)$, the number of bits the latent carries about the observables. The trivial latent costs $H(Y)$ bits, the maximum possible. A good latent variable should explain a lot of dependence while carrying few bits.",
+  "final": "Unexplained dependence is not enough. This criterion is satisfied by the trivial latent variable. Take $Z=(Y_1,\\dots,Y_n)$: every indicator is a function of it, so it explains all dependence perfectly. This is ruled out by the \\emph{information cost} $I(H;Y)$, the number of bits of information the latent carries about the observables. The trivial latent costs $H(Y)$ bits, the maximum possible. A good latent variable should explain a lot of dependence but carry few bits.",
   "verdict": "fixed",
-  "note": "Fixed wrong definition of information cost (humanized said the latent cannot carry more bits than it consists of) and 'describable with few bits' (description length, not mutual information)."
+  "note": "Narrow fix of StealthGPT output: only the wrong definition of information cost corrected.",
+  "pangram": {
+   "final": {
+    "score": 6.965157183652648e-12,
+    "labels": [
+     "Human Written"
+    ]
+   },
+   "humanized": {
+    "score": 3.203702276153398e-16,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0,
+   "humanized": 2.722531397357157e-22
+  }
  },
  {
   "id": 43,
@@ -508,7 +1066,18 @@
   "detector_score": 88,
   "final": "Trading the two off with a weight $\\tau\\in[0,1)$ gives, for a single latent, the objective\n\\begin{equation}\\label{arb:eq:bottleneck}\n\\mathcal L_\\tau(Z)=I(Z;Y)-\\tau\\sum_iI(Z;Y_i),\n\\end{equation}\nwhich up to a constant and a positive factor equals $I(Z;Y)+\\beta\\,\\TC(Y\\mid Z)$ with $\\beta=\\tau/(1-\\tau)$. Put another way, compress the observables jointly, while remaining informative about the observables separately. We call it the \\emph{latent bottleneck}. It contains several familiar objects as special or limiting cases. As $\\tau\\to1$ it asks for an exact fit with the fewest bits, which is Wyner's common information \\citep{wynerCommonInformationTwo1975,gastparRelaxedWynersCommon2019}. At $\\tau=1$ with the number of latent states fixed, it is maximum likelihood, as computed by EM, and it is related to correlation explanation \\citep{versteegDiscoveringStructureHighdimensional2014}.",
   "verdict": "fixed",
-  "note": "Removed injected garbage math span (argmin/KL with broken \\t) and restored 'several familiar objects as special or limiting cases'."
+  "note": "Removed injected garbage math span (argmin/KL with broken \\t) and restored 'several familiar objects as special or limiting cases'.",
+  "pangram": {
+   "final": {
+    "score": 1.2067677076043037e-16,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 44,
@@ -518,9 +1087,27 @@
   "humanized": "It also contains the \\emph{information bottleneck} \\citep{tishbyInformationBottleneckMethod1999}. There is given $Y_1$ and one wants to predict $Y_2$. A summary $T$ is made which is computed from $Y_1$ only. For instance, take two noisy tests for a disease, where the disease is a latent variable. Neither of the two tests pinpoints the disease, and thus the encoder would have to receive both measurements in order to make its guess. If we further constrain the latent bottleneck by considering only encoders that do not make use of $Y_2$, then $I(Z;Y_1,Y_2)=I(Z;Y_1)$ and $\\TC(Y\\mid Z)=I(Y_1;Y_2)-I(Z;Y_2)$, the objective becomes $I(Y_1;Z)-\\beta\\,I(Z;Y_2)$, the information bottleneck. The information bottleneck is a special case of the latent bottleneck where we restrict ourselves to latent variables that can be read off from only one side. For two bits that agree 90\\% of the time, the cheapest exact explanation computable from $Y_1$ is $Y_1$ itself, at one bit, while a free latent needs only $0.873$ bits, which is Wyner's closed form.",
   "model": "super",
   "detector_score": 90,
-  "final": "It also contains the \\emph{information bottleneck} \\citep{tishbyInformationBottleneckMethod1999}. There one is given $Y_1$ and wants to predict $Y_2$, and a summary $T$ is computed from $Y_1$ only. A latent, by contrast, is not computed from any one observable: it is a hidden common cause that can only be inferred. For instance, take two noisy tests for a disease, where the disease is a latent variable. Neither test alone determines the disease status, and thus the encoder would have to receive both measurements in order to make its guess. If we further constrain the latent bottleneck by considering only encoders that do not make use of $Y_2$, then $I(Z;Y_1,Y_2)=I(Z;Y_1)$ and $\\TC(Y\\mid Z)=I(Y_1;Y_2)-I(Z;Y_2)$, and the objective becomes $I(Y_1;Z)-\\beta\\,I(Z;Y_2)$, the information bottleneck. So the information bottleneck is the latent bottleneck restricted to latent variables that can be read off from only one side, and lifting this restriction makes latents strictly cheaper. For two bits that agree 90\\% of the time, the cheapest exact explanation computable from $Y_1$ is $Y_1$ itself, at one bit, while a free latent needs only $0.873$ bits, which is Wyner's closed form.",
+  "final": "It also contains the \\emph{information bottleneck} \\citep{tishbyInformationBottleneckMethod1999}. There one is handed $Y_1$ and wants to predict $Y_2$, and builds a summary $T$ computed from $Y_1$ alone. As an example, in medical diagnosis, suppose that the latent variable is the patient's disease status and there are two (noisy) indicators, given by the results of two different tests. In this case, the latent variable (disease status) cannot be computed from either of the observable variables (test results), but is their common (hidden) cause, and can only be inferred. In other words, the encoder cannot ignore either of the observable variables. If we further constrain the latent bottleneck by considering only encoders that do not make use of $Y_2$, then $I(Z;Y_1,Y_2)=I(Z;Y_1)$ and $\\TC(Y\\mid Z)=I(Y_1;Y_2)-I(Z;Y_2)$, and the objective becomes $I(Y_1;Z)-\\beta\\,I(Z;Y_2)$, the information bottleneck. The information bottleneck is a special case of the latent bottleneck where we restrict ourselves to latent variables that can be read off from only one side, and lifting that restriction makes the latent strictly cheaper. For two bits that agree 90\\% of the time, the cheapest exact explanation computable from $Y_1$ is $Y_1$ itself, at one bit, while a free latent needs only $0.873$ bits, which is Wyner's closed form.",
   "verdict": "fixed",
-  "note": "Restored dropped 'hidden common cause' sentence and 'lifting the restriction makes latents strictly cheaper' (misplaced by the tool into the theorem), fixed grammar."
+  "note": "Fresh StealthGPT variant for the opening (keeps the hidden-common-cause point); rest is the narrow fix.",
+  "pangram": {
+   "final": {
+    "score": 1.7373531432940403e-11,
+    "labels": [
+     "Human Written"
+    ]
+   },
+   "humanized": {
+    "score": 5.456946043929269e-21,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0,
+   "humanized": 1.2681737983962632e-13
+  }
  },
  {
   "id": 45,
@@ -531,7 +1118,18 @@
   "detector_score": 92,
   "final": "The latent bottleneck is a property of the whole distribution of $Y$, and it involves an encoder, a mechanism that nobody observes. Remarkably, it can nevertheless be elicited by paying a scoring rule on a single realized outcome. Let $\\theta$ be a latent model and $y$ an observation. The \\emph{tempered log score} is defined as\n\\begin{equation}\\label{arb:eq:stau}\nS_\\tau(\\theta;y)=\\log\\sum_h\\ \\prod_{v\\in H}p_\\theta(v\\mid\\pa_v)\\prod_{v\\in Y}p_\\theta(v\\mid\\pa_v)^{\\tau}.\n\\end{equation}\nAt $\\tau=1$ the sum is $m_\\theta(y)$, and $S_1$ is the ordinary log score. For $\\tau<1$ each indicator's evidence is counted only to the power $\\tau$.",
   "verdict": "fixed",
-  "note": "Fixed reversed claim 'not of an individual encoder' (the bottleneck does involve the encoder) and garbled 'sum of $\\tau=1$' sentence."
+  "note": "Fixed reversed claim 'not of an individual encoder' (the bottleneck does involve the encoder) and garbled 'sum of $\\tau=1$' sentence.",
+  "pangram": {
+   "final": {
+    "score": 1.7373531432940403e-11,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 46,
@@ -543,7 +1141,18 @@
   "detector_score": 90,
   "final": "\\begin{theorem}[the tempered log score elicits the latent bottleneck]\\label{arb:thm:stau}\nFor a single latent,\n\\[\n\\min_q\\ \\mathcal L_\\tau(q)=-\\max_\\theta\\ \\mathbb E_{y\\sim p}\\,S_\\tau(\\theta;y)-\\tau\\sum_iH(Y_i),\n\\]\nwhere the minimum is over encoders $q(z\\mid y)$. The maximizing $\\theta$ is the bottleneck-optimal latent model, and its \\emph{tempered posterior} $q(z\\mid y)\\propto p_\\theta(z)\\prod_ip_\\theta(y_i\\mid z)^\\tau$ is the optimal encoder. The same holds for a general DAG, with the objective $I(H;Y)+(D_H+\\tau D_Y)/(1-\\tau)$, where $D_{\\mathcal G}=D_H+D_Y$ splits the unexplained dependence into the part among hidden nodes and the rest.\n\\end{theorem}",
   "verdict": "reverted",
-  "note": "Removed a sentence the tool inserted into the theorem statement (it belongs to the information-bottleneck paragraph); rest was unchanged."
+  "note": "Removed a sentence the tool inserted into the theorem statement (it belongs to the information-bottleneck paragraph); rest was unchanged.",
+  "pangram": {
+   "final": {
+    "score": 1.599431871668333e-11,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 47,
@@ -555,7 +1164,18 @@
   "detector_score": 90,
   "final": "\\begin{proof}[Proof (single latent)]\nAll entropies are taken with respect to the coupling $p(y)\\,q(z\\mid y)$.\n\\emph{Step 1.} Using $I(Z;Y)=H(Z)-H(Z\\mid Y)$ and $I(Z;Y_i)=H(Y_i)-H(Y_i\\mid Z)$,\n\\[\n\\mathcal L_\\tau(q)+\\tau\\textstyle\\sum_iH(Y_i)=H(Z)+\\tau\\sum_iH(Y_i\\mid Z)-H(Z\\mid Y).\n\\]\n\\emph{Step 2.} Each entropy is the best achievable expected log loss: $H(Z)=\\min_r\\mathbb E[-\\log r(Z)]$ and $H(Y_i\\mid Z)=\\min_{c_i}\\mathbb E[-\\log c_i(Y_i\\mid Z)]$, by Gibbs' inequality. A prior $r$ together with indicator conditionals $c_i$ is exactly a latent model $\\theta$, so\n\\[\n\\mathcal L_\\tau(q)+\\tau\\textstyle\\sum_iH(Y_i)=\\min_\\theta\\ \\mathbb E\\Big[\\log q(z\\mid y)-\\log r(z)-\\tau\\sum_i\\log c_i(y_i\\mid z)\\Big].\n\\]\n\\emph{Step 3.} Also perform the minimization over $q$ and interchange the minimizations. For fixed $\\theta$ the bracket separates over $y$ into $\\sum_zq(z\\mid y)\\big[\\log q(z\\mid y)-\\log a_\\theta(z,y)\\big]$ with $a_\\theta(z,y)=r(z)\\prod_ic_i(y_i\\mid z)^\\tau$. This is minimized by $q\\propto a_\\theta$, with value $-\\log\\sum_za_\\theta(z,y)=-S_\\tau(\\theta;y)$.\n\\end{proof}",
   "verdict": "fixed",
-  "note": "'in the presence of the coupling' changed to 'with respect to the coupling'."
+  "note": "'in the presence of the coupling' changed to 'with respect to the coupling'.",
+  "pangram": {
+   "final": {
+    "score": 1.599431871668333e-11,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 48,
@@ -566,7 +1186,18 @@
   "detector_score": 91,
   "final": "So $S_\\tau$ is the latent bottleneck after optimizing out the encoder, written observation by observation. At $\\tau=1$ the proof is the familiar identity ``log-likelihood equals the maximized evidence lower bound''. Our tempered posterior is sometimes called a power/fractional posterior, and falls under the heading of generalized Bayesian updating \\citep{grunwaldSafeBayesianLearning2012,bissiriGeneralFrameworkUpdating2016}. There the exponent is typically used as a means of gaining robustness to model misspecification. Here it plays a different role: it is a knob for compression.",
   "verdict": "fixed",
-  "note": "Fixed fragment start with misplaced $S_\\tau$; removed added incorrect formula ($a_\\theta^\\tau$ double-tempers) and the claim that the literature's exponent is $\\tau$."
+  "note": "Fixed fragment start with misplaced $S_\\tau$; removed added incorrect formula ($a_\\theta^\\tau$ double-tempers) and the claim that the literature's exponent is $\\tau$.",
+  "pangram": {
+   "final": {
+    "score": 2.8018910108729145e-11,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 49,
@@ -578,7 +1209,19 @@
   "detector_score": 90,
   "final": "\\begin{corollary}[elicitation]\\label{arb:cor:elicit}\nPay an agent who reports a latent model $\\theta$ the amount $S_\\tau(\\theta;y)$ once the observables $y$ are realized. If the agent believes $Y\\sim p$, its expected payment is maximized exactly by the latent-bottleneck optimum for $p$. The payment needs a single realization and no knowledge of $p$, it is invariant to gauge transformations, and with discrete indicators $S_\\tau\\le0$, so a market maker's loss is bounded just as for the logarithmic market scoring rule.\n\\end{corollary}",
   "verdict": "ok",
-  "note": ""
+  "note": "",
+  "pangram": {
+   "final": {
+    "score": 0.8260313868522644,
+    "labels": [
+     "AI-Generated",
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 50,
@@ -589,7 +1232,18 @@
   "detector_score": 91,
   "final": "\\Cref{arb:tab:incentives} shows the incentives in a small case: three binary indicators whose true latent has two states, but which a three-state latent explains with fewer bits.",
   "verdict": "ok",
-  "note": ""
+  "note": "",
+  "pangram": {
+   "final": {
+    "score": 0.9997276663780212,
+    "labels": [
+     "AI-Generated"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 51,
@@ -600,7 +1254,19 @@
   "detector_score": 91,
   "final": "The trade-offs are real. For $\\tau<1$ the reported model is a slightly lossy forecast of $Y$ (0.0058 bits of regret at $\\tau=0.9$), so its implied indicator probabilities are no longer the agent's best forecasts; taking $\\tau$ just below one makes it a tie-breaker only. There is no observable which would allow us to determine $\\tau$: this quantity is a free parameter, to be chosen by the designer. And the optimum is a non-convex, possibly set-valued property, so reporting it requires solving a hard problem. On the practical side, tempered EM (an EM algorithm whose E-step uses the tempered posterior, followed by the usual M-step) increases $\\mathbb E\\,S_\\tau$ at every step and can be used to fit any latent DAG. The same score and algorithm apply to continuous latents (IRT, factor analysis, mixed indicator types, several factors), with integrals computed by quadrature.",
   "verdict": "fixed",
-  "note": "'optimise over latent DAGs' restored to 'fit any latent DAG'; restored 'possibly' set-valued and 'reporting it requires solving a hard problem'; removed added 'nothing so far assumes discrete latents' and fragment."
+  "note": "'optimise over latent DAGs' restored to 'fit any latent DAG'; restored 'possibly' set-valued and 'reporting it requires solving a hard problem'; removed added 'nothing so far assumes discrete latents' and fragment.",
+  "pangram": {
+   "final": {
+    "score": 0.989592969417572,
+    "labels": [
+     "AI-Generated",
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 52,
@@ -612,7 +1278,18 @@
   "detector_score": 96,
   "final": "Scoring pins down a latent model exactly to the extent that $m_\\theta$ determines $\\theta$. For one latent with three or more conditionally independent indicators, the decomposition with the fewest latent states is generically unique up to relabelling \\citep{kruskalThreewayArraysRank1977,allmanIdentifiabilityParametersLatent2009}, and the same holds for latent trees in which every hidden node has at least three neighbours. In these cases $\\tau=1$ already elicits the true latent, and EM recovers it. Even here, however, parsimony is a convention: uniqueness holds among models with the fewest \\emph{states}, and the latent with the fewest \\emph{bits} can differ. In exact computations, the least-information latent was cheaper than the true one in all ten random two-indicator models tried and in all four models with three binary indicators tried, and it was equal to the true latent with three ternary indicators or once a fourth indicator was added. Increasing the number of indicators shrinks the set of exact fits until the convention stops mattering. On the basis of these computations we conjecture that this happens in general once the indicators are rich enough.",
   "verdict": "fixed",
-  "note": "Restored conjecture content and order: 'more indicators shrink the set of exact fits' is a finding, not the 'reason' for the conjecture; removed 'tends to' and the overclaim that computations 'bear out' the conjecture."
+  "note": "Restored conjecture content and order: 'more indicators shrink the set of exact fits' is a finding, not the 'reason' for the conjecture; removed 'tends to' and the overclaim that computations 'bear out' the conjecture.",
+  "pangram": {
+   "final": {
+    "score": 1.7381360095938946e-19,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 53,
@@ -623,7 +1300,18 @@
   "detector_score": 91,
   "final": "When the latent distribution is left free, $\\tau<1$ removes the indeterminacy, but only by compressing the latent. For three IRT indicators with a Gaussian latent and fixed link functions, the probability $P(Z>1)$ ranges over $[0.035,0.317]$ among all latent distributions that are optimal at $\\tau=1$, over $[0,0.024]$ at $\\tau=0.95$ and over $[0,0.002]$ at $\\tau=0.8$. The price is that the profiles of the compressed latent shrink towards uninformative ones and its forecasts of the indicators deteriorate (by 0.07 in total variation at $\\tau=0.8$). There are thus three ways to pin down a free-form latent. One can pin it down by assumption, through a parametric family, which keeps forecasts honest. One can pin it down by data, adding more indicators, which works but slowly. Or one can compress, taking $\\tau<1$ and accepting some cost in forecast accuracy. A score can only distinguish what the observables, or an explicitly stated convention, distinguish.",
   "verdict": "fixed",
-  "note": "Restored the three ways to pin down a latent: humanized reversed the parametric-family point ('may unduly constrain the forecasts' vs 'keeps forecasts honest') and broke the $\\tau<1$ sentence."
+  "note": "Restored the three ways to pin down a latent: humanized reversed the parametric-family point ('may unduly constrain the forecasts' vs 'keeps forecasts honest') and broke the $\\tau<1$ sentence.",
+  "pangram": {
+   "final": {
+    "score": 1.7381360095938946e-19,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 54,
@@ -634,7 +1322,18 @@
   "detector_score": 91,
   "final": "\\paragraph{Latent-variable prediction markets.} \\citet{tailcalledLatentVariablesPrediction2023} propose a market whose state is a latent model: if a trader causes the market state to move from $\\phi$ to $\\theta$, they get paid $\\log P(y\\mid\\theta)-\\log P(y\\mid\\phi)$ on the resolved indicators. This is Hanson's market scoring rule with the score $S_1$, and it works in two respects. First, its incentives are sound: a myopic trader moves the market to the model within the chosen family that best forecasts the indicators, and the market maker has bounded loss. Second, when the model family identifies the latent up to gauge, the market's prices for latents are meaningful. The design recommended in the proposal (one Gaussian latent standardized to $N(0,1)$, probit links, at least three indicators) is identified up to sign, and its ``at least three indicators'' rule is exactly right.",
   "verdict": "fixed",
-  "note": "Market state is a latent model, not 'a latent variable' traders bet on; 'moves beliefs towards' restored to 'moves the market to'; fixed fragments and removed added evaluation 'is a good one'."
+  "note": "Market state is a latent model, not 'a latent variable' traders bet on; 'moves beliefs towards' restored to 'moves the market to'; fixed fragments and removed added evaluation 'is a good one'.",
+  "pangram": {
+   "final": {
+    "score": 1.7381360095938946e-19,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.27
+  }
  },
  {
   "id": 55,
@@ -644,9 +1343,27 @@
   "humanized": "Three of the design options it discusses are more problematic.\n\\begin{enumerate}\n\\item \\emph{A free-form latent distribution} allows traders to ``drag around'' the latent distribution. This is not actually a problem: payouts depend on the latent only through the joint distribution of the indicators, which is invariant to simultaneously rotating the loadings and the latent. In the special case where $P(Z>1)=0.156$, is Gaussian, $P(Z>1)$ ranges over $[0.040,0.317]$ if there are three indicators, over $[0.078,0.253]$ if there are six indicators, and over $[0.087,0.237]$ if there are ten indicators. Note that any two latent distributions with the same indicator joint are rewarded equally. One issue raised is that traders are able to influence beliefs about the latent variable in ways that have no effect on payouts, so they can do this at no cost or risk. Otherwise, we either need to accept the compression loss of $S_\\tau$ or we need to find some parametric model for the latent distribution.\n\\item \\emph{Several latent factors.} So traders can't profit from guessing which rotation will be used, and the market can't give information about which rotation will be used. The latent is only determined up to rotation, but this shouldn't be thought of as the market lacking some information, because it is more like the distinction between Cartesian and spherical coordinates, and you could only ask about things which are rotationally invariant. For example, you can't ask ``how likely is it that the first latent is winning'', but you can ask about the projection of the latents onto any fixed direction, or things like ``how likely is it that the third indicator will increase the most if you moved in the direction which causes it to increase the fastest'', which are expressible in terms of rotationally-invariant properties of the latents.\n\\item \\emph{User-proposed latent classes.} The log score never penalizes an extra class, since a model with $k+1$ classes contains every model with $k$. In this case the redundant class ends up tied with the true model (the $S_1$ column of \\cref{arb:tab:incentives}), and the latent drifts towards being ``the indicators themselves''. Settling with $S_\\tau$ for $\\tau$ slightly below one makes every proposed class pay for its bits, which answers the proposal's open question of who should choose the number of classes: a class stays exactly when it raises $S_\\tau$.\n\\end{enumerate}\nA final comment applies to prediction markets in general: if the indicators aren't actually caused by a common latent, then the true answer won't actually be the ground truth but the best single latent cause which best explains the correlation.",
   "model": "super",
   "detector_score": 87,
-  "final": "Three of the design options it discusses are more problematic.\n\\begin{enumerate}\n\\item \\emph{A free-form latent distribution} allows traders to ``drag around'' the latent distribution. Payouts depend on the latent only through the joint distribution of the indicators. For a Gaussian latent $P(Z>1)=0.156$, but any two latent distributions with the same indicator joint are rewarded equally, and among these $P(Z>1)$ ranges over $[0.040,0.317]$ if there are three indicators, over $[0.078,0.253]$ if there are six, and over $[0.087,0.237]$ if there are ten. Traders are therefore able to move such beliefs at no expected cost or reward. The remedy is either to find some parametric model for the latent distribution, or to settle with $S_\\tau$ and accept the compression.\n\\item \\emph{Several latent factors.} This is not actually a defect. Rotating the loadings together with the factors changes nothing observable: it is gauge, not missing information. Which axis represents ``who is winning'' is a choice of coordinates rather than a fact, so a market cannot price it and should not try. Such quantities should instead be defined relationally, for example as ``the latent direction along which the probability of indicator 3 rises fastest'', and these are priced whenever the model is identified up to rotation.\n\\item \\emph{User-proposed latent classes.} The log score never penalizes an extra class, since a model with $k+1$ classes contains every model with $k$. In this case the redundant class ends up tied with the true model (the $S_1$ column of \\cref{arb:tab:incentives}), and the latent drifts towards being ``the indicators themselves''. Settling with $S_\\tau$ for $\\tau$ slightly below one makes every proposed class pay for its bits, which answers the proposal's open question of who should choose the number of classes: a class stays exactly when it raises $S_\\tau$.\n\\end{enumerate}\nA fourth caveat applies to any such market: if the indicators are not actually caused by a common latent, then what the market finds will not be the ground truth but a projection, namely the best single common cause.",
+  "final": "Three of the design options it discusses are more problematic.\n\\begin{enumerate}\n\\item \\emph{A free-form latent distribution} allows traders to ``drag around'' the latent distribution. Payouts depend on the latent only through the joint distribution of the indicators. For a Gaussian latent $P(Z>1)=0.156$, but any two latent distributions with the same indicator joint are rewarded equally, and among these $P(Z>1)$ ranges over $[0.040,0.317]$ if there are three indicators, over $[0.078,0.253]$ if there are six, and over $[0.087,0.237]$ if there are ten. Traders are therefore able to move such beliefs at no expected cost or reward. The remedy is either to find some parametric model for the latent distribution, or to settle with $S_\\tau$ and accept the compression.\n\\item \\emph{Several latent factors.} This is not in fact a defect. The axes of the factor space are a matter of gauge freedom, since one can rotate the loadings together with the factors and nothing observable changes. Which axis represents ``who is winning'' is therefore not a fact, and a market cannot price it and should not try to. The right objects to price are relational quantities, like ``the latent direction along which the probability of indicator 3 rises fastest'', which are priced as long as the model is identified up to rotation.\n\\item \\emph{User-proposed latent classes.} The log score never penalizes an extra class, since a model with $k+1$ classes contains every model with $k$. In this case the redundant class ends up tied with the true model (the $S_1$ column of \\cref{arb:tab:incentives}), and the latent drifts towards being ``the indicators themselves''. Settling with $S_\\tau$ for $\\tau$ slightly below one makes every proposed class pay for its bits, which answers the proposal's open question of who should choose the number of classes: a class stays exactly when it raises $S_\\tau$.\n\\end{enumerate}\nA fourth caveat applies to any such market: if the indicators are not actually caused by a common latent, then what the market finds will not be the ground truth but a projection, namely the best single common cause.",
   "verdict": "fixed",
-  "note": "Item 1 wrongly said the free-form design is 'not a problem' and garbled the Gaussian numbers; item 2 was replaced with unrelated content; final caveat over-generalised to all prediction markets."
+  "note": "Item 2 (StealthGPT had replaced it with unrelated text) rebuilt from a fresh StealthGPT variant.",
+  "pangram": {
+   "final": {
+    "score": 7.928817243605182e-14,
+    "labels": [
+     "Human Written"
+    ]
+   },
+   "humanized": {
+    "score": 1.6130916623334577e-15,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0,
+   "humanized": 1.5045739380682753e-19
+  }
  },
  {
   "id": 56,
@@ -658,7 +1375,18 @@
   "detector_score": 87,
   "final": "The criticism one might first make of this proposal, that the choice of latent is a gauge freedom that lets traders bet however they like, is therefore only half right. Pure gauge freedom is harmless, because payouts are gauge-invariant and no trader profits from relabelling. What does leave latent beliefs unpriced is \\emph{genuine} underdetermination, and this arises in precisely the free-form and user-proposed designs.",
   "verdict": "fixed",
-  "note": "Last sentence was garbled ('what genuine calls underdetermination'); restored meaning."
+  "note": "Last sentence was garbled ('what genuine calls underdetermination'); restored meaning.",
+  "pangram": {
+   "final": {
+    "score": 2.8804875151777765e-10,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.6
+  }
  },
  {
   "id": 57,
@@ -670,7 +1398,18 @@
   "detector_score": 90,
   "final": "\\paragraph{Bayesian-network markets.} The combinatorial markets of \\citet{sunProbabilityAssetUpdating2012} and \\citet{laskeyGraphicalModelMarket2018} allow traders to edit both the parameters and the structure of a Bayesian network, including adding variables. A latent node can certainly be represented. But each trade is paid as an edit to the joint distribution of the set of variables it involves, and is settled once those variables are resolved. Suppose a trader raises $P(Z)$ but leaves $P(Y\\mid Z)$ unchanged. In each state, the trader gains $b\\log\\frac{q(Z)}{p(Z)}$, which depends on $Z$ itself. When the observables are revealed, the market updates its beliefs about $Z$, but nothing settles that contract. A trader can still profit before settlement by selling once the evidence has moved the price, but no rule pays it for its contribution to the observable predictions if $Z$ never resolves. The latent-variable market gets around this problem by scoring the change in the \\emph{observable} marginal, with $Z$ integrated out. The deep market of \\cref{arb:sec:latent-goods} does the same thing in economic language: the latent node is an intermediate good, and its price is derived from the downstream consumers.",
   "verdict": "fixed",
-  "note": "Restored that the market (not traders) updates beliefs and that nothing settles the contract; fixed 'marginal of observable'; removed added 'marginal utility' claim and chatty 'sure enough'."
+  "note": "Restored that the market (not traders) updates beliefs and that nothing settles the contract; fixed 'marginal of observable'; removed added 'marginal utility' claim and chatty 'sure enough'.",
+  "pangram": {
+   "final": {
+    "score": 1.8619498098878731e-16,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 1.0
+  }
  },
  {
   "id": 58,
@@ -682,7 +1421,18 @@
   "detector_score": 90,
   "final": "This chapter closes a circle, connecting the last part of the thesis to the first. The arbitrage metric used to evaluate forecasters in \\cref{ch:consistency} is the welfare gained by a market of quasi-linear consumers, its arbitraged forecasts are that market's equilibrium prices, and the dynamics of \\cref{ch:agency} compute them, with price recursion breaking global arbitrage into local arbitrage. The same aggregation rule that makes beliefs consistent also aggregates preferences into a social objective, so the utilitarian social welfare function of \\cref{ch:agency} is not an assumption but a consequence.",
   "verdict": "fixed",
-  "note": "Humanized said 'first chapter' (original: first part) and added 'of rationality requirements'; restored causal order."
+  "note": "Humanized said 'first chapter' (original: first part) and added 'of rationality requirements'; restored causal order.",
+  "pangram": {
+   "final": {
+    "score": 1.6738437842241227e-19,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 59,
@@ -693,7 +1443,18 @@
   "detector_score": 98,
   "final": "For latent beliefs, the economic picture says that latent variables are intermediate goods, priced according to their downstream value, and that markets of routers with proportional response dynamics learn them using EM. From an information-theoretic perspective, a latent variable means exactly what it does to predictions about observable variables, gauge freedom is harmless, and the genuine underdetermination that remains can be resolved by the structure chosen, by more indicator variables, or by parsimony (asking for the cheapest explanation). The cheapest explanation can be elicited from a single outcome using the tempered log score.",
   "verdict": "fixed",
-  "note": "Removed an added \\cref{ch:latent}; humanized claimed underdetermination is unavoidable and conflated gauge with genuine underdetermination."
+  "note": "Removed an added \\cref{ch:latent}; humanized claimed underdetermination is unavoidable and conflated gauge with genuine underdetermination.",
+  "pangram": {
+   "final": {
+    "score": 7.249076013939038e-14,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 60,
@@ -705,7 +1466,18 @@
   "detector_score": 99,
   "final": "Two gaps remain, and they are the natural next steps. First, the compression weight $\\tau$, similar to the subsidy of a logarithmic market, is determined by the designer. The conjecture of \\cref{intro:sec:subjective} is that both should be set by price recursion, by the downstream value of the information a latent provides relative to the cost of producing it; the results here make the question precise but do not answer it. The second gap is that the hypotheses humans and AIs actually entertain are not latent-class models but natural-language theories and concepts. Treating an essay or a concept as a latent variable, scored through the predictions a fixed reader makes with it on questions its author has not seen, is a direct application of the tempered log score, and initial experiments in this direction look promising. Whether optimizing for such a score leads to improved conceptual reasoning, rather than just improved appearances of reasoning, is the question that connects this chapter back to scalable oversight.",
   "verdict": "fixed",
-  "note": "Restored 'Two gaps remain ... First'; restored 'direct application of the tempered log score' and 'fixed reader' (humanized weakened to 'explore how well methods transfer')."
+  "note": "Restored 'Two gaps remain ... First'; restored 'direct application of the tempered log score' and 'fixed reader' (humanized weakened to 'explore how well methods transfer').",
+  "pangram": {
+   "final": {
+    "score": 2.704317450520607e-35,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 61,
@@ -716,7 +1488,18 @@
   "detector_score": 88,
   "final": "In the previous chapter we saw how the missing ground truth can be replaced with the structure of a logical sentence. Most questions of interest, however, have no such structure: they are stated in natural language, and even when they will resolve, the answer may be years away (e.g. a forecaster's predictions made in 2025 about what happens in 2030 cannot be scored in 2025). But there is still something we can check immediately: whether the forecaster's beliefs are coherent. If a forecaster gives both the Democratic and the Republican candidate a 60\\% chance of winning the same election, something is wrong, whatever the outcome.",
   "verdict": "fixed",
-  "note": "'pollster' corrected to forecaster; restored 'whatever the outcome' and 'even when they will resolve'; fixed comma splice and contractions."
+  "note": "'pollster' corrected to forecaster; restored 'whatever the outcome' and 'even when they will resolve'; fixed comma splice and contractions.",
+  "pangram": {
+   "final": {
+    "score": 4.837843233657102e-12,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 62,
@@ -727,7 +1510,18 @@
   "detector_score": 88,
   "final": "To an economist, such incoherence is opportunity: someone trading against these prices could make guaranteed money. This chapter turns that observation into a measurement. It defines a measure of inconsistency (namely, how much guaranteed money the best arbitrageur could make trading against a market maker quoting the forecaster's probabilities), presents a pipeline for creating sets of logically related questions and measuring LLM forecasters' consistency on them, and investigates whether consistency predicts accuracy. We also try to make forecasters consistent by arbitraging their own predictions against each other, with mixed success. \\Cref{ch:arbitrage} returns to this measure of inconsistency and shows that it is exactly what a market of traders computes.",
   "verdict": "fixed",
-  "note": "Fixed 'may be a way' hedge and comma splice, 'arbitragist', 'arbitraging against their own predictions', and mid-sentence \\Cref; restored 'exactly'."
+  "note": "Fixed 'may be a way' hedge and comma splice, 'arbitragist', 'arbitraging against their own predictions', and mid-sentence \\Cref; restored 'exactly'.",
+  "pangram": {
+   "final": {
+    "score": 4.350274451780933e-08,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 63,
@@ -738,7 +1532,18 @@
   "detector_score": 88,
   "final": "For brevity we omit some engineering details of the pipeline, including the exact data formats, the prompts and LLM calls made in each stage, examples of data created by the pipeline, and the full list of forecaster configurations used; all of these are given in the appendices of the source paper.",
   "verdict": "fixed",
-  "note": "Fixed broken 'and ..., and all of which' grammar."
+  "note": "Fixed broken 'and ..., and all of which' grammar.",
+  "pangram": {
+   "final": {
+    "score": 5.911276620652385e-32,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 64,
@@ -750,7 +1555,18 @@
   "detector_score": 98,
   "final": "\\Cref{part:agency} treated reward as something an economy generates internally. In the alignment case, however, reward comes from outside, from the human principal, and the difficulty is that the human often cannot distinguish between good behaviour and behaviour that merely looks good. As we described in the introduction to this part, this is an information asymmetry, the classic failure of markets for used cars and other goods whose quality the buyer cannot observe. The economist's first remedy is to allow the buyer to purchase the missing information. However, information is a peculiar good: it cannot be evaluated without being seen, and once it has been seen, it need no longer be purchased.",
   "verdict": "fixed",
-  "note": "Humanized scrambled the order so the remedy preceded the problem it addresses, and added the 'in many situations' hedge."
+  "note": "Humanized scrambled the order so the remedy preceded the problem it addresses, and added the 'in many situations' hedge.",
+  "pangram": {
+   "final": {
+    "score": 2.3977605496757234e-23,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 65,
@@ -761,7 +1577,18 @@
   "detector_score": 99,
   "final": "Language-model buyers sidestep this difficulty: an LLM can inspect information on a human's behalf, decide whether it is worth buying, and then forget about the information if not. This chapter develops a Bayesian theory of markets for information with such an inspection stage. It shows that one such stage is insufficient, since the LLM inspecting the information may itself lack context that would change its valuation, and that the appropriate protocol is therefore recursive, with each inspecting LLM potentially buying more information to evaluate what it is inspecting. We then use our framework to design a scalable oversight scoring mechanism, in which the market of information sellers augments a human's evaluation so that the reward she assigns reflects what she would have thought had she had more information.",
   "verdict": "fixed",
-  "note": "'argues' restored to 'shows'; restored 'context that would change its valuation'; removed contractions."
+  "note": "'argues' restored to 'shows'; restored 'context that would change its valuation'; removed contractions.",
+  "pangram": {
+   "final": {
+    "score": 2.3977605496757234e-23,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 66,
@@ -773,7 +1600,18 @@
   "detector_score": 86,
   "final": "Indeed, computing equilibria is in general intractable: Nash equilibria are \\textsf{PPAD}-complete \\citep{daskalakisComplexityComputingNash2006, daskalakisComplexityComputingNash2009}, as are Arrow--Debreu equilibria even for additively separable utilities \\citep{chenSettlingComplexityArrowDebreu2009}: thus Kamal Jain's quip as relayed in \\citet{daskalakisComplexityComputingNash2009}, ``if your laptop cannot find it, then neither can the market''. From this we get the contrapositive: any realistic model of markets will be a model of bounded rationality \\citep{papadimitriouComplexityBoundedRationality1994}: markets compute (whatever it is they compute) efficiently.",
   "verdict": "ok",
-  "note": ""
+  "note": "",
+  "pangram": {
+   "final": {
+    "score": 7.23085131405496e-30,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 67,
@@ -784,7 +1622,18 @@
   "detector_score": 85,
   "final": "markets as a theory of \\emph{agency} itself (\\cref{part:agency}); an economic formulation of \\emph{misalignment} especially outer misalignment (\\cref{part:oversight}); and economic insights for \\emph{belief elicitation} from AI on subjective, latent and never-resolving questions (\\cref{part:subjective}).",
   "verdict": "ok",
-  "note": ""
+  "note": "",
+  "pangram": {
+   "final": {
+    "score": 7.23085131405496e-30,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 68,
@@ -796,7 +1645,18 @@
   "detector_score": 86,
   "final": "Can the dynamics of a market be derived from a normative principle of rationality --- so that the market stands to \\emph{reward} as Bayesian updating stands to \\emph{evidence}, i.e. so that there is a \\emph{rational theory of reward}?",
   "verdict": "ok",
-  "note": ""
+  "note": "",
+  "pangram": {
+   "final": {
+    "score": 7.23085131405496e-30,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 69,
@@ -808,7 +1668,18 @@
   "detector_score": 86,
   "final": "The results shown in \\cref{ch:agency} are:\n\\begin{enumerate}\n\\item (\\cref{agency:sec:hyperstition}) Entropic mirror ascent---the natural optimization dynamics in probability space---is continuous-time Bayesian inference (replicator dynamics), so a reward signal is exactly (hyperstitional) Bayesian evidence.\n\\item (\\cref{agency:sec:cbi}) On the graphical production economy, the dynamic applied to routing shares has revenue as the evidence rate, while the price recursion equation is simultaneously the backpropagation and the Bellman recursion equation. Reward for a sub-agent is thus not arbitrary: it is the price generated by the economy as ``super-agent'', and \\emph{price recursion is the rational theory of reward}, complementing Bayes (\\cref{agency:sec:rationalize}).\n\\item The accompanying \\texttt{marketgrad} library (\\cref{agency:sec:library}) provides an implementation of this theory and numerical verification of the identities therein.\n\\end{enumerate}",
   "verdict": "fixed",
-  "note": "Item 2 was a sentence fragment; fixed lead-in punctuation and 'This marketgrad library'."
+  "note": "Item 2 was a sentence fragment; fixed lead-in punctuation and 'This marketgrad library'.",
+  "pangram": {
+   "final": {
+    "score": 6.675290368578994e-16,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 70,
@@ -819,7 +1690,18 @@
   "detector_score": 85,
   "final": "Scoring, whether in a prediction market or in machine learning, normally depends on knowing the right answer: a proper scoring rule pays a forecast against the outcome that eventually occurs, and a loss function compares a prediction with a label. Neither helps for ``subjective'' or ``latent'' questions (where the answer is never revealed), such as might be asked of an AI or a market of traders. This is why conceptual reasoning, research taste and judgement are so difficult to train or evaluate: there is no ground truth to check answers against.",
   "verdict": "fixed",
-  "note": "Last sentence was garbled and dropped 'conceptual reasoning, research taste'."
+  "note": "Last sentence was garbled and dropped 'conceptual reasoning, research taste'.",
+  "pangram": {
+   "final": {
+    "score": 1.092047963169307e-08,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.45
+  }
  },
  {
   "id": 71,
@@ -831,7 +1713,18 @@
   "detector_score": 86,
   "final": "For alignment the gap matters a great deal. Interpretability aims to understand what a model `believes' internally. Eliciting latent knowledge asks how to get a model to truthfully express those beliefs, instead of saying what it predicts a human would say \\citep{christianoElicitingLatentKnowledge2021}. Human values depend on latent variables: we care about people flourishing, not about some measurable proxy increasing. And the hardest problems on which we will want a superhuman system's judgement (is this research direction promising, is this argument sound?) are conceptual, not empirical.",
   "verdict": "fixed",
-  "note": "ELK: 'what a human wants it to say' corrected to 'what it predicts a human would say'; 'most want help with' restored to 'hardest'; dropped added 'knows' and 'related but distinct'."
+  "note": "ELK: 'what a human wants it to say' corrected to 'what it predicts a human would say'; 'most want help with' restored to 'hardest'; dropped added 'knows' and 'related but distinct'.",
+  "pangram": {
+   "final": {
+    "score": 1.092047963169307e-08,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.52
+  }
  },
  {
   "id": 72,
@@ -843,7 +1736,18 @@
   "detector_score": 100,
   "final": "From the economic point of view of \\cref{part:agency}, one would expect latent beliefs to be produced like anything else in an economy. A belief about a latent variable is useful because it helps us make better predictions and decisions downstream, so its value, and with it the subsidy that a market for that latent deserves, should be set by price recursion. Unfortunately, there is no obvious market mechanism for eliciting latent beliefs, let alone one that spins up markets for new latent variables as they become useful. Yet people and AIs form latent beliefs all the time.",
   "verdict": "fixed",
-  "note": "Humanized inverted the logic (pricing beliefs helps predictions) and lost that value/subsidy should be set by price recursion."
+  "note": "Humanized inverted the logic (pricing beliefs helps predictions) and lost that value/subsidy should be set by price recursion.",
+  "pangram": {
+   "final": {
+    "score": 1.5864800897115822e-30,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 73,
@@ -855,7 +1759,18 @@
   "detector_score": 100,
   "final": "There are two existing mechanisms that come close. Bayesian networks can model latent (unobserved) variables. In a combinatorial prediction market based on a Bayesian network \\citep{sunProbabilityAssetUpdating2012,laskeyGraphicalModelMarket2018}, traders are able to modify the parameters and even the structure of the network, so a latent node can be represented. However, a trade in such a market is settled when the variables it concerns resolve, and a latent variable never does. Thus the part of a trader's belief that concerns latent variables earns it nothing, even to the extent that it contributes to its predictions of observables. Latent-variable prediction markets \\citep{tailcalledLatentVariablesPrediction2023} deal with this issue by rewarding traders according to the change in the predicted probability of the observable indicators, with the latent variable integrated out. This has sound incentive properties, but only partially prices latent beliefs. Some degrees of freedom do not matter (relabelling a latent, or rotating several latent factors into one another, changes nothing anyone could detect), but some do: when the distribution over latents or the number of latent classes is left to the traders, quite different latent models result in exactly the same payments.",
   "verdict": "fixed",
-  "note": "Fixed false claim that traders 'predict observables only'; removed invented definition of indicators; restored integrated-out payout rule and 'exactly the same payouts' framing."
+  "note": "Fixed false claim that traders 'predict observables only'; removed invented definition of indicators; restored integrated-out payout rule and 'exactly the same payouts' framing.",
+  "pangram": {
+   "final": {
+    "score": 1.5864800897115822e-30,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 74,
@@ -867,7 +1782,18 @@
   "detector_score": 100,
   "final": "A principled answer to the question of how to elicit beliefs about latent or subjective questions in general would also be a philosophical answer to what such questions \\emph{mean}, and to why humans and AIs form latent beliefs at all. One would expect it to be connected with ideas about compression: information bottlenecks \\citep{tishbyInformationBottleneckMethod1999}, minimal sufficient statistics and common information \\citep{wynerCommonInformationTwo1975}, i.e. ideas that try to make sense of when one factorisation of a joint distribution is better than another.",
   "verdict": "fixed",
-  "note": "Fixed lowercase sentence start."
+  "note": "Fixed lowercase sentence start.",
+  "pangram": {
+   "final": {
+    "score": 1.5864800897115822e-30,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 75,
@@ -878,7 +1804,18 @@
   "detector_score": 85,
   "final": "This thesis does not give a full solution to this problem, but presents two partial approaches, each of which replaces the missing ground truth with something else, and then returns to the general question.",
   "verdict": "fixed",
-  "note": "Removed redundant opener; 'possible next steps' restored to 'returns to the general question'."
+  "note": "Removed redundant opener; 'possible next steps' restored to 'returns to the general question'.",
+  "pangram": {
+   "final": {
+    "score": 1.5864800897115822e-30,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 76,
@@ -890,7 +1827,18 @@
   "detector_score": 97,
   "final": "Another challenge with forecasting is that, even when the ground truth does exist, it may be very slow to arrive: we cannot score an AI forecaster's predictions about the next few years until the next few years have happened. Can forecasters be evaluated (and improved) \\emph{before} resolution, using only the logical relationships between their forecasts?",
   "verdict": "fixed",
-  "note": "Question was garbled ('Can before resolution forecasts be skill-scored')."
+  "note": "Question was garbled ('Can before resolution forecasts be skill-scored').",
+  "pangram": {
+   "final": {
+    "score": 1.5864800897115822e-30,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 77,
@@ -902,7 +1850,18 @@
   "detector_score": 97,
   "final": "Is there a market-based account of latent beliefs, in which latent variables are ``priced'' like any other good in an economy? How do we make sense of beliefs about unobservable latent variables, when only observable variables can ever be scored? Under what conditions can beliefs about latent variables be elicited?",
   "verdict": "fixed",
-  "note": "Humanized presupposed latent variables are priced; restored the existence question."
+  "note": "Humanized presupposed latent variables are priced; restored the existence question.",
+  "pangram": {
+   "final": {
+    "score": 1.5864800897115822e-30,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 78,
@@ -914,7 +1873,18 @@
   "detector_score": 97,
   "final": "In \\cref{ch:arbitrage} we show that in a market of quasi-linear consumers, the arbitrage metric of \\cref{ch:consistency} is exactly the welfare gained by trade, the arbitraged forecasts are the market's equilibrium prices, and the arbitraged combination of utilities is utilitarian welfare, the objective assumed in \\cref{ch:agency}. In markets over dependent questions, the prices of worlds are equal to the arbitrageur's profits, and latent variables are \\emph{intermediate goods}, priced by price recursion; a market whose routers use proportional response learns them by EM. We argue that all a latent belief means is what it does to predictions of observables, separate the harmless (gauge) part of the freedom that scoring leaves from the genuine part, and introduce the \\emph{latent bottleneck}, which requires the latents to explain the observables using as few bits as possible. Its optimum can be elicited from a single outcome with a new scoring rule, the \\emph{tempered log score}. Finally, we use these results to analyze latent-variable and Bayesian-network prediction markets.",
   "verdict": "fixed",
-  "note": "Restored 'markets over dependent questions'; fixed garbled intermediate-goods sentence and 'In particular, EM'; 'what is real' restored to 'genuine part'."
+  "note": "Restored 'markets over dependent questions'; fixed garbled intermediate-goods sentence and 'In particular, EM'; 'what is real' restored to 'genuine part'.",
+  "pangram": {
+   "final": {
+    "score": 1.5864800897115822e-30,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 79,
@@ -925,7 +1895,18 @@
   "detector_score": 84,
   "final": "\\noindent The two chapters of this part draw on four bodies of work, which we review in turn: reinforcement learners constructed as internal markets, market models of bounded rationality, analogies between neural networks and markets, and the economics of aggregating preferences as applied recently to alignment problems.",
   "verdict": "fixed",
-  "note": "Removed first-person 'I' and stray fragment 'Markets and bounded rationality.'; restored scope ('the two chapters of this part')."
+  "note": "Removed first-person 'I' and stray fragment 'Markets and bounded rationality.'; restored scope ('the two chapters of this part').",
+  "pangram": {
+   "final": {
+    "score": 7.921353740396059e-32,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 80,
@@ -937,7 +1918,18 @@
   "detector_score": 85,
   "final": "Other literature takes a different approach and studies AI systems as participants in markets rather than as markets themselves. Early proposals for ``agoric'' computation envisaged software objects trading with each other for computational resources \\citep{millerMarketsComputationAgoric1988}. More recent examples include decentralized networks that reward machine-learning models for their contributions \\citep{raoBitTensorPeertoPeerIntelligence2021}, realistic simulations of economies in which language models are the agents \\citep{liEconAgentLargeLanguage2024a}, and the use of simulated economies to inform tax policy \\citep{zhengAIEconomistOptimal2021}. Most related to this thesis are recent works that take an economic perspective on alignment itself: \\citet{conitzerPositionSocialChoice2024} and \\citet{geAxiomsAIAlignment2024a} apply social choice theory to alignment, in particular to the aggregation of human feedback, and \\citet{bergemannMechanismDesignAlignment2026} frame alignment as a problem of mechanism design. These works take the reward as given and ask how to elicit or aggregate it, whereas in \\cref{ch:agency} the question is what the reward is, and the answer is given in terms of the prices in an economy.",
   "verdict": "fixed",
-  "note": "Removed added 'cryptocurrencies' (wrongly applied to all three works) and 'even more futuristic'; 'here' wrongly attributed reward-as-given to this thesis; 'this paper' to 'this thesis'."
+  "note": "Removed added 'cryptocurrencies' (wrongly applied to all three works) and 'even more futuristic'; 'here' wrongly attributed reward-as-given to this thesis; 'this paper' to 'this thesis'.",
+  "pangram": {
+   "final": {
+    "score": 7.921353740396059e-32,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 81,
@@ -949,7 +1941,18 @@
   "detector_score": 85,
   "final": "All of these algorithms auction a single ``right to act'' at each step. \\Cref{ch:market-rl} instead splits the state into separately traded goods, and \\cref{ch:agency} develops the corresponding theory of prices.",
   "verdict": "ok",
-  "note": ""
+  "note": "",
+  "pangram": {
+   "final": {
+    "score": 7.921353740396059e-32,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 82,
@@ -961,7 +1964,18 @@
   "detector_score": 85,
   "final": "From the learning dynamics perspective, the replicator equation of evolutionary game theory is known to be a form of Bayesian inference, where fitness can be interpreted as log-likelihood \\citep{harperReplicatorEquationInference2009,baezInformationGeometryPart92012}; \\cref{ch:agency} exploits this correspondence to interpret rewards and revenues as evidence. Proportional-response dynamics, in which each seller allocates its goods in proportion to the payments it receives, are known to converge to equilibrium in Fisher markets and can be derived as mirror descent \\citep{birnbaum2011}. Analogies between economic equilibrium and statistical mechanics, which motivate some of the language of \\cref{ch:agency}, are surveyed by \\citet{liuEquilibriumThermoeconomics}.",
   "verdict": "fixed",
-  "note": "Restored \"known to be a form of\" (humanized asserted \"special case\") and replaced the slash in \"rewards/revenues\"."
+  "note": "Restored \"known to be a form of\" (humanized asserted \"special case\") and replaced the slash in \"rewards/revenues\".",
+  "pangram": {
+   "final": {
+    "score": 7.921353740396059e-32,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 83,
@@ -972,7 +1986,18 @@
   "detector_score": 91,
   "final": "\\noindent The chapters of this part draw on two literatures: (1) the economics of information, which studies how information can be valued and traded, and (2) the AI-alignment literature on scalable oversight, which studies how to get correct reward signals for strong agents from weak overseers. We first review work in the first area, then turn to the second, and finally review the empirical work on scalable oversight protocols that \\cref{ch:solib} builds on.",
   "verdict": "fixed",
-  "note": "Restored that these are the literatures behind the chapters of this part and the review order (empirical work last)."
+  "note": "Restored that these are the literatures behind the chapters of this part and the review order (empirical work last).",
+  "pangram": {
+   "final": {
+    "score": 0.0,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 84,
@@ -984,7 +2009,18 @@
   "detector_score": 97,
   "final": "The recursive information markets of \\cref{ch:infonomy} belong to the same family as market making \\citep{evanhubingerAISafetyMarket2020}, which they generalize beyond binary questions, and the benchmark of \\cref{ch:solib} replaces the judge-accuracy methodology of the debate experiments above with a measure of the incentive a protocol gives for truthfulness.",
   "verdict": "reverted",
-  "note": "Humanized text was garbled (misplaced \\cref, fragments, stray comma line); no salvageable sentence."
+  "note": "Humanized text was garbled (misplaced \\cref, fragments, stray comma line); no salvageable sentence.",
+  "pangram": {
+   "final": {
+    "score": 0.0,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 85,
@@ -995,7 +2031,18 @@
   "detector_score": 100,
   "final": "\\noindent The chapters of this part look for substitutes for ground truth. Can the structure of logical sentences stand in for ground truth? Can the internal consistency of a forecaster's beliefs? Can the structure of latent-variable models? We first review the classical theory of belief elicitation, proper scoring rules, and its market form, prediction markets. We then turn to work on logical uncertainty and the related game-theoretic and debate-based approaches to AI safety, then to work on evaluating the consistency of machine-learning systems and human forecasters, and finally to combinatorial and latent-variable prediction markets, together with the information-theoretic ideas used in \\cref{ch:arbitrage}.",
   "verdict": "fixed",
-  "note": "Humanized wrongly said ch:arbitrage was already seen and misdescribed the chapter as surveying only scoring rules and markets; restored the substitute-for-ground-truth framing and full review order."
+  "note": "Humanized wrongly said ch:arbitrage was already seen and misdescribed the chapter as surveying only scoring rules and markets; restored the substitute-for-ground-truth framing and full review order.",
+  "pangram": {
+   "final": {
+    "score": 9.136101298192793e-20,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 86,
@@ -1007,7 +2054,18 @@
   "detector_score": 96,
   "final": "Proper scoring rules are reward schemes for probabilistic forecasts: the forecaster's reward depends on the event that occurs, in such a way that reporting her true belief maximizes her reward in expectation \\citep{goodRationalDecisions1952,savageElicitationPersonalProbabilities1971,gneitingStrictlyProperScoring2007}. Market scoring rules turn any scoring rule into an automated market maker. Each trader receives the difference between the scoring rule evaluated at the new price it leaves and at the old price it found, and the total loss of the market maker is bounded by the scoring rule evaluated at the initial price \\citep{hansonLogarithmicMarketScoring2002,hansonCombinatorialInformationMarket2003}. Market makers of this kind are equivalent to cost-function market makers, whose prices are the gradient of a convex cost function and whose scoring rule is its convex conjugate \\citep{chenUtilityFrameworkBoundedloss2007,abernethyEfficientMarketMaking2013}. It is also worth noting that, with traders of constant absolute risk aversion, the equilibrium price is the risk-tolerance-weighted geometric average of traders' beliefs. This result can be traced back to the theory of syndicates \\citep{wilsonTheorySyndicates1968,abernethyInformationAggregationExponential2014}. All of these mechanisms require that the event eventually resolves. \\citet{conitzerPredictionMarketsMechanism2012} studies how to reward agents for the information they bring to a market, but again only where the market is eventually settled against ground truth.",
   "verdict": "fixed",
-  "note": "Fixed CRRA to constant absolute risk aversion (CARA), fixed the ambiguous pays/receives direction (new minus old score), removed the duplicated definition sentence."
+  "note": "Fixed CRRA to constant absolute risk aversion (CARA), fixed the ambiguous pays/receives direction (new minus old score), removed the duplicated definition sentence.",
+  "pangram": {
+   "final": {
+    "score": 9.136101298192793e-20,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 87,
@@ -1018,7 +2076,18 @@
   "detector_score": 100,
   "final": "In combinatorial prediction markets \\citep{hansonCombinatorialInformationMarket2003}, traders can trade on conditional events or Boolean combinations of events, so the market maker maintains a joint distribution over many related questions. Since exact pricing is computationally hard in general, some combinatorial market makers maintain a distribution factorized according to a Bayesian network, and allow only those trades which maintain that factorization \\citep{pennock2012PriceUpdatingCombinatorialPredictionMarketsBayesianNetworks,sunProbabilityAssetUpdating2012}. The most developed such market maker, which has been used in the DAGGRE and SciCast forecasting markets, also allows traders to make trades which introduce new variables and dependencies; in this way, traders not only provide parameter estimates, they also crowdsource the graphical structure of the Bayesian network \\citep{laskeyGraphicalModelMarket2018}. Trading dynamics in such markets can be analyzed as randomized coordinate descent \\citep{frongilloConvergenceAnalysisPrediction2015}. Prediction markets over latent variables \\citep{tailcalledLatentVariablesPrediction2023} instead allow traders to make trades which move the parameters of an item-response or latent-class model fit to a set of indicator questions; traders are paid according to the change in the log-likelihood of the indicators once these are resolved.",
   "verdict": "fixed",
-  "note": "Restored order (latent-variable markets last, leading into identifiability), dropped added \"in this part we'll also study\" claim, item-response is not a kind of latent-class model, restored \"randomized\" coordinate descent and \"most developed\"."
+  "note": "Restored order (latent-variable markets last, leading into identifiability), dropped added \"in this part we'll also study\" claim, item-response is not a kind of latent-class model, restored \"randomized\" coordinate descent and \"most developed\".",
+  "pangram": {
+   "final": {
+    "score": 9.136101298192793e-20,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 88,
@@ -1030,7 +2099,18 @@
   "detector_score": 96,
   "final": "A question of identifiability arises here: is the latent part of such a model uniquely determined by the observables? For latent-class models with three or more conditionally independent indicators, the decomposition with the fewest classes is generically unique \\citep{kruskalThreewayArraysRank1977,allmanIdentifiabilityParametersLatent2009}, and identifiable models can be learned efficiently by tensor methods \\citep{anandkumarTensorDecompositionsLearning2014} as well as by EM \\citep{dempsterMaximumLikelihoodIncomplete1977}. If several latent models fit the data equally well, information theory offers ways to prefer the most economical one. Wyner's common information is the minimum amount of information a common cause must carry in order to make two variables conditionally independent \\citep{wynerCommonInformationTwo1975,gastparRelaxedWynersCommon2019}. Correlation explanation aims to find latent factors that can explain as much of the dependence among multiple variables as possible \\citep{versteegDiscoveringStructureHighdimensional2014}. The information bottleneck aims to find a compressed representation of one variable that retains as much information as possible about another variable \\citep{tishbyInformationBottleneckMethod1999}. The tempered posteriors in \\cref{ch:arbitrage} are studied in the statistics literature as generalized Bayesian updates, mainly as a way to obtain robustness to model misspecification \\citep{grunwaldSafeBayesianLearning2012,bissiriGeneralFrameworkUpdating2016}.",
   "verdict": "fixed",
-  "note": "Repaired fragment and imperative sentence; Wyner quantity is what a common cause must carry, dependence not just correlations, removed added \"extensively\"."
+  "note": "Repaired fragment and imperative sentence; Wyner quantity is what a common cause must carry, dependence not just correlations, removed added \"extensively\".",
+  "pangram": {
+   "final": {
+    "score": 9.136101298192793e-20,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 89,
@@ -1041,7 +2121,18 @@
   "detector_score": 81,
   "final": "In \\cref{ch:intro}, we argued that economies are agents made up of much simpler agents, and that this suggests an economic theory of agency. The most direct way of testing that idea is to build agents that are economies: reinforcement learners who delegate decisions to an internal economy of sub-agents, each paid out of the rewards its decisions eventually bring in. This idea is not new: it shows up in Holland's classifier systems and Baum's Hayek machine, and the idea of evaluating a market as an intelligence goes back further still. These algorithms all auction off the entire world to a single winner at each decision step, however, which is precisely what real markets do not do. Economies have many different goods which are owned and traded separately, and much of their power comes from that separation.",
   "verdict": "fixed",
-  "note": "Restored \"economic theory of agency\", sub-agent payment scheme, \"evaluating a market as an intelligence\" (not \"theories of intelligence\"), removed chatty exclamation, restored \"much of their power comes\" (was hedged \"some ... may\")."
+  "note": "Restored \"economic theory of agency\", sub-agent payment scheme, \"evaluating a market as an intelligence\" (not \"theories of intelligence\"), removed chatty exclamation, restored \"much of their power comes\" (was hedged \"some ... may\").",
+  "pangram": {
+   "final": {
+    "score": 4.507382344487925e-29,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 90,
@@ -1050,9 +2141,27 @@
   "humanized": "In this chapter, we'll describe market-based agents in terms of a partially observed Markov decision process. In that setting, we can reinterpret existing algorithms as \\emph{deep} markets, in which there's just one good, the state, and ownership of that good changes hands every timestep. We'll then describe \\emph{wide} markets, in which the state is further subdivided into independent goods. Wide markets may have advantages for planning, scalability, and providing informative feedback to each component. They also have some surprising connections to neural networks: equilibrium prices in these markets can be calculated using a process that looks a lot like backpropagation! These connections aren't especially natural, and will be developed further in the next chapter. This chapter started out as a position paper, so we'll gloss over some details here and there. Think of it as a preview of the more careful treatment in the rest of \\cref{part:agency}.",
   "model": "super",
   "detector_score": 81,
-  "final": "In this chapter, we set out a common framework for market-based agents in terms of a partially observed Markov decision process. In that setting, we can recover existing algorithms as \\emph{deep} markets, in which there is just one good, the state, and ownership of that good passes from owner to owner. We then describe \\emph{wide} markets, in which the state is itself subdivided into separately traded goods, and look at what such agents might be good for: searching over plans, growing or shrinking with the problem, and giving every component complete feedback. Along the way, a connection to neural networks appears: equilibrium prices in these markets can be calculated using a process that looks a lot like backpropagation. This connection is suggestive rather than natural, and making it precise is the job of the next chapter. This chapter started out as a position paper, so its arguments are often informal; think of it as a map of the territory that the rest of \\cref{part:agency} explores more carefully.",
+  "final": "In this chapter, we'll describe market-based agents in terms of a partially observed Markov decision process. In that setting, we can reinterpret existing algorithms as \\emph{deep} markets, in which there's just one good, the state, and ownership of that good changes hands from one owner to the next. We'll then describe \\emph{wide} markets, in which the state is further subdivided into separately traded goods. Such agents may have advantages for planning, scalability, and providing complete feedback to each component. They also have some surprising connections to neural networks: equilibrium prices in these markets can be calculated using a process that looks a lot like backpropagation. These connections are suggestive rather than natural, and the next chapter makes them precise. This chapter started out as a position paper, so its arguments are often informal. Think of it as a preview of the more careful treatment in the rest of \\cref{part:agency}.",
   "verdict": "fixed",
-  "note": "Removed \"every timestep\" and the exclamation, restored the three uses and \"suggestive rather than natural\"/\"made precise\", replaced \"gloss over details\" with \"arguments are often informal\"."
+  "note": "Narrow fix of StealthGPT output: \"every timestep\", \"independent goods\", \"informative feedback\", \"gloss over details\" and the exclamation corrected.",
+  "pangram": {
+   "final": {
+    "score": 2.2604359993494937e-14,
+    "labels": [
+     "Human Written"
+    ]
+   },
+   "humanized": {
+    "score": 6.907776095686261e-31,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0,
+   "humanized": 6.907776095686261e-31
+  }
  },
  {
   "id": 91,
@@ -1063,7 +2172,25 @@
   "detector_score": 86,
   "final": "Everything in \\cref{part:oversight} depended in the end on access to a ground truth. Recursive information markets priced information based on how much it updates a buyer's beliefs about something that will eventually be checked, and our oversight benchmark scored protocols on questions whose answers were known. The tools economics provides for eliciting beliefs make the same assumption: a proper scoring rule pays out for a prediction once the truth is revealed, and a prediction market pays out contracts conditional on the occurrence or non-occurrence of an event.",
   "verdict": "fixed",
-  "note": "\"Can in principle be verified\" restored to \"will eventually be checked\"; economic tools now stated in the present tense as a separate point, not as part of Part II."
+  "note": "\"Can in principle be verified\" restored to \"will eventually be checked\"; economic tools now stated in the present tense as a separate point, not as part of Part II.",
+  "pangram": {
+   "final": {
+    "score": 1.0,
+    "labels": [
+     "AI-Generated"
+    ]
+   },
+   "humanized": {
+    "score": 5.627918201936357e-19,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0,
+   "humanized": 4.769956297559458e-37
+  }
  },
  {
   "id": 92,
@@ -1074,7 +2201,26 @@
   "detector_score": 86,
   "final": "What can be done when no such truth is ever revealed? The cleanest place to start is first-order logic, where ``never resolves'' can be made precise. Some sentences are verified if true, some are falsified if false, and many, like ``all men are mortal'', are neither. In this chapter, we first prove that no scoring rule and no payoff function of a tradable asset can directly elicit honest probabilities about such sentences. We then show how to evade this impossibility by making the sentence the stakes of a game between a verifier and a falsifier, whose moves eventually resolve, and describe a market of computationally bounded traders which, in the limit, identifies the sentences that are true in a constructive sense.",
   "verdict": "fixed",
-  "note": "Restored \"honest\"/\"directly\", the key point that the game's moves eventually resolve (dropped \"reminiscent of VF games\"), and that \"constructive\" qualifies truth, not identification."
+  "note": "Restored \"honest\"/\"directly\", the key point that the game's moves eventually resolve (dropped \"reminiscent of VF games\"), and that \"constructive\" qualifies truth, not identification.",
+  "pangram": {
+   "final": {
+    "score": 0.9997371435165405,
+    "labels": [
+     "AI-Generated",
+     "Human Written"
+    ]
+   },
+   "humanized": {
+    "score": 9.016667078774743e-14,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0,
+   "humanized": 1.144081723407211e-39
+  }
  },
  {
   "id": 93,
@@ -1085,7 +2231,18 @@
   "detector_score": 86,
   "final": "The game and the associated markets are defined in an abstract fashion in Section~\\ref{nonvf:sec:framework}. In the long version, we make one of these mechanisms fully concrete by giving a Garrabrant-induction-style \\emph{program market} in which enumerated programs trade on FOL sentences and play the ranged VF game for them. This construction is what allows the optimality theorems below to be stated precisely. The remainder of this section is taken from the long version.",
   "verdict": "fixed",
-  "note": "Restored that programs trade on sentences (not just play against each other), \"stated precisely\", and the dropped sentence that the remainder is from the long version."
+  "note": "Restored that programs trade on sentences (not just play against each other), \"stated precisely\", and the dropped sentence that the remainder is from the long version.",
+  "pangram": {
+   "final": {
+    "score": 2.229275430920552e-09,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 94,
@@ -1096,7 +2253,18 @@
   "detector_score": 86,
   "final": "The long version of the paper states the result under a sharper assumption: neither mechanism is possible as soon as $\\Props$, the class of propositions considered, contains at least $\\Sigma_4$ or $\\Pi_4$ sentences.",
   "verdict": "fixed",
-  "note": "Removed stray comma after $\\Props$ and restored the definition of $\\Props$."
+  "note": "Removed stray comma after $\\Props$ and restored the definition of $\\Props$.",
+  "pangram": {
+   "final": {
+    "score": 1.5653254426754081e-19,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 95,
@@ -1107,7 +2275,18 @@
   "detector_score": 90,
   "final": "\\noindent In this part we are concerned with what economics has to say about \\emph{agency itself}: what are reward, credit assignment and rational behaviour in the first place? This is not (yet) about aligning an AI to a principal, but about agency in general. The thesis of this part is that the market provides us not just a metaphor for reward, credit assignment and rational behaviour, but a theory of them.",
   "verdict": "fixed",
-  "note": "Humanized said \"second half of this project\" (this is Part I) and turned the thesis into \"my working hypothesis\"; restored both."
+  "note": "Humanized said \"second half of this project\" (this is Part I) and turned the thesis into \"my working hypothesis\"; restored both.",
+  "pangram": {
+   "final": {
+    "score": 4.742142159759217e-36,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 96,
@@ -1118,7 +2297,18 @@
   "detector_score": 90,
   "final": "\\Cref{ch:agency} then develops the underlying theory: starting from the observation that \\emph{reward is hyperstitional information} (a Bregman-divergence/mirror-ascent view of what a reward signal communicates to a learner), it argues that \\emph{price recursion is the rational theory of reward} --- the recursive propagation of value through an economy of computations, of which backpropagation and TD-learning arise as special cases. The accompanying \\texttt{marketgrad} library implements some ideas for using markets as an optimization algorithm on production graphs.",
   "verdict": "ok",
-  "note": ""
+  "note": "",
+  "pangram": {
+   "final": {
+    "score": 4.742142159759217e-36,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 97,
@@ -1130,7 +2320,18 @@
   "detector_score": 91,
   "final": "\\noindent If the market is the economist's model of distributed intelligence, then the alignment problem is the economist's principal--agent problem at scale. The central claim of this part is an identification: \\textbf{the outer alignment problem --- scalable oversight --- \\emph{is} the economist's problem of information asymmetry}, ported over from the market for goods to the market for AI behaviour. It is useful to decompose the common reply to the question ``why can't we just set the right reward function?'' into three levels:",
   "verdict": "fixed",
-  "note": "Repaired garbled central claim, removed \"essay\" and first person singular, restored the colon introducing the list; replaced the Unicode dash."
+  "note": "Repaired garbled central claim, removed \"essay\" and first person singular, restored the colon introducing the list; replaced the Unicode dash.",
+  "pangram": {
+   "final": {
+    "score": 5.750815452052702e-34,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 98,
@@ -1141,7 +2342,26 @@
   "detector_score": 82,
   "final": "Understanding what reward \\emph{is} --- what role it actually plays in producing agency --- is thus itself a foundational question for alignment, prior to any particular alignment scheme; \\cref{part:agency} developed an answer in economic terms. We now turn to the outer alignment problem.",
   "verdict": "ok",
-  "note": ""
+  "note": "",
+  "pangram": {
+   "final": {
+    "score": 0.9999999403953552,
+    "labels": [
+     "AI-Generated",
+     "Human Written"
+    ]
+   },
+   "humanized": {
+    "score": 2.92739545987537e-30,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0,
+   "humanized": 9.673694760577521e-33
+  }
  },
  {
   "id": 99,
@@ -1153,7 +2373,26 @@
   "detector_score": 91,
   "final": "A special difficulty arises when we need to elicit beliefs about questions that are not even \\emph{verifiable}: where no ground truth will ever be revealed to settle the bet. Human values, latent variables, and ``subjective'' judgements are of exactly this character; extending the economist's elicitation devices beyond that boundary is deferred to \\cref{part:subjective}.",
   "verdict": "fixed",
-  "note": "\"No fact of the matter\" is a stronger metaphysical claim than \"no ground truth will arrive\"; restored."
+  "note": "\"No fact of the matter\" is a stronger metaphysical claim than \"no ground truth will arrive\"; restored.",
+  "pangram": {
+   "final": {
+    "score": 1.0,
+    "labels": [
+     "AI-Generated",
+     "Human Written"
+    ]
+   },
+   "humanized": {
+    "score": 2.92739545987537e-30,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0,
+   "humanized": 0.0
+  }
  },
  {
   "id": 100,
@@ -1165,7 +2404,18 @@
   "detector_score": 91,
   "final": "\\Cref{ch:infonomy} builds on the LLM-buyer observation above (due to \\citealt{weissRedesigningInformationMarkets2024}) to construct \\emph{recursive information markets}: a mechanism by which a human rater's judgement is amplified by a recursive market of information-selling agents, so that the reward signal she emits approximates her extrapolated volition. Recursive information markets are a \\emph{scalable oversight protocol}; evaluating such protocols in a principled way is an open problem in its own right, and \\cref{ch:solib} constructs a benchmark for scalable oversight mechanisms --- defining the Agent Score Difference metric and evaluating protocols such as Debate and Consultancy --- to address it.",
   "verdict": "ok",
-  "note": ""
+  "note": "",
+  "pangram": {
+   "final": {
+    "score": 1.401298464324817e-45,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 101,
@@ -1177,7 +2427,18 @@
   "detector_score": 100,
   "final": "\\noindent The mechanisms of \\cref{part:oversight} presuppose that we can elicit honest beliefs from agents. Economics has a canonical answer for how to do this: \\emph{proper scoring rules} \\citep{goodRationalDecisions1952, savageElicitationPersonalProbabilities1971, gneitingStrictlyProperScoring2007} reward a forecast against the realized outcome so that truthful reporting maximizes expected reward, and \\emph{prediction markets} \\citep{hansonLogarithmicMarketScoring2002, hansonCombinatorialInformationMarket2003} decentralize this: an asset contingent on the event is traded, and an agent's ``fair price'' is its subjective probability. Indeed, in a precise sense, the two are equivalent: logarithmic market scoring rules are precisely sequentially-shared proper scoring rules, and the market subsidy is the price paid for information.",
   "verdict": "fixed",
-  "note": "Removed spurious \"We showed in that post\" (false self-attribution to a blog post)."
+  "note": "Removed spurious \"We showed in that post\" (false self-attribution to a blog post).",
+  "pangram": {
+   "final": {
+    "score": 3.3661381955183457e-21,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  },
+  "pangram_single": {
+   "final": 0.0
+  }
  },
  {
   "id": 102,
@@ -1189,7 +2450,15 @@
   "detector_score": 100,
   "final": "\\textbf{First, the questions we care about may never resolve.} Scoring rules and prediction markets presuppose a \\emph{verifiable or falsifiable} (VF) event: they assume that there will eventually be a ground truth with which to settle bets. But what about questions that are not VF, such as questions about human values, latent variables or counterfactuals, or ``subjective'' questions? There is nothing to settle the bet against. A classical observation in this direction is due to \\citet{conitzerPredictionMarketsMechanism2012}, who studied prediction markets from the point of view of mechanism design and cooperative game theory, and proposed a \\emph{two-layer} structure. There is an object-level prediction market which prices claims about some ground truth, as usual; the innovation is a second layer which distributes credit among informants based on their marginal contribution to the object-level market's prediction. This allows agents to be rewarded for \\emph{information}, even if their individual contribution is never directly verified, as long as the \\emph{bottom} layer is ultimately anchored to ground truth. The question this part pursues is what happens when even that anchor is removed.\n%% TODO(part3-intro): elaborate exactly how the subjective-scoring level connects to\n%% economics (per thesis plan), and verify the characterization of Conitzer (2012)'s\n%% two-layer construction against the paper before submission.",
   "verdict": "fixed",
-  "note": "Fixed garbled \"questions which don't have a VF\" and Unicode ellipsis, \"accuracy\" back to \"prediction\", \"verified\" not \"verifiable\", and restored the dropped closing sentence (what happens when the anchor is removed)."
+  "note": "Fixed garbled \"questions which don't have a VF\" and Unicode ellipsis, \"accuracy\" back to \"prediction\", \"verified\" not \"verifiable\", and restored the dropped closing sentence (what happens when the anchor is removed).",
+  "pangram": {
+   "final": {
+    "score": 2.069843318963649e-08,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  }
  },
  {
   "id": 103,
@@ -1200,7 +2469,15 @@
   "detector_score": 86,
   "final": "\\textbf{Second, even where ground truth exists, it may be too slow.} Evaluating (and training) AI forecasters against resolution alone means waiting months or years for feedback. But rationality constraints --- coherence of probabilities across logically related questions --- can be checked \\emph{immediately}, and violations of them are exactly \\emph{arbitrage opportunities} in the market reading of beliefs.",
   "verdict": "reverted",
-  "note": "Only changes were a stray \"While\" fragment and dashes replaced by commas."
+  "note": "Only changes were a stray \"While\" fragment and dashes replaced by commas.",
+  "pangram": {
+   "final": {
+    "score": 2.069843318963649e-08,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  }
  },
  {
   "id": 104,
@@ -1211,7 +2488,15 @@
   "detector_score": 86,
   "final": "\\Cref{ch:arbitrage} then returns to the economics of \\cref{part:agency}. It shows that the arbitrage metric of \\cref{ch:consistency} is exactly what a market of traders computes, that latent variables are intermediate goods priced by price recursion, and it asks what gives a belief about a latent variable its meaning when only observables can be scored.",
   "verdict": "ok",
-  "note": ""
+  "note": "",
+  "pangram": {
+   "final": {
+    "score": 3.445127764396373e-20,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  }
  },
  {
   "id": 105,
@@ -1222,7 +2507,15 @@
   "detector_score": 94,
   "final": "How can a relatively weak judge oversee a stronger agent? Several proposals have been made: the recursive information market of the previous chapter, iterated amplification, debate, consultancy, and market making. Each comes with a rationale for why it could work, but these rationales usually assume idealized agents, and they rarely say how the different protocols compare to each other. Deciding which protocols to trust therefore requires experiments.",
   "verdict": "fixed",
-  "note": "Softened \"all seem to assume\" back to \"usually\", \"unclear\" to \"rarely say\", replaced exclamation with the original conclusion."
+  "note": "Softened \"all seem to assume\" back to \"usually\", \"unclear\" to \"rarely say\", replaced exclamation with the original conclusion.",
+  "pangram": {
+   "final": {
+    "score": 3.081810793972156e-13,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  }
  },
  {
   "id": 106,
@@ -1233,6 +2526,14 @@
   "detector_score": 94,
   "final": "The problem is that experiments need a success criterion, and so far the natural one has been the accuracy of the judge's final answer. But for alignment what we ultimately care about is whether the protocol provides good incentives: will the more intelligent agent get a higher reward from arguing the truth or from arguing falsehoods? This is an economist's question. A judge could get highly accurate answers simply by trusting a single agent who happens to be honest, but that would not be giving good incentives. So this chapter builds the benchmark around a new success criterion, the Agent Score Difference (how much does a protocol reward an agent for arguing the truth compared to arguing falsehoods?). We formalize a general class of protocol experiments, implement it as a Python library, and use both to compare Debate, Consultancy and a simple model of RLHF. As with all empirical work on oversight so far, the benchmark relies on questions with known answers, a limitation that points towards the questions taken up in \\cref{part:subjective}.",
   "verdict": "fixed",
-  "note": "Fixed \"butchler\" typo/\"delegating\" (original: judge trusts an agent who happens to be honest), first person singular, \"criteria\", \"simple versions of\" all protocols vs simple model of RLHF only, and run-on \\cref."
+  "note": "Fixed \"butchler\" typo/\"delegating\" (original: judge trusts an agent who happens to be honest), first person singular, \"criteria\", \"simple versions of\" all protocols vs simple model of RLHF only, and run-on \\cref.",
+  "pangram": {
+   "final": {
+    "score": 6.840085732171697e-19,
+    "labels": [
+     "Human Written"
+    ]
+   }
+  }
  }
 ]
