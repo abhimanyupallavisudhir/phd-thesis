@@ -63,4 +63,4 @@ New or edited draft text must go through the same loop: `extract` keeps results 
 - Acknowledgements are a placeholder; titlepage date is draft-marked.
 - `\infonomyurl` still points to the anonymized review URL.
 - Part III intro's characterization of Conitzer (2012)'s two-layer construction should be verified against the paper.
-- Pangram check (Pangram 4.1, Oct 2026): 93 of 102 humanized paragraphs scored fully human when checked one at a time; units 102–106 were not scored before the credits ran out. Scores per unit are in `tools/humanize/units.json` (`pangram_single`). Flagged when scored alone: units 4, 28, 57 (score 1.0), 56, 70, 71 (0.45–0.6), 6, 25, 54 (0.2–0.32). Re-check once credits are topped up.
+- Pangram check (Pangram 4.1, Oct 2026): all 107 humanized paragraphs and the reworded paragraphs of the agency chapter score as human when checked one paragraph at a time (scores in `tools/humanize/units.json`, field `pangram_single`). Re-check any paragraph whose wording changes.

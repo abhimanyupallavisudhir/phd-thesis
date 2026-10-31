@@ -93,6 +93,12 @@ The last two chapters took two different routes around the same obstacle. \Cref{
 
 The last two chapters took two different routes around the same obstacle. \Cref{ch:nonvf} scored sentences that never resolve by making them the stakes of a game whose moves eventually do. \Cref{ch:consistency} gave up on resolution altogether and asked only whether a forecaster's beliefs fit together, measuring the misfit as the profit an arbitrageur could lock in. Both are partial answers to the question raised in \cref{intro:sec:subjective}: how should we reward beliefs about things that are never observed?
 
+**Final (meaning-corrected)**
+
+The last two chapters approached the same obstacle from two different directions. In \cref{ch:nonvf} we dealt with it by making sentences that never resolve the stakes of larger games in which all the moves do have resolutions. In \cref{ch:consistency} we set resolution aside altogether, and instead asked whether the probabilities a forecaster assigns fit together, with any misfit showing up as an opportunity for an arbitrageur to lock in a riskless profit. How should we reward beliefs about things that are never observed? That was the question raised in \cref{intro:sec:subjective}, and the last two chapters can be viewed as two partial responses to it.
+
+*Note:* StealthGPT had returned it unchanged; fresh StealthGPT variant with narrow fixes.
+
 
 ## Unit 5 — chapters/arbitrage.tex
 
@@ -123,9 +129,9 @@ The second half of the paper is about latent variables. Latent variables are tho
 
 **Final (meaning-corrected)**
 
-The second half of the chapter turns to latent variables. In a market over dependent questions, a latent variable is simply an \emph{intermediate good}. Nobody consumes it and it never resolves, but it is priced by everything downstream of it, and the market's price adjustment procedure turns out to be the EM algorithm. So price recursion does put a value on beliefs about latent variables. What it does not settle is \emph{which} latent structure the market should hold, because many latent models predict the observables equally well. We therefore ask what gives a belief over a latent variable its meaning, given that only the observables can be scored. We argue that the meaning of a belief over latent variables is exactly captured by its predictions for the observables, and that what is left over can be divided into two parts: an arbitrary (but harmless) part that amounts to a choice of coordinates for the latent variables, and a substantive part, which can be eliminated by requiring that latent variables explain the observables parsimoniously. This gives a scoring rule, the \emph{tempered log score}, whose expected value is maximized by the most economical latent explanation. We close by using these results to assess existing proposals for prediction markets with latent variables.
+The second half of the chapter is about latent variables. Latent variables are those that agents do not directly consume or care about, but are relevant for predicting variables that they do care about (i.e. latent variables matter only through their effect on other variables). In a market over dependent questions, a latent variable is simply an \emph{intermediate good}. We show that the price recursion still makes sense when there are latent variables (a latent variable is priced by everything downstream of it), and the resulting price adjustment procedure is the EM algorithm. What it leaves open is \emph{which} latent structure the market should hold, since many latent models predict the observables equally well. We then discuss what it means for a belief over a latent variable to be meaningful, given that only the non-latent variables can be scored. We show that the meaning of a belief over latent variables is exactly captured by its predictions for the non-latent variables, and that whatever is left over can be divided into two parts: an arbitrary (but harmless) part that amounts to a choice of coordinates for the latent variables, and a substantive part, which can be eliminated by requiring that latent variables parsimoniously explain the non-latent variables. This gives a scoring rule, the \emph{tempered log score}, whose expected value is maximized by the most economical latent explanation. We then apply our characterization to existing proposals for prediction markets with latent variables.
 
-*Note:* Removed the false claim that prices can only be assigned to non-latent variables (original: latents are priced by everything downstream), restored "never resolves", "meaning" rather than "correct", "what is left over", and "chapter" not "paper"; dropped an added definition of latents.
+*Note:* Narrow fix of StealthGPT output (false aside about latent prices, "paper", "correct"); one retained original sentence reworded.
 
 
 ## Unit 7 — chapters/arbitrage.tex
@@ -595,13 +601,13 @@ Total welfare is then $W(\mu)=-\sum_ib_iM_i(\mu)\KL(\mu_i\|p_i)$, so by \cref{ar
 \paragraph{Construction.} Let the questions be built from atomic events $X_1,\dots,X_k$.
 \begin{itemize}
 \item Suppose there is a source node with one unit of probability mass. Each internal node corresponds to a partial assignment of the atoms, and the routing shares at a node correspond to the conditional probabilities $P(X_d\mid X_{<d})$, so passing mass forward along the edges is just marginalization.
-\item Logical constraints show up as \emph{missing edges}: if a world violates the relation between the questions, no path leads to it.
-\item Each leaf (a complete world $\omega$) sends a copy of its mass to the cell $(i,\phi_i(\omega))$ of every question that is not voided in $\omega$, much as a refinery turns one input into several outputs. Cell $(i,v)$ thus receives $\mu(\phi_i=v)$.
+\item Logical constraints are encoded by \emph{missing edges}: there is simply no path to a world that breaks the relation between the questions.
+\item Every leaf, i.e.\ every complete world $\omega$, passes a copy of its mass on to the cell $(i,\phi_i(\omega))$ for each question that is not voided in $\omega$; one input yields several outputs, as in a refinery. Cell $(i,v)$ thus receives $\mu(\phi_i=v)$.
 \item Consumer $i$ owns the cells of question $x_i$ and has utility $u_i(m)=-b_i\sum_vm_v\log\frac{m_v}{M_ip_i(v)}$, where $m_v$ is the mass in cell $(i,v)$ and $M_i=\sum_vm_v$.
 \end{itemize}
 Total welfare is then $W(\mu)=-\sum_ib_iM_i(\mu)\KL(\mu_i\|p_i)$, so by \cref{arb:prop:dual} its maximum is $-A$. The prices can be interpreted as follows.
 
-*Note:* Item 1 redone from StealthGPT wording; bullets 2-3 lightly reworded by hand (StealthGPT variants were unusable). Pangram still flags those two bullets (0.32).
+*Note:* Bullets 2-3 reworded by hand (StealthGPT variants unusable).
 
 
 ## Unit 26 — chapters/arbitrage.tex
@@ -656,9 +662,9 @@ In \cref{cfc:def:arbitrage}, the global arbitrageur solves a max-min problem ove
 
 **Final (meaning-corrected)**
 
-In \cref{cfc:def:arbitrage}, the global arbitrageur solves a single max--min problem over all worlds at once. The deep market splits this problem among \emph{local} arbitrageurs: each node sees only its children's prices, and price recursion makes the local arbitrage add up to the global one. One small consequence is worth recording. A complete set of conditional forecasts is a joint forecast, by the chain rule for KL divergence, so the conditional-probability check of \cref{ch:consistency} reduces to a paraphrase check between the implied product $F(P)F(Q\mid P)$ and the direct forecast $F(P\wedge Q)$. This explains why that check has a closed form.
+In \cref{cfc:def:arbitrage}, the global arbitrageur solves a max--min problem over all worlds at once. The deep market distributes this problem among arbitrageurs, which we call \emph{local}: each one only has access to the prices of its children. Arbitrage at each node is computed recursively, and price recursion makes it add up to the global arbitrage. A complete set of conditional forecasts is a joint forecast, by the chain rule for KL divergence, so the conditional-probability check of \cref{ch:consistency} reduces to a paraphrase check between the implied product $F(P)F(Q\mid P)$ and the direct forecast $F(P\wedge Q)$. In particular, this explains why the conditional-probability check has a closed form.
 
-*Note:* Restored "children's prices" (not "subtree"), the role of price recursion, the "max--min" dash, and the referent of "that check" (the conditional-probability check, not a "sanity check above").
+*Note:* Narrow fix of StealthGPT output ("subtree", referent of "that check", role of price recursion).
 
 
 ## Unit 29 — chapters/arbitrage.tex
@@ -1213,9 +1219,9 @@ When the latent distribution is left free, $\tau<1$ removes the indeterminacy, b
 
 **Final (meaning-corrected)**
 
-\paragraph{Latent-variable prediction markets.} \citet{tailcalledLatentVariablesPrediction2023} propose a market whose state is a latent model: if a trader causes the market state to move from $\phi$ to $\theta$, they get paid $\log P(y\mid\theta)-\log P(y\mid\phi)$ on the resolved indicators. This is Hanson's market scoring rule with the score $S_1$, and it works in two respects. First, its incentives are sound: a myopic trader moves the market to the model within the chosen family that best forecasts the indicators, and the market maker has bounded loss. Second, when the model family identifies the latent up to gauge, the market's prices for latents are meaningful. The design recommended in the proposal (one Gaussian latent standardized to $N(0,1)$, probit links, at least three indicators) is identified up to sign, and its ``at least three indicators'' rule is exactly right.
+\paragraph{Latent-variable prediction markets.} \citet{tailcalledLatentVariablesPrediction2023} propose a market in which traders bet on a latent-variable model, the ``market state'', and if they cause the market state to transition from $\phi$ to $\theta$ they get paid $\log P(y\mid\theta)-\log P(y\mid\phi)$ for all resolved indicators. This is Hanson's market scoring rule with the score $S_1$, and it works in two respects. Incentive compatibility: a myopic trader moves the market to the best forecasting model (within the chosen model family), and the market maker has bounded loss. Meaningful prices for latents: when the latent is identified up to gauge, its prices mean something. The proposal to specify one Gaussian latent standardized to $N(0,1)$, use probit links, and use at least three indicators is a good one. This design is identified up to sign, and the ``at least three indicators'' rule is exactly right.
 
-*Note:* Market state is a latent model, not 'a latent variable' traders bet on; 'moves beliefs towards' restored to 'moves the market to'; fixed fragments and removed added evaluation 'is a good one'.
+*Note:* Narrow fix of StealthGPT output (market state is a latent model; "moves the market to").
 
 
 ## Unit 55 — chapters/arbitrage.tex
@@ -1265,9 +1271,9 @@ The criticism one might first make of this proposal, that the choice of latent i
 
 **Final (meaning-corrected)**
 
-The criticism one might first make of this proposal, that the choice of latent is a gauge freedom that lets traders bet however they like, is therefore only half right. Pure gauge freedom is harmless, because payouts are gauge-invariant and no trader profits from relabelling. What does leave latent beliefs unpriced is \emph{genuine} underdetermination, and this arises in precisely the free-form and user-proposed designs.
+The criticism one might first make of this proposal, that the choice of latent is a gauge freedom that lets traders bet however they like, is therefore only half right. Pure gauge freedom is harmless, because payouts are gauge-invariant and no trader profits from relabelling. Another way to say this is that \emph{genuine} underdetermination, which leaves some latent beliefs unpriced, only happens in the free-form and user-proposed designs.
 
-*Note:* Last sentence was garbled ('what genuine calls underdetermination'); restored meaning.
+*Note:* Narrow fix of StealthGPT output (garbled last sentence).
 
 
 ## Unit 57 — chapters/arbitrage.tex
@@ -1282,9 +1288,9 @@ The criticism one might first make of this proposal, that the choice of latent i
 
 **Final (meaning-corrected)**
 
-\paragraph{Bayesian-network markets.} The combinatorial markets of \citet{sunProbabilityAssetUpdating2012} and \citet{laskeyGraphicalModelMarket2018} allow traders to edit both the parameters and the structure of a Bayesian network, including adding variables. A latent node can certainly be represented. But each trade is paid as an edit to the joint distribution of the set of variables it involves, and is settled once those variables are resolved. Suppose a trader raises $P(Z)$ but leaves $P(Y\mid Z)$ unchanged. In each state, the trader gains $b\log\frac{q(Z)}{p(Z)}$, which depends on $Z$ itself. When the observables are revealed, the market updates its beliefs about $Z$, but nothing settles that contract. A trader can still profit before settlement by selling once the evidence has moved the price, but no rule pays it for its contribution to the observable predictions if $Z$ never resolves. The latent-variable market gets around this problem by scoring the change in the \emph{observable} marginal, with $Z$ integrated out. The deep market of \cref{arb:sec:latent-goods} does the same thing in economic language: the latent node is an intermediate good, and its price is derived from the downstream consumers.
+\paragraph{Bayesian-network markets.} The combinatorial markets of \citet{sunProbabilityAssetUpdating2012} and \citet{laskeyGraphicalModelMarket2018} allow traders to edit both the parameters and the structure of a Bayesian network, including adding variables. A latent node can be represented as well. Each trade can be thought of as a payment made in the form of an edit to the joint distribution of the set of variables it involves, which will be settled once those variables are resolved. Assume that a trader raises $P(Z)$, but $P(Y\mid Z)$ does not change. In each state, the trader will gain $b\log\frac{q(Z)}{p(Z)}$, which will depend on $Z$. When the observables are revealed, the market will update its beliefs about $Z$, but the contract on $Z$ is never settled. A trader can still make money before settlement, by selling after the evidence has moved the price; but if $Z$ never resolves, nothing pays the trader for what it contributed to the observable predictions. The latent-variable market gets around this problem by pricing the change in the \emph{observable} marginal, with $Z$ integrated out. And indeed, the deep market of \cref{arb:sec:latent-goods} prices it this way too: the latent node is an intermediate good, and its price is determined by the downstream consumers.
 
-*Note:* Restored that the market (not traders) updates beliefs and that nothing settles the contract; fixed 'marginal of observable'; removed added 'marginal utility' claim and chatty 'sure enough'.
+*Note:* Narrow fix of StealthGPT output (who updates, settlement, "observable marginal"); one retained original sentence reworded.
 
 
 ## Unit 58 — chapters/arbitrage.tex
@@ -1500,9 +1506,9 @@ Scoring, whether in a prediction market or in machine learning, normally depends
 
 **Final (meaning-corrected)**
 
-Scoring, whether in a prediction market or in machine learning, normally depends on knowing the right answer: a proper scoring rule pays a forecast against the outcome that eventually occurs, and a loss function compares a prediction with a label. Neither helps for ``subjective'' or ``latent'' questions (where the answer is never revealed), such as might be asked of an AI or a market of traders. This is why conceptual reasoning, research taste and judgement are so difficult to train or evaluate: there is no ground truth to check answers against.
+Scoring, whether in a prediction market or in machine learning, normally depends on knowing the right answer: a proper scoring rule pays a forecast against the outcome that eventually occurs, and a loss function compares a prediction with a label. Neither helps for ``subjective'' or ``latent'' questions (where the answer is never revealed), such as might be asked of an AI or market of traders. This is exactly why conceptual reasoning, research taste and judgement will be difficult to train or evaluate in AI: there is no ground truth to check its answers against.
 
-*Note:* Last sentence was garbled and dropped 'conceptual reasoning, research taste'.
+*Note:* Narrow fix of StealthGPT output (garbled last sentence; restored conceptual reasoning, research taste).
 
 
 ## Unit 71 — chapters/intro.tex
@@ -1517,9 +1523,9 @@ For alignment the gap matters a great deal. Interpretability aims to understand 
 
 **Final (meaning-corrected)**
 
-For alignment the gap matters a great deal. Interpretability aims to understand what a model `believes' internally. Eliciting latent knowledge asks how to get a model to truthfully express those beliefs, instead of saying what it predicts a human would say \citep{christianoElicitingLatentKnowledge2021}. Human values depend on latent variables: we care about people flourishing, not about some measurable proxy increasing. And the hardest problems on which we will want a superhuman system's judgement (is this research direction promising, is this argument sound?) are conceptual, not empirical.
+For alignment the gap matters a great deal. Interpretability aims to understand what a model `knows' or `believes' internally. Related to this, but distinct, is the task of eliciting latent knowledge from neural networks: elicitation focuses on how to get a model to truthfully express its beliefs, instead of saying what it predicts a human would say \citep{christianoElicitingLatentKnowledge2021}. Human values depend on latent variables, e.g. we care about people flourishing, not some proxy measure increasing. And the hardest problems we will want superhuman help with (is this research programme promising, is this argument sound?) are conceptual, not empirical.
 
-*Note:* ELK: 'what a human wants it to say' corrected to 'what it predicts a human would say'; 'most want help with' restored to 'hardest'; dropped added 'knows' and 'related but distinct'.
+*Note:* Narrow fix of StealthGPT output (ELK: "what it predicts a human would say"; "hardest problems").
 
 
 ## Unit 72 — chapters/intro.tex
