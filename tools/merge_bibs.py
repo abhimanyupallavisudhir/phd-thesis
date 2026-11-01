@@ -16,7 +16,7 @@ BIB_DIR = Path(__file__).resolve().parent.parent / "bib"
 SOURCES = [
     "intro.bib",
     "market-rl.bib", "agency.bib", "infonomy.bib", "solib.bib",
-    "nonvf.bib", "consistency.bib",
+    "nonvf.bib", "consistency.bib", "arbitrage.bib",
 ]
 OUT = BIB_DIR / "thesis.bib"
 

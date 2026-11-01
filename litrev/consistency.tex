@@ -1,0 +1,35 @@
+% ============================================================
+% Related work moved from chapter consistency (chapters/consistency.tex,
+% "Consistency checks for language model forecasters", ICLR 2025),
+% verbatim from the chapter's subappendix \section{Related work}
+% (source: cfcasting-paper app/related_work.tex).
+% Uses chapter-local macro \rebuttal (identity wrapper, defined in
+% macros/consistency.tex); everything else is global.
+% ============================================================
+
+\section{Related work}
+\label{cfc:app:related}
+\textbf{Metamorphic and consistency checks.}
+Checking logical properties of outputs of programs under semantic-preserving transforms has a long history \citep{chen1998metamorphic}. Before \citet{esmwcc}, variants of the consistency check framework were used for simple ML models \citep{christakis2022specifying, sharma2020monotonicity}, vision \citep{hendrycks2019benchmarking}, and chat LLMs \citep{jang2023consistency}, among other areas.
+\rebuttal{
+\citet{li2019logic} consider logical consistency checks beyond paraphrasing and negation for simple ML models.
+}
+
+\textbf{Forecasting and large language models.}
+LLMs and forecasting date back to \citet{zou2022forecasting} and \citet{yan2023autocast++}. Recently, strong performance of LLM forecasters on prediction market datasets has been claimed in \rebuttal{\citet{halawiApproachingHumanLevelForecasting2024, tetlock2024longrange, hsieh2024reasoning, safeai2024forecasters}}.
+\rebuttal{
+Concurrent with our work, \citet{karger2024forecastbench} have introduced an automatically updating benchmark for forecasting.
+}
+
+\textbf{Scalable oversight and failures of superhuman AI.}
+The difficulty of evaluating models with superhuman performance in domains without a source of ground truth has long been acknowledged, and falls under the umbrella of \emph{scalable oversight}  \citep{amodei2016concrete}.
+Forecasting using AI oracles is one such domain.  The use of consistency checks for scalable oversight has been studied in the simpler context of superhuman game AIs \citep{alphazero_not_robust, esmwcc},
+and in general question-answering tasks via debate \citep{irving2018debate}.
+
+\textbf{Consistency evaluations for LLMs.}
+Even on tasks where the ground truth is in principle knowable,
+consistency evaluations have long helped in cases where checking consistency is easier than getting the ground truth labels \citep{elazarPararel2021, liGeneratorValidatorConsistency2023}.
+\rebuttal{
+\citet{raj2023semantic} measure paraphrasing consistency and ground truth accuracy on TruthfulQA \citep{lin2021truthfulqa} and find little to no  correlation.
+}
+Some forms of consistency checks have been applied on model internals to discover features related to LLM truthfulness and reliability \citep{burnsDiscoveringLatentKnowledge2022a, kaarelSearchingModelConcepts2023}.

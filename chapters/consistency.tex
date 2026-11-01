@@ -6,7 +6,8 @@
 %   app/violation_arbitrage.tex -> Subsec. "Arbitrage as a violation metric"
 %   app/violation_frequentist.tex -> Subsec. "Frequentist consistency metric"
 %   app/cfcaster.tex            -> Sec. on \CFCaster{}
-% app/related_work.tex is kept as a chapter subappendix. The remaining
+% app/related_work.tex was kept as a chapter subappendix; it has now been
+% moved to litrev/consistency.tex (Part III literature review). The remaining
 % appendices (pipeline_prompts, feedback_form, cons_around_q,
 % gen_fq_from_news, 2028_questions, fq_datatypes, forecasters) are
 % engineering details and are omitted; see the source paper.
@@ -28,22 +29,32 @@ FT proposed correlating consistency with forecasting accuracy and advised the pr
 All authors helped with the writing.
 DP and APS wrote the first draft of the paper.''}
 
-\chapterabstract{Forecasting is a task that is difficult to evaluate: the ground truth can only be known in the future. Recent work showing LLM forecasters rapidly approaching human-level performance begs the question: how can we benchmark and evaluate these forecasters \textit{instantaneously}? Following the consistency check framework, we measure the performance of forecasters in terms of the consistency of their predictions on different logically-related questions. We propose a new, general consistency metric based on  \textit{arbitrage}: for example, if a forecasting AI illogically predicts that both the Democratic and Republican parties have 60\% probability of winning the 2024 US presidential election, an arbitrageur can trade against the forecaster's predictions and make a profit. We build an automated evaluation system that generates a set of base questions, instantiates consistency checks from these questions, elicits the predictions of the forecaster, and measures the consistency of the predictions. We then build a standard, proper-scoring-rule forecasting benchmark, and show that our (instantaneous) consistency metrics correlate with LLM forecasters' ground truth Brier scores (which are only known in the future). We also release a consistency benchmark that resolves in 2028, providing a long-term evaluation tool for forecasting.}
+% [paper abstract, kept for reference] \chapterabstract{Forecasting is a task that is difficult to evaluate: the ground truth can only be known in the future. Recent work showing LLM forecasters rapidly approaching human-level performance begs the question: how can we benchmark and evaluate these forecasters \textit{instantaneously}? Following the consistency check framework, we measure the performance of forecasters in terms of the consistency of their predictions on different logically-related questions. We propose a new, general consistency metric based on  \textit{arbitrage}: for example, if a forecasting AI illogically predicts that both the Democratic and Republican parties have 60\% probability of winning the 2024 US presidential election, an arbitrageur can trade against the forecaster's predictions and make a profit. We build an automated evaluation system that generates a set of base questions, instantiates consistency checks from these questions, elicits the predictions of the forecaster, and measures the consistency of the predictions. We then build a standard, proper-scoring-rule forecasting benchmark, and show that our (instantaneous) consistency metrics correlate with LLM forecasters' ground truth Brier scores (which are only known in the future). We also release a consistency benchmark that resolves in 2028, providing a long-term evaluation tool for forecasting.}
 
-\section{Introduction}
+\section{Introduction}\label{cfc:sec:intro}
 
-\emph{Prediction markets} are markets that pay out contingent on an event. For a market such as ``\$1 if Jeb Bush is elected President in 2028'', the price reflects the ``market estimate'' for the probability of that event. Prediction markets are a promising tool for aggregating information from disparate sources to arrive at the most correct possible belief after taking into account all relevant information \citep{arrowPromisePredictionMarkets2008, hansonLogarithmicMarketScoring2002}.
+\begin{draftblock}
+In the previous chapter we saw how the missing ground truth can be replaced with the structure of a logical sentence. Most questions of interest, however, have no such structure: they are stated in natural language, and even when they will resolve, the answer may be years away (e.g. a forecaster's predictions made in 2025 about what happens in 2030 cannot be scored in 2025). But there is still something we can check immediately: whether the forecaster's beliefs are coherent. If a forecaster gives both the Democratic and the Republican candidate a 60\% chance of winning the same election, something is wrong, whatever the outcome.
+
+To an economist, such incoherence is opportunity: someone trading against these prices could make guaranteed money. This chapter turns that observation into a measurement. It defines a measure of inconsistency (namely, how much guaranteed money the best arbitrageur could make trading against a market maker quoting the forecaster's probabilities), presents a pipeline for creating sets of logically related questions and measuring LLM forecasters' consistency on them, and investigates whether consistency predicts accuracy. We also try to make forecasters consistent by arbitraging their own predictions against each other, with mixed success. \Cref{ch:arbitrage} returns to this measure of inconsistency and shows that it is exactly what a market of traders computes.
+\end{draftblock}
+
+
+% [dup of thesis/part intro] \emph{Prediction markets} are markets that pay out contingent on an event. For a market such as ``\$1 if Jeb Bush is elected President in 2028'', the price reflects the ``market estimate'' for the probability of that event. Prediction markets are a promising tool for aggregating information from disparate sources to arrive at the most correct possible belief after taking into account all relevant information \citep{arrowPromisePredictionMarkets2008, hansonLogarithmicMarketScoring2002}.
 
 
 Until 2024, LLM forecasters generally performed poorly relative to human forecasters \citep{zouForecastingFutureWorld2022a, schoeneggerLargeLanguageModel2023}.
 However, recent works \citep{halawiApproachingHumanLevelForecasting2024, schoeneggerWisdomSiliconCrowd2024,safeai2024forecasters} suggest that LLM-based forecasters can rival human forecasts on forecasting websites such as Metaculus, PredictIt, and Manifold Markets.
 
-A key question emerges: \emph{once LLM forecasters are better than human ones, how can we efficiently evaluate their predictions?}
-In particular, long-term forecasting questions are very important for decision-making \citep{tetlock2024longrange, lukemuehlhauserHowFeasibleLongrange2019}, and finding ground truth for evaluation in such contexts is infeasible by virtue of the questions resolving far in the future.
+% [dup of thesis/part intro] A key question emerges: \emph{once LLM forecasters are better than human ones, how can we efficiently evaluate their predictions?}
+% [dup of thesis/part intro] In particular, long-term forecasting questions are very important for decision-making \citep{tetlock2024longrange, lukemuehlhauserHowFeasibleLongrange2019}, and finding ground truth for evaluation in such contexts is infeasible by virtue of the questions resolving far in the future.
 
 One approach, proposed by \citet{esmwcc}, is that even when we cannot evaluate the \emph{correctness} of LLM decisions, we can evaluate their \emph{logical consistency}.
 For example, if an LLM forecaster gives probabilities 0.5 and 0.7 to ``Will Trump be elected US president?'' and ``Will someone other than Trump be elected US president?'', this is necessarily inconsistent.
 \citet{esmwcc} demonstrated that GPT-4 and GPT-3.5-turbo, when asked one-sentence forecasting questions, were inconsistent on simple logical checks such as negation.
+
+% [lifted verbatim from the paper abstract; the example is not given elsewhere in the thesis]
+We propose a new, general consistency metric based on  \textit{arbitrage}: for example, if a forecasting AI illogically predicts that both the Democratic and Republican parties have 60\% probability of winning the 2024 US presidential election, an arbitrageur can trade against the forecaster's predictions and make a profit.
 
 \begin{figure}[htbp]
     \centering
@@ -89,6 +100,34 @@ We create a long-horizon benchmark of 3,000 consistency checks for forecasts res
 
 
 We release the full code \footnote{\url{https://github.com/dpaleka/consistency-forecasting}} and the datasets \footnote{\url{https://huggingface.co/datasets/dpaleka/ccflmf}} used in the paper.
+
+\begin{notation}
+  \notn{LLM}{large language model}
+  \notn{\NegChecker{}, \ParaphraseChecker{}, \ConsequenceChecker{}, \AndOrChecker{}, \AndChecker{}, \OrChecker{}, \ButChecker{}, \CondChecker{}, \CondCondChecker{}, \ExpectedEvidenceChecker{}}{the ten consistency checks: tuples of logically related questions and the condition their forecasts must satisfy (\cref{cfc:tab:full-consistency_checks})}
+  \notn{arbitrage metric}{inconsistency measured as the minimum profit an arbitrageur can guarantee against a logarithmic market maker whose prices are the forecasts (\cref{cfc:sec:arbitrage}, \cref{cfc:def:arbitrage}); a sampled check does not pass if it is $\ge 0.01$}
+  \notn{frequentist metric}{number of standard deviations a tuple forecast is off from the mean Monte Carlo forecast, scaled to be independent of the sample count (\cref{cfc:sec:frequentist-metric})}
+  \notn{Brier score}{ground-truth accuracy metric, $(1-p)^2$ for probability $p$ given to the true outcome; lower is better}
+  \notn{\CFCaster{}}{forecaster that arbitrages a base forecaster's forecasts on instantiated tuples of related questions (\cref{cfc:sec:cfcaster}, \cref{cfc:def:cf})}
+  \notn{$\ForecastingQuestions$}{set of forecasting questions}
+  \notn{$\Resolutions$; $\ResolutionsOpt$; $\Forecasts$}{set of possible resolutions of a question ($\Resolutions=\bools$ for binary questions); optional resolutions $\Resolutions\cup\{\none\}$ for conditional questions; probability distributions on $\Resolutions$}
+  \notn{$\Forecaster$}{forecaster, a map $\ForecastingQuestions\to\probs$ (in general $\ForecastingQuestions\to\Forecasts$)}
+  \notn{$\Resolution$}{ground-truth resolution, the forecaster $\ForecastingQuestions\to\Resolutions$ returning probability $1$ or $0$}
+  \notn{$\Relation$}{$n$-ary relation on questions, $\ForecastingQuestions^n\to\bools$, defining a consistency check}
+  \notn{$\CCheck$}{corresponding relation on forecasts, with $\Relation(x_1,\dots x_n)\implies\CCheck(\Forecaster(x_1),\dots\Forecaster(x_n))$}
+  \notn{$\Violation$}{violation metric, zero iff $\CCheck$ holds; for the arbitrage metric, the arbitrageur's maximal guaranteed profit (\cref{cfc:eq:arbitrage})}
+  \notn{$P$, $\lnot P$, $Q\mid P$}{sentence-based notation for question tuples; $Q\mid P$ is a conditional question that resolves $\none$ if $P$ is false}
+  \notn{$\ResolutionsVec$, $\resolutionvec$}{set of consistent resolutions $\{\resolutionvec\in\ResolutionsOpt^n\mid\Relation(\resolutionvec)\}$ of a tuple; an element of it}
+  \notn{$\consp=(p_1,\dots p_n)$; $\Arbitrageur$}{prices brought to the market by the arbitrageur; $\Arbitrageur(\Forecaster(x_1),\dots\Forecaster(x_n))$ is the profit-maximizing (arbitraged, consistent) choice of them}
+  \notn{$s$, $\score{x,\resolutionvec,p}$}{proper scoring rule, e.g.\ the logarithmic $\log p$; score on a $\none$ resolution is $0$}
+  \notn{$\TrueProb$}{true probability of an event under a world model accounting for aleatoric uncertainty}
+  \notn{$\Normal$, $\sigma^2$, $\gamma$}{Gaussian; noise hyperparameter of a frequentist-consistent forecaster (\cref{cfc:def:frequentist-consistency}); number of standard deviations in the hypothesis test (violation if $v>\gamma\sigma=0.129$)}
+  \notn{$v_{\textrm{check}}$, $\beta_{\textsc{min}}$}{frequentist violation metric of a check; regularization term $10^{-3}$ in its denominator}
+  \notn{$\FullInstantiator$; $\Instantiator$, $\Generator$}{single-base-question tuple sampler (\cref{cfc:def:instantiator}); multiple-base-question tuple sampler and question sampler composed to obtain it}
+  \notn{$\Arbitrageur^{(w_1,\dots w_n)}$}{weighted arbitraging, scoring rule $w_x\log p$ for question $x$}
+  \notn{$\CFC[\vec{C}]{\Forecaster}$; $\CFC{\Forecaster}^r$}{\CFCaster{} with base $\Forecaster$ and check list $\vec{C}$; recursive \CFCaster{} of depth $r$ (\cref{cfc:thm:recursive})}
+  \notn{$\log\operatorname{odds} p$}{$\log\frac{p}{1-p}$}
+  \notn{CF-N$r$, CF-P$r$, CF-NP$r$, CF-$r$xEE1}{\CFCaster{} setups $\CFC[N]{g}^r$, $\CFC[P]{g}^r$, $\CFC[[N,P]]{g}^r$, $\CFC[[E]*r]{g}$ with $g=$ \gptfouromini{} and $N,P,E=$ \NegChecker{}, \ParaphraseChecker{}, \ExpectedEvidenceChecker{}}
+\end{notation}
 
 \section{A theoretical framework for forecasting consistency}
 \label{cfc:sec:background}
@@ -972,7 +1011,7 @@ We illustrate the steps in our data collection pipeline below, and provide more 
     \item ($(p,q)\xrightarrow{\Violation}\Violation(p,q)$) We score each tuple of forecasts for consistency with both of our violation metrics.
 \end{itemize}
 
-\draft{Engineering details of the pipeline---the exact data formats, the prompts and LLM calls used in each step, examples of generated data, and the full list of forecaster configurations---are omitted from this chapter; they are given in the appendices of the source paper.}
+\draft{For brevity we omit some engineering details of the pipeline, including the exact data formats, the prompts and LLM calls made in each stage, examples of data created by the pipeline, and the full list of forecaster configurations used; all of these are given in the appendices of the source paper.}
 
 \subsection{Generating and scraping forecasting questions}
 \label{cfc:sec:fq-generation}
@@ -1511,36 +1550,5 @@ At the time of writing, we are not aware of other publicly-available LLM forecas
 We thus leave the evaluation of better forecasters like \citet{halawiApproachingHumanLevelForecasting2024} and \citet{safeai2024forecasters} to future work, once such forecasters are more widely available.
 
 
-% ============================================================
-% Chapter subappendix: related work (kept from app/related_work.tex)
-% ============================================================
-\begin{subappendices}
+% Related work moved to the Part III literature review (\cref{ch:litrev-subjective}).
 
-\section{Related work}
-\label{cfc:app:related}
-\textbf{Metamorphic and consistency checks.}
-Checking logical properties of outputs of programs under semantic-preserving transforms has a long history \citep{chen1998metamorphic}. Before \citet{esmwcc}, variants of the consistency check framework were used for simple ML models \citep{christakis2022specifying, sharma2020monotonicity}, vision \citep{hendrycks2019benchmarking}, and chat LLMs \citep{jang2023consistency}, among other areas.
-\rebuttal{
-\citet{li2019logic} consider logical consistency checks beyond paraphrasing and negation for simple ML models.
-}
-
-\textbf{Forecasting and large language models.}
-LLMs and forecasting date back to \citet{zou2022forecasting} and \citet{yan2023autocast++}. Recently, strong performance of LLM forecasters on prediction market datasets has been claimed in \rebuttal{\citet{halawiApproachingHumanLevelForecasting2024, tetlock2024longrange, hsieh2024reasoning, safeai2024forecasters}}.
-\rebuttal{
-Concurrent with our work, \citet{karger2024forecastbench} have introduced an automatically updating benchmark for forecasting.
-}
-
-\textbf{Scalable oversight and failures of superhuman AI.}
-The difficulty of evaluating models with superhuman performance in domains without a source of ground truth has long been acknowledged, and falls under the umbrella of \emph{scalable oversight}  \citep{amodei2016concrete}.
-Forecasting using AI oracles is one such domain.  The use of consistency checks for scalable oversight has been studied in the simpler context of superhuman game AIs \citep{alphazero_not_robust, esmwcc},
-and in general question-answering tasks via debate \citep{irving2018debate}.
-
-\textbf{Consistency evaluations for LLMs.}
-Even on tasks where the ground truth is in principle knowable,
-consistency evaluations have long helped in cases where checking consistency is easier than getting the ground truth labels \citep{elazarPararel2021, liGeneratorValidatorConsistency2023}.
-\rebuttal{
-\citet{raj2023semantic} measure paraphrasing consistency and ground truth accuracy on TruthfulQA \citep{lin2021truthfulqa} and find little to no  correlation.
-}
-Some forms of consistency checks have been applied on model internals to discover features related to LLM truthfulness and reliability \citep{burnsDiscoveringLatentKnowledge2022a, kaarelSearchingModelConcepts2023}.
-
-\end{subappendices}

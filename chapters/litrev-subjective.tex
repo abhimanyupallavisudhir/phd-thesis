@@ -1,0 +1,63 @@
+\chapter{Literature review: eliciting beliefs without ground truth}\label{ch:litrev-subjective}
+% Assembled from the related-work sections of the papers in Part III
+% (litrev/nonvf.tex, litrev/consistency.tex) plus prior work for
+% chapters/arbitrage.tex. Lifted text is verbatim; composed glue is
+% draft-marked.
+
+\begin{draftblock}
+\noindent The chapters of this part look for substitutes for ground truth. Can the structure of logical sentences stand in for ground truth? Can the internal consistency of a forecaster's beliefs? Can the structure of latent-variable models? We first review the classical theory of belief elicitation, proper scoring rules, and its market form, prediction markets. We then turn to work on logical uncertainty and the related game-theoretic and debate-based approaches to AI safety, then to work on evaluating the consistency of machine-learning systems and human forecasters, and finally to combinatorial and latent-variable prediction markets, together with the information-theoretic ideas used in \cref{ch:arbitrage}.
+\end{draftblock}
+
+\section{Scoring rules and prediction markets}\label{litrev:sec:scoring}
+\begin{draftblock}
+Proper scoring rules are reward schemes for probabilistic forecasts: the forecaster's reward depends on the event that occurs, in such a way that reporting her true belief maximizes her reward in expectation \citep{goodRationalDecisions1952,savageElicitationPersonalProbabilities1971,gneitingStrictlyProperScoring2007}. Market scoring rules turn any scoring rule into an automated market maker. Each trader receives the difference between the scoring rule evaluated at the new price it leaves and at the old price it found, and the total loss of the market maker is bounded by the scoring rule evaluated at the initial price \citep{hansonLogarithmicMarketScoring2002,hansonCombinatorialInformationMarket2003}. Market makers of this kind are equivalent to cost-function market makers, whose prices are the gradient of a convex cost function and whose scoring rule is its convex conjugate \citep{chenUtilityFrameworkBoundedloss2007,abernethyEfficientMarketMaking2013}. It is also worth noting that, with traders of constant absolute risk aversion, the equilibrium price is the risk-tolerance-weighted geometric average of traders' beliefs. This result can be traced back to the theory of syndicates \citep{wilsonTheorySyndicates1968,abernethyInformationAggregationExponential2014}. All of these mechanisms require that the event eventually resolves. \citet{conitzerPredictionMarketsMechanism2012} studies how to reward agents for the information they bring to a market, but again only where the market is eventually settled against ground truth.
+\end{draftblock}
+
+\section{Logical uncertainty, game semantics and debate}\label{litrev:sec:logic}
+\label{nonvf:sec:related}
+\textbf{Logical uncertainty.} Our work may equivalently be understood as a formalism for \emph{logical uncertainty} (see \citep{halpernReasoningUncertaintySecond2017} for a summary of work in the area), i.e. the problem of assigning probabilities to mathematical sentences in some language $\mathcal{L}$ (which could be a language of FOL sentences). The most relevant work in this domain is \emph{Garrabrant induction} \citep{garrabrantLogicalInduction2020}, which constructs a prediction market for each mathematical sentence that pays off when it is proven by a theorem-enumerator for some theory $\mathcal{T}$ over $\mathcal{L}$.\footnote{to avoid simply being a prediction market for the provability of a sentence, they use a special accounting measure for agent wealths based on ``propositionally consistent worlds'' -- e.g. fixing the combined price of $P$ and $\lnot P$ at \$1 -- which allows them to extend this framework to sentences independent of $\mathcal{T}$.} \draft{A detailed description of the Garrabrant induction construction, and of its limitations for our purposes, is given in Appendix~\ref{nonvf:app:garrabrant}.}
+
+There are two limitations of this framework for our purposes. First: while mathematical theories can easily prove non-VF sentences (e.g. $\forall x,\exists y>x,\,\texttt{prime}(y)$) there is no analogous theory in the real world that we are aware of (``observation'' only proves VF sentences, as discussed). Second: it is philosophically unsatisfying to have probabilities for logical sentences be completely dependent on a mathematical theory, and change when the theory is strengthened or weakened (e.g. by the addition of a G\"odel sentence).
+
+Logical uncertainty has also been discussed in the Bounded Rationality literature e.g. in \citet{halpernAlgorithmicRationalityGame2014,halpernDontWantThink2011,oesterheldTheoryBoundedInductive2023}; however this has typically focused on toy examples based on VF sentences, e.g. betting on the trillionth digit of $\pi$, etc., % (L) closing clause from the long version's corresponding paragraph:
+as the games therein have to pay out a reward at a fixed point depending on the answer to the question.
+
+\textbf{Game semantics.} The \emph{verification-falsification game} we use is from Hintikka's \emph{game semantics} \citep{hintikkaGameTheoreticSemantics1997}, which we will discuss in Section~\ref{nonvf:sec:framework}. Game semantics has since been expanded into the field of \emph{computability logic} \citep{japaridzeBeginningWasGame2009,japaridzeSurveyComputabilityLogic2015}, which may be the most natural setting to formulate some of our more speculative ideas about probability theory, described in Sec~\ref{nonvf:sec:conclusion}.
+
+\textbf{Debate.} AI Debate \citep{irvingAISafetyDebate2018} considers sentences $P$ that can be expressed like $\exists x_1\ \forall x_2\ \dots \exists x_n,H(x_1,\dots x_n)$ (more generally any $\Sigma_n$ or $\Pi_n$ form in $H$) where $H$ is some ``human-computable function'', and argues that AIs can be trained to answer such questions correctly via \emph{debate} judged by a human\footnote{in particular, supervised learning can train an AI to learn to answer $\Delta_0$ questions, and reinforcement learning can train an AI to learn to answer $\Sigma_1$ questions}. This is quite similar to our setting, and debate is analogous to the verification-falsification game, except that physical ground truth is replaced by human-computability (or polynomial-computability as they hypothesize). We hope our work can serve as a valuable intuition pump for debate.
+
+\section{Consistency checks and AI forecasting}\label{litrev:sec:consistency}
+\label{cfc:app:related}
+\textbf{AI Forecasting.} There has recently been a surge of interest in AI forecasters \citep{zouForecastingFutureWorld2022, schoeneggerLargeLanguageModel2023,yanAutoCastEnhancingWorld2023, halawiApproachingHumanLevelForecasting2024a, schoeneggerWisdomSiliconCrowd2024} -- in particular, recent works such as \citet{sudhirConsistencyChecksLanguage2024} have investigated the \emph{propositional consistency} of AI forecasters, i.e. whether the probabilities they give satisfy basic rules of probability theory like $\Prob{P}+\Prob{\lnot P}=1$. Similarly our work can be understood as asking how we can incentivize or evaluate forecasters respecting the ``continuity of probability'' rules $\Prob{\bigcup P_i}=\lim_{n\to\infty}\bigcup_{i<n}\Prob{P_i}$ and $\Prob{\bigcap P_i}=\lim_{n\to\infty}\bigcap_{i<n}\Prob{P_i}$.
+
+\textbf{Metamorphic and consistency checks.}
+Checking logical properties of outputs of programs under semantic-preserving transforms has a long history \citep{chen1998metamorphic}. Before \citet{esmwcc}, variants of the consistency check framework were used for simple ML models \citep{christakis2022specifying, sharma2020monotonicity}, vision \citep{hendrycks2019benchmarking}, and chat LLMs \citep{jang2023consistency}, among other areas.
+\rebuttal{
+\citet{li2019logic} consider logical consistency checks beyond paraphrasing and negation for simple ML models.
+}
+
+\textbf{Forecasting and large language models.}
+LLMs and forecasting date back to \citet{zou2022forecasting} and \citet{yan2023autocast++}. Recently, strong performance of LLM forecasters on prediction market datasets has been claimed in \rebuttal{\citet{halawiApproachingHumanLevelForecasting2024, tetlock2024longrange, hsieh2024reasoning, safeai2024forecasters}}.
+\rebuttal{
+Concurrent with our work, \citet{karger2024forecastbench} have introduced an automatically updating benchmark for forecasting.
+}
+
+\textbf{Scalable oversight and failures of superhuman AI.}
+The difficulty of evaluating models with superhuman performance in domains without a source of ground truth has long been acknowledged, and falls under the umbrella of \emph{scalable oversight}  \citep{amodei2016concrete}.
+Forecasting using AI oracles is one such domain.  The use of consistency checks for scalable oversight has been studied in the simpler context of superhuman game AIs \citep{alphazero_not_robust, esmwcc},
+and in general question-answering tasks via debate \citep{irving2018debate}.
+
+\textbf{Consistency evaluations for LLMs.}
+Even on tasks where the ground truth is in principle knowable,
+consistency evaluations have long helped in cases where checking consistency is easier than getting the ground truth labels \citep{elazarPararel2021, liGeneratorValidatorConsistency2023}.
+\rebuttal{
+\citet{raj2023semantic} measure paraphrasing consistency and ground truth accuracy on TruthfulQA \citep{lin2021truthfulqa} and find little to no  correlation.
+}
+Some forms of consistency checks have been applied on model internals to discover features related to LLM truthfulness and reliability \citep{burnsDiscoveringLatentKnowledge2022a, kaarelSearchingModelConcepts2023}.
+
+\section{Combinatorial and latent-variable prediction markets}\label{litrev:sec:latent}
+\begin{draftblock}
+In combinatorial prediction markets \citep{hansonCombinatorialInformationMarket2003}, traders can trade on conditional events or Boolean combinations of events, so the market maker maintains a joint distribution over many related questions. Since exact pricing is computationally hard in general, some combinatorial market makers maintain a distribution factorized according to a Bayesian network, and allow only those trades which maintain that factorization \citep{pennock2012PriceUpdatingCombinatorialPredictionMarketsBayesianNetworks,sunProbabilityAssetUpdating2012}. The most developed such market maker, which has been used in the DAGGRE and SciCast forecasting markets, also allows traders to make trades which introduce new variables and dependencies; in this way, traders not only provide parameter estimates, they also crowdsource the graphical structure of the Bayesian network \citep{laskeyGraphicalModelMarket2018}. Trading dynamics in such markets can be analyzed as randomized coordinate descent \citep{frongilloConvergenceAnalysisPrediction2015}. Prediction markets over latent variables \citep{tailcalledLatentVariablesPrediction2023} instead allow traders to make trades which move the parameters of an item-response or latent-class model fit to a set of indicator questions; traders are paid according to the change in the log-likelihood of the indicators once these are resolved.
+
+A question of identifiability arises here: is the latent part of such a model uniquely determined by the observables? For latent-class models with three or more conditionally independent indicators, the decomposition with the fewest classes is generically unique \citep{kruskalThreewayArraysRank1977,allmanIdentifiabilityParametersLatent2009}, and identifiable models can be learned efficiently by tensor methods \citep{anandkumarTensorDecompositionsLearning2014} as well as by EM \citep{dempsterMaximumLikelihoodIncomplete1977}. If several latent models fit the data equally well, information theory offers ways to prefer the most economical one. Wyner's common information is the minimum amount of information a common cause must carry in order to make two variables conditionally independent \citep{wynerCommonInformationTwo1975,gastparRelaxedWynersCommon2019}. Correlation explanation aims to find latent factors that can explain as much of the dependence among multiple variables as possible \citep{versteegDiscoveringStructureHighdimensional2014}. The information bottleneck aims to find a compressed representation of one variable that retains as much information as possible about another variable \citep{tishbyInformationBottleneckMethod1999}. The tempered posteriors in \cref{ch:arbitrage} are studied in the statistics literature as generalized Bayesian updates, mainly as a way to obtain robustness to model misspecification \citep{grunwaldSafeBayesianLearning2012,bissiriGeneralFrameworkUpdating2016}.
+\end{draftblock}
